@@ -1,5 +1,7 @@
 // utils.js - General utility functions and Chess logic
 
+const today = new Date().toISOString().split("T")[0];
+
 const isValidString = (s) => typeof s === "string" && s.length > 0;
 
 const signum = (v) => (
