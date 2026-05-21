@@ -23,7 +23,7 @@ function exportJSON() {
     const blob = new Blob([jsonData], { type: "application/json" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `ChessRecord_${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `chessrecord-${today}.json`;
     link.click();
     URL.revokeObjectURL(link.href);
   } catch (error) {
