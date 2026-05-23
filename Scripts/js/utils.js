@@ -380,7 +380,7 @@ function normalizeGames(games) {
   }));
 }
 
-function loadGames(target = (window.games = [])) {
+function loadGames(target = window.games || (window.games = [])) {
   try {
     const data = localStorage.getItem("chessGames");
     const games = data ? JSON.parse(data) : [];
