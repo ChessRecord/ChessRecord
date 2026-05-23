@@ -2,7 +2,7 @@
 
 /* ─── Constants ──────────────────────────────────────────────────────────── */
 
-window.games = JSON.parse(localStorage.getItem("chessGames")) || [];
+loadGames();
 
 const FIDE_BASE = "https://lichess.org/api/fide/player";
 

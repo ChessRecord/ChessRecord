@@ -36,22 +36,6 @@ function importJSON(event) {
   const input = event.target;
   if (!input.files || input.files.length === 0) return;
 
-  const normalizeGame = (game, idx = 0) => ({
-    white: (game.white || "").trim(),
-    whiteRating: Math.max(0, toNumberOr(game.whiteRating, 0)),
-    whiteTitle: (game.whiteTitle || "").trim(),
-    black: (game.black || "").trim(),
-    blackRating: Math.max(0, toNumberOr(game.blackRating, 0)),
-    blackTitle: (game.blackTitle || "").trim(),
-    result: (game.result || "*").trim(),
-    tournament: (game.tournament || "").trim(),
-    round: Math.max(1, toNumberOr(game.round, idx + 1)),
-    board: toNumberOr(game.board, 0) || null,
-    time: (game.time || "").trim(),
-    date: (game.date || "").replace(/\./g, "-"),
-    gameLink: (game.gameLink || "").trim(),
-  });
-
   const finalize = async (importedData) => {
     try {
       if (isEmpty(importedData)) {
@@ -119,7 +103,7 @@ function importJSON(event) {
             input.value = "";
             return;
           }
-          parsed = rawData.map(normalizeGame);
+          parsed = normalizeGames(rawData);
         } else {
           alert("Invalid file format! Upload a valid JSON or PGN.");
           input.value = "";
@@ -182,31 +166,18 @@ function displayGames(searchTerm = window.searchTerm || "") {
   }
 
   const normalizedSearchTerm = searchTerm.trim().toLowerCase();
-  const filteredGames = window.games
-    .filter(
-      (game) =>
-        (game.white || "").toLowerCase().includes(normalizedSearchTerm) ||
-        (game.black || "").toLowerCase().includes(normalizedSearchTerm) ||
-        (game.tournament || "").toLowerCase().includes(normalizedSearchTerm),
-    )
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  const filteredGames = window.games.filter(
+    (game) =>
+      (game.white || "").toLowerCase().includes(normalizedSearchTerm) ||
+      (game.black || "").toLowerCase().includes(normalizedSearchTerm) ||
+      (game.tournament || "").toLowerCase().includes(normalizedSearchTerm),
+  );
 
   const gamesByTournament = filteredGames.reduce((acc, game) => {
     if (!acc[game.tournament]) acc[game.tournament] = [];
     acc[game.tournament].push(game);
     return acc;
   }, {});
-
-  Object.values(gamesByTournament).forEach((gamesArr) => {
-    gamesArr.sort((a, b) => {
-      const roundDiff = (a.round ?? 0) - (b.round ?? 0);
-      if (roundDiff !== 0) return roundDiff;
-      if (a.board == null && b.board == null) return 0;
-      if (a.board == null) return -1;
-      if (b.board == null) return 1;
-      return a.board - b.board;
-    });
-  });
 
   const fragment = document.createDocumentFragment();
   Object.entries(gamesByTournament).forEach(([tournament, tournamentGames]) => {
@@ -277,7 +248,7 @@ function displayGames(searchTerm = window.searchTerm || "") {
 }
 
 /* --- Initialization --- */
-window.games = JSON.parse(localStorage.getItem("chessGames")) || [];
+loadGames();
 window.searchTerm = "";
 
 /* --- Search Logic --- */

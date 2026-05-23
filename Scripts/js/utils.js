@@ -277,11 +277,6 @@ function normalizeResult(result) {
   }
 }
 
-// Rating Calculator logic
-function saveGames() {
-  localStorage.setItem("chessGames", JSON.stringify(window.games));
-}
-
 const getTagRegex = (() => {
   const cache = new Map();
   return (tag) => {
@@ -327,4 +322,80 @@ function calcChange(myRating, oppRating, result, k = 40) {
   if (oppRating === 0) return "";
   const E = expectedScore(myRating, oppRating);
   return Math.round(k * (result - E) * 10) / 10;
+}
+
+/* --- Shared Chess Data Logic --- */
+
+function sortGames(games) {
+  if (!Array.isArray(games)) return;
+
+  const tournamentMaxDates = {};
+  games.forEach((g) => {
+    const d = g.date ? new Date(g.date).getTime() : 0;
+    tournamentMaxDates[g.tournament] = Math.max(
+      tournamentMaxDates[g.tournament] || 0,
+      isNaN(d) ? 0 : d,
+    );
+  });
+
+  games.sort((a, b) => {
+    const dateDiff =
+      (tournamentMaxDates[b.tournament] || 0) -
+      (tournamentMaxDates[a.tournament] || 0);
+    if (dateDiff !== 0) return dateDiff;
+
+    if (a.tournament !== b.tournament) {
+      return (a.tournament || "").localeCompare(b.tournament || "");
+    }
+
+    const roundDiff = (a.round ?? 0) - (b.round ?? 0);
+    if (roundDiff !== 0) return roundDiff;
+
+    if (a.board == null && b.board == null) return 0;
+    if (a.board == null) return -1;
+    if (b.board == null) return 1;
+    return a.board - b.board;
+  });
+}
+
+function normalizeGames(games) {
+  if (!Array.isArray(games)) return [];
+  return games.map((game) => ({
+    id: game.id || generateUniqueID(),
+    white: (game.white || "Unknown").trim(),
+    whiteRating: toNumberOr(game.whiteRating, 0),
+    whiteTitle: (game.whiteTitle || "").trim(),
+    black: (game.black || "Unknown").trim(),
+    blackRating: toNumberOr(game.blackRating, 0),
+    blackTitle: (game.blackTitle || "").trim(),
+    result: (game.result || "*").trim(),
+    tournament: (game.tournament || "Unknown").trim(),
+    round: Math.max(1, toNumberOr(game.round, 1)),
+    board: toNumberOr(game.board, null) || null,
+    time: (game.time || "*").trim(),
+    date: (game.date || "").replace(/\./g, "-").trim(),
+    gameLink: (game.gameLink || "").trim(),
+  }));
+}
+
+function loadGames(target = (window.games = [])) {
+  try {
+    const data = localStorage.getItem("chessGames");
+    const games = data ? JSON.parse(data) : [];
+    const normalized = normalizeGames(games);
+    sortGames(normalized);
+    if (Array.isArray(target)) {
+      target.length = 0;
+      target.push(...normalized);
+    }
+  } catch (e) {
+    console.error("Failed to load games:", e);
+    if (Array.isArray(target)) target.length = 0;
+  }
+}
+
+function saveGames() {
+  window.games = normalizeGames(window.games);
+  sortGames(window.games);
+  localStorage.setItem("chessGames", JSON.stringify(window.games));
 }
