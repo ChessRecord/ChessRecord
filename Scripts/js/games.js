@@ -143,7 +143,9 @@ function gameEntry(game) {
       ? game.time
       : `${game.time}<span class="timecontrol-category"> • ${category}</span>`
     : "";
-  const dateString = game.date ? ` | <strong>${game.date}</strong>` : "";
+  const dateString = game.date
+    ? ` | <strong class="game-date">${game.date}</strong>`
+    : "";
   const roundLabel =
     game.board != null ? `Board ${game.board}` : `Round ${game.round}`;
 
@@ -161,7 +163,7 @@ function gameEntry(game) {
       <div class="player-details">
         <div class="player-left">
           <span>
-            <span class="title">${game.whiteTitle || ""}</span> ${game.white || "Unknown"} <span class="player-rating">${game.whiteRating || 0}</span>
+            <span class="player-title">${game.whiteTitle || ""}</span> ${game.white || "Unknown"} <span class="player-rating">${game.whiteRating || 0}</span>
           </span>
         </div>
         <div class="game-result">
@@ -169,7 +171,7 @@ function gameEntry(game) {
         </div>
         <div class="player-right">
           <span>
-            <span class="title">${game.blackTitle || ""}</span> ${game.black || "Unknown"} <span class="player-rating">${game.blackRating || 0}</span>
+            <span class="player-title">${game.blackTitle || ""}</span> ${game.black || "Unknown"} <span class="player-rating">${game.blackRating || 0}</span>
           </span>
         </div>
       </div>
