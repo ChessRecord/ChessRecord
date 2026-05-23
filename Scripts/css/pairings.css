@@ -39,7 +39,7 @@ table {
     font-family: "Rubik", sans-serif;
     font-weight: 500;
     background: var(--deep-blue);
-    color: var(--white-container);
+    color: var(--white-primary);
     border-radius: 5px;
     padding: 4px 6px;
 }

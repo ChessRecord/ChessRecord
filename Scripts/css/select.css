@@ -16,7 +16,7 @@
 .select-items {
     padding: 14px 18px;
 
-    background-color: var(--select-bg, var(--white-container));
+    background-color: var(--select-bg, var(--white-primary));
 
     color: var(--select-text-color, var(--grey-333));
     border: 1.5px solid var(--select-border-color);
@@ -100,7 +100,7 @@
     border: 1.5px var(--white-d) solid;
     border-radius: var(--border-radius);
 
-    background-color: var(--white-container);
+    background-color: var(--white-primary);
 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.17);
 
@@ -154,7 +154,7 @@
     border: 1.5px solid var(--select-border-color);
     border-radius: var(--border-radius);
 
-    background-color: var(--select-bg, var(--white-container));
+    background-color: var(--select-bg, var(--white-primary));
 
     color: var(--select-text-color, var(--grey-333));
     overflow-y: auto;

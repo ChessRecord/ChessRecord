@@ -50,7 +50,7 @@
     border: 1.5px var(--white-d) solid;
     border-radius: var(--border-radius);
 
-    background-color: var(--white-container);
+    background-color: var(--white-primary);
 
     text-align: center;
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
