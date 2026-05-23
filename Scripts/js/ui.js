@@ -12,7 +12,7 @@ const showDropdown = () => {
 
 /* --- Global UI Helpers --- */
 function refreshTitle() {
-  document.querySelectorAll(".title").forEach(function (titleElement) {
+  document.querySelectorAll(".player-title").forEach(function (titleElement) {
     const content = titleElement.textContent.trim().toLowerCase();
     if (!content || content === "none") {
       titleElement.style.display = "none";

@@ -376,7 +376,7 @@ const PAIRINGS_COLUMNS = [
     header: "Name",
     isPresent: (round) => hasValue(round.opponentName),
     render: (round) => `<td>
-      <span class="title">${round.opponentTitle || ""}</span>
+      <span class="player-title">${round.opponentTitle || ""}</span>
       ${
         round.opponentProfileUrl
           ? `<a href="${round.opponentProfileUrl}" target="_blank">${round.opponentName}</a>`
@@ -444,7 +444,7 @@ function renderPlayerHeader(playerData, url, totalRounds) {
     [
       rank ? `<span class="player-rank">#${rank}</span> ` : "",
       federation ? `<span class="player-federation">${federation}</span> ` : "",
-      title ? `<span class="title">${title}</span> ` : "",
+      title ? `<span class="player-title">${title}</span> ` : "",
       url
         ? `<a href="${url}" id="player-profile-link" target="_blank"><strong>${name}</strong></a>`
         : `<strong>${name}</strong>`,
