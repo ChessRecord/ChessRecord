@@ -23,7 +23,7 @@ body {
 
     min-height: 100vh;
 
-    background-color: var(--white-container);
+    background-color: var(--white-primary);
 
     color: var(--text-100);
     font-family: "Poppins", sans-serif;
@@ -54,7 +54,7 @@ body {
     width: 70%;
     padding: 50px;
 
-    background-color: var(--white-container);
+    background-color: var(--white-primary);
 
     overflow: visible;
     animation: slideIn 0.3s ease-out;
@@ -102,7 +102,7 @@ select,
 button {
     padding: 14px 18px;
 
-    background-color: var(--white-container);
+    background-color: var(--white-primary);
     border: 1.5px var(--white-d) solid;
     border-radius: var(--border-radius);
 
@@ -131,7 +131,7 @@ textarea {
 button {
     background-color: var(--orange);
 
-    color: var(--white-container);
+    color: var(--white-primary);
     font-weight: 600;
 
     border: none;

@@ -33,7 +33,7 @@ class ThemeManager {
     // Update button color
     if (this.themeToggleBtn) {
       this.themeToggleBtn.style.color = isDark
-        ? "var(--white-container)"
+        ? "var(--white-primary)"
         : "var(--deep-blue)";
     }
   }

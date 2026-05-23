@@ -34,7 +34,7 @@
     border: 1.5px var(--white-d) solid;
     border-radius: 8px;
 
-    background-color: var(--white-container);
+    background-color: var(--white-primary);
 
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
@@ -153,7 +153,7 @@
 
     background-color: var(--deep-blue);
 
-    color: var(--white-container);
+    color: var(--white-primary);
     font-family: "Rubik", sans-serif;
     font-optical-sizing: auto;
     font-weight: 700;
@@ -186,7 +186,7 @@
     padding: calc(var(--small) / 1.5);
     border-top: 2px var(--white-d) solid;
 
-    background: var(--white-container);
+    background: var(--white-primary);
 }
 
 .meta-bar #game-count,
@@ -237,7 +237,7 @@
     border: none;
     border-radius: 50%;
 
-    background-color: var(--white-container);
+    background-color: var(--white-primary);
 
     color: var(--deep-blue);
     font-size: 1.25em;
