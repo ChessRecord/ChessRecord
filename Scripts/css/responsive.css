@@ -17,6 +17,7 @@
     .game-result {
         position: absolute;
         right: 10%;
+        left: auto;
 
         max-width: fit-content;
 
