@@ -106,16 +106,17 @@
 .game-result {
     position: absolute;
     bottom: var(--small);
+    left: 0;
+    right: 0;
 
     width: 50%;
+    margin: auto;
 
     color: var(--deep-blue);
     font-size: 1.1em;
     font-weight: bold;
     text-align: center;
     white-space: nowrap;
-
-    transform: translate(50%, 0);
 }
 
 .game-time {
