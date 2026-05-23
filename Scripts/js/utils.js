@@ -4,6 +4,8 @@ const today = new Date().toISOString().split("T")[0];
 
 const isValidString = (s) => typeof s === "string" && s.length > 0;
 
+const isValidObject = (o) => o !== null && typeof o === "object";
+
 const signum = (v) => (
   (v = +v),
   isNaN(v) ? "NaN" : (v > 0 ? "+" : "") + (v || 0)
