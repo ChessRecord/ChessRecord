@@ -227,7 +227,7 @@ function displayGames(searchTerm = window.searchTerm || "") {
     : window.games;
 
   const gamesByTournament = filteredGames.reduce((acc, game) => {
-    const key = game.tournament || "Unknown Tournament";
+    const key = game.tournament || "Unknown";
     if (!acc.has(key)) acc.set(key, []);
     acc.get(key).push(game);
     return acc;
