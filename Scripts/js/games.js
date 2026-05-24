@@ -116,7 +116,8 @@ function countGames() {
 
   const gameCount = window.games.length;
   const tournamentSet = new Set();
-  for (const { tournament } of window.games) tournamentSet.add(tournament);
+  for (const { tournament } of window.games)
+    tournamentSet.add(tournament || "Unknown");
   const tournamentCount = tournamentSet.size;
 
   gameCountElement.innerHTML =
