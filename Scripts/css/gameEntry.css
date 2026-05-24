@@ -6,7 +6,7 @@
 /* ─── List Container ────────────────────────────── */
 
 #gamesList {
-    margin-top: 25px;
+    margin-top: var(--normal);
 }
 
 /* ─── Game Entry Card ───────────────────────────── */
@@ -30,7 +30,7 @@
     flex-direction: column;
 
     margin-bottom: var(--small);
-    padding: var(--small) 25px;
+    padding: var(--small) var(--normal);
     border: 1.5px var(--white-d) solid;
     border-radius: 8px;
 
@@ -131,7 +131,7 @@
     justify-content: space-between;
 
     margin-bottom: var(--border);
-    padding: var(--border) 25px;
+    padding: var(--border) var(--normal);
     padding-left: var(--small) !important;
     border-top: var(--deep-blue-light) 2px solid;
     border-bottom: var(--deep-blue) 2px solid;
@@ -142,7 +142,7 @@
 }
 
 .tournament-section {
-    margin-bottom: 25px;
+    margin-bottom: var(--normal);
 }
 
 .game-round {
