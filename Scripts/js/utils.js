@@ -308,7 +308,7 @@ function pgnToJson(pgn) {
       round: Math.max(1, toNumberOr(roundParts[0] || NaN, idx + 1)),
       board:
         toNumberOr(getTag("Board"), 0) || toNumberOr(roundParts[1], 0) || null,
-      time: getTag("TimeControl").trim() || "*",
+      time: getTag("TimeControl").trim() || "",
       date: getTag("Date")?.replace(/\./g, "-") || "",
       gameLink: getTag("ChapterURL") || getTag("Site") || "",
     };
@@ -373,7 +373,7 @@ function normalizeGames(games) {
     tournament: (game.tournament || "Unknown").trim(),
     round: Math.max(1, toNumberOr(game.round, 1)),
     board: toNumberOr(game.board, null) || null,
-    time: (game.time || "*").trim(),
+    time: (game.time || "").trim(),
     date: (game.date || "").replace(/\./g, "-").trim(),
     gameLink: (game.gameLink || "").trim(),
   }));
