@@ -44,7 +44,7 @@
     transform: translateY(-3px);
 }
 
-.game-entry .game-details {
+.game-entry .game-meta {
     display: flex;
     justify-content: space-between;
 
@@ -54,17 +54,17 @@
     color: var(--grey-444);
 }
 
-.game-entry .game-details .entry-meta {
+.game-entry .game-meta .game-meta-right {
     color: var(--grey-666);
 }
 
-.game-entry .game-details .timecontrol-category {
+.game-entry .game-meta .timecontrol-category {
     font-family: "Poppins", sans-serif;
 }
 
 /* ─── Player Details ────────────────────────────── */
 
-.player-details {
+.game-players {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -72,21 +72,21 @@
     width: 100%;
 }
 
-.player-left {
+.player-white {
     clear: both;
     text-align: left;
 }
 
-.player-right {
+.player-black {
     clear: both;
     text-align: right;
 }
 
-.game-entry .player-left a,
-.game-entry .player-right a {
+.game-entry .player-white,
+.game-entry .player-black {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: calc(var(--small) / 2);
 
     text-decoration: none;
     color: var(--deep-blue);
@@ -94,8 +94,6 @@
 }
 
 .player-rating {
-    margin-left: 4px;
-
     color: var(--text-100);
     font-family: "Rubik", sans-serif;
     font-weight: 600;

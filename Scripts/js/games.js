@@ -143,41 +143,48 @@ function gameEntry(game) {
       ? game.time
       : `${game.time}<span class="timecontrol-category"> • ${category}</span>`
     : "";
-  const dateString = game.date
-    ? ` | <strong class="game-date">${game.date}</strong>`
-    : "";
+
   const roundLabel =
     game.board != null ? `Board ${game.board}` : `Round ${game.round}`;
 
+  const gameMetaLeft = `<span class="game-round">${game.round}</span><strong class="round-label">${roundLabel}</strong>`;
+  const gameMetaRight = `${timeDisplay ? `<span class="game-time">${timeIcon} ${timeDisplay}</span>` : ""}${timeDisplay && game.date ? " | " : ""}${game.date ? `<strong class="game-date">${game.date}</strong>` : ""}`;
+  const whiteTitle = game.whiteTitle
+    ? `<span class="player-title">${game.whiteTitle}</span>`
+    : "";
+  const blackTitle = game.blackTitle
+    ? `<span class="player-title">${game.blackTitle}</span>`
+    : "";
+
   a.innerHTML = `
     <div class="game-entry" data-game-id="${gameId}">
-      <div class="game-details" style="align-items: center;">
-        <div class="game-tournament"><span class="game-round">${game.round}</span><strong>${roundLabel}</strong></div>
-        <span class="entry-meta">
-          <span class="game-time">
-            ${timeIcon}
-            ${timeDisplay}
-          </span>${dateString}
-        </span>
+
+      <div class="game-meta">
+        <div class="game-meta-left">${gameMetaLeft}</div>
+        <div class="game-meta-right">${gameMetaRight}</div>
       </div>
-      <div class="player-details">
-        <div class="player-left">
-          <span>
-            <span class="player-title">${game.whiteTitle || ""}</span> ${game.white || "Unknown"} <span class="player-rating">${game.whiteRating || 0}</span>
-          </span>
+
+      <div class="game-players">
+        <div class="player-white">
+          ${whiteTitle}
+          <span class="player-name">${game.white || "Unknown"}</span>
+          <span class="player-rating">${game.whiteRating || 0}</span>
         </div>
         <div class="game-result">
           <strong>${formatResult(game.result)}</strong>
         </div>
-        <div class="player-right">
-          <span>
-            <span class="player-title">${game.blackTitle || ""}</span> ${game.black || "Unknown"} <span class="player-rating">${game.blackRating || 0}</span>
-          </span>
+        <div class="player-black">
+          ${blackTitle}
+          <span class="player-name">${game.black || "Unknown"}</span>
+          <span class="player-rating">${game.blackRating || 0}</span>
         </div>
       </div>
-      <button class="delete-game-btn" onclick="event.stopPropagation(); event.preventDefault(); deleteGame('${gameId}')">
+
+      <button class="delete-game-btn"
+        onclick="event.stopPropagation(); event.preventDefault(); deleteGame('${gameId}')">
         <i class="fa-solid fa-delete-left"></i>
       </button>
+
     </div>
   `;
   return a;
