@@ -191,11 +191,10 @@ const TITLE_MAP = Object.freeze({
 });
 
 const TIME_CONTROL_ICONS = Object.freeze({
-  Bullet: '<i class="fa-solid fa-bolt-lightning"></i><span class="gap"></span>',
-  Blitz: '<i class="fa-solid fa-bolt-lightning"></i><span class="gap"></span>',
-  Rapid: '<i class="fa-solid fa-clock"></i><span class="gap"></span>',
-  Classical:
-    '<i class="fa-solid fa-hourglass-half"></i><span class="gap"></span>',
+  Bullet: '<i class="fa-solid fa-bolt-lightning"></i> ',
+  Blitz: '<i class="fa-solid fa-bolt-lightning"></i> ',
+  Rapid: '<i class="fa-solid fa-clock"></i> ',
+  Classical: '<i class="fa-solid fa-hourglass-half"></i> ',
   Unknown: "",
 });
 
