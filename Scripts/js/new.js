@@ -1,35 +1,50 @@
 // new.js — New Game page controller
 
+/* ─── UI Selectors (Configurable) ────────────────────────────────────────── */
+
+const UI = {
+  form: {
+    root: "gameForm",
+    submit: "addGame",
+    fields: {
+      result: "result",
+      time: "time",
+      tournament: "tournament",
+      round: "round",
+      date: "date",
+      gameLink: "gameLink",
+    },
+  },
+  players: [
+    {
+      key: "white",
+      player: "playerWhite",
+      title: "whiteTitle",
+      rating: "whiteRating",
+      suggestions: "whiteSuggestions",
+    },
+    {
+      key: "black",
+      player: "playerBlack",
+      title: "blackTitle",
+      rating: "blackRating",
+      suggestions: "blackSuggestions",
+    },
+  ],
+};
+
 /* ─── Constants ──────────────────────────────────────────────────────────── */
 
 loadGames();
 
 const FIDE_BASE = "https://lichess.org/api/fide/player";
 
-const SIDES = [
-  {
-    key: "white",
-    player: "playerWhite",
-    title: "whiteTitle",
-    rating: "whiteRating",
-    suggestions: "whiteSuggestions",
-  },
-  {
-    key: "black",
-    player: "playerBlack",
-    title: "blackTitle",
-    rating: "blackRating",
-    suggestions: "blackSuggestions",
-  },
-];
-
 /* ─── DOM Cache ──────────────────────────────────────────────────────────── */
 
-// Opt 1: All element lookups happen exactly once at DOMContentLoaded and are
-// stored here. Every listener and helper reads from these maps rather than
-// touching the DOM on each keystroke or event.
-
-const SIDE_ELS = new Map(); // key → { player, title, rating, suggestions }
+// All element lookups happen exactly once at DOMContentLoaded and are stored
+// here. Every listener and helper reads from these maps rather than touching
+// the DOM on each keystroke or event.
+const PLAYER_ELS = new Map(); // key → { player, title, rating, suggestions }
 let formEls = {}; // { result, time, tournament, round, date, gameLink }
 
 /* ─── API ────────────────────────────────────────────────────────────────── */
@@ -111,7 +126,7 @@ function getFormErrorEl() {
   _formErrorEl.style.cssText =
     "color:#c0392b;font-size:.875rem;margin:.25rem 0 0;display:none";
   document
-    .getElementById("addGame")
+    .getElementById(UI.form.submit)
     ?.insertAdjacentElement("beforebegin", _formErrorEl);
   return _formErrorEl;
 }
@@ -142,8 +157,8 @@ function highlightMatch(text, query) {
   );
 }
 
-// Opt 4: Builds the entire list into a DocumentFragment in one pass, then
-// replaces the container's children atomically — no intermediate empty paint.
+// Builds the entire list into a DocumentFragment in one pass, then replaces
+// the container's children atomically — no intermediate empty paint.
 function renderSuggestions(container, query, players) {
   const fragment = document.createDocumentFragment();
   players.forEach((p) => {
@@ -163,14 +178,14 @@ function renderSuggestions(container, query, players) {
 }
 
 function setupAutocomplete({ key }) {
-  // Opt 1: All elements come from the pre-built cache — no getElementById call
+  // All elements come from the pre-built cache — no getElementById call
   // inside this function or any of its inner helpers.
   const {
     player: input,
     title: titleInput,
     rating: ratingEl,
     suggestions: container,
-  } = SIDE_ELS.get(key);
+  } = PLAYER_ELS.get(key);
   if (!input || !container || !titleInput) return;
 
   // Holds the AbortController for the most recent in-flight name suggestions
@@ -180,7 +195,7 @@ function setupAutocomplete({ key }) {
   function applyPlayer({ name, title, standard, rapid, blitz }) {
     input.value = name;
     titleInput.value = title;
-    // Mark title as auto-filled so clearSide knows it is safe to wipe.
+    // Mark title as auto-filled so clearPlayer knows it is safe to wipe.
     titleInput.dataset.autoFilled = "true";
     Object.assign(input.dataset, { standard, rapid, blitz });
     container.replaceChildren();
@@ -191,7 +206,7 @@ function setupAutocomplete({ key }) {
     }
   }
 
-  function clearSide() {
+  function clearPlayer() {
     delete input.dataset.standard;
     delete input.dataset.rapid;
     delete input.dataset.blitz;
@@ -224,9 +239,9 @@ function setupAutocomplete({ key }) {
   }
 
   async function onNameQuery(query) {
-    // Cancel any previous in-flight request for this side before firing a new
-    // one — parallel calls across sides are fine, but serial calls for the same
-    // side are wasteful since only the latest result is ever rendered.
+    // Cancel any previous in-flight request for this player before firing a
+    // new one — parallel calls across players are fine, but serial calls for
+    // the same player are wasteful since only the latest result is ever rendered.
     nameController?.abort();
     nameController = new AbortController();
     const players = await fetchPlayerSuggestions(query, nameController.signal);
@@ -241,7 +256,7 @@ function setupAutocomplete({ key }) {
     if (!query) {
       nameController?.abort();
       nameController = null;
-      clearSide();
+      clearPlayer();
       return;
     }
     if (isFideId(query)) {
@@ -268,13 +283,13 @@ function setupAutocomplete({ key }) {
 
 /* ─── Form State ─────────────────────────────────────────────────────────── */
 
-// Opt 2: A single DOM pass over SIDE_ELS and formEls collects all player and
-// game fields at once. Raw (un-formatted) strings are returned so that
+// A single DOM pass over PLAYER_ELS and formEls collects all player and game
+// fields at once. Raw (un-formatted) strings are returned so that
 // validateState can do its cheap checks before any formatting runs.
 function getFormState() {
   const players = Object.fromEntries(
-    SIDES.map(({ key }) => {
-      const { player, title, rating } = SIDE_ELS.get(key);
+    UI.players.map(({ key }) => {
+      const { player, title, rating } = PLAYER_ELS.get(key);
       return [
         key,
         {
@@ -296,14 +311,13 @@ function getFormState() {
   };
 }
 
-// Opt 3: Validates cheap conditions (string checks, numeric range) on raw
-// state before any expensive formatting (formatName, capitalize, abbreviateTitle)
-// is ever called. Returns an error string, or null if valid.
+// Validates cheap conditions (string checks) on raw state before any expensive
+// formatting (formatName, capitalize, abbreviateTitle) is ever called.
+// Returns an error string, or null if valid.
 function validateState(state) {
   if (state.result === "0") return "Please select a result!";
   if (!state.players.white.rawName) return "White player name cannot be empty!";
   if (!state.players.black.rawName) return "Black player name cannot be empty!";
-  if (state.round < 1) return "Round must be a positive integer!";
   return null;
 }
 
@@ -366,12 +380,12 @@ function gameAddedAlert({ whiteTitle, white, blackTitle, black }) {
 async function addGame(event) {
   event.preventDefault();
   clearFormError();
-  showLoader("#addGame span");
+  showLoader(`#${UI.form.submit} span`);
   try {
-    // 1. Collect — one DOM pass, raw values (Opt 2)
+    // 1. Collect — one DOM pass, raw values
     const state = getFormState();
 
-    // 2. Validate — cheap string/range checks before any formatting (Opt 3)
+    // 2. Validate — cheap string checks before any formatting
     const error = validateState(state);
     if (error) return showFormError(error);
 
@@ -389,19 +403,19 @@ async function addGame(event) {
     event.target.reset();
     gameAddedAlert(game);
   } finally {
-    hideLoader("#addGame span");
+    hideLoader(`#${UI.form.submit} span`);
   }
 }
 
 /* ─── Initialization ─────────────────────────────────────────────────────── */
 
 document.addEventListener("DOMContentLoaded", () => {
-  const gameForm = document.getElementById("gameForm");
+  const gameForm = document.getElementById(UI.form.root);
 
-  // Opt 1: Resolve every element once and store in module-level caches.
+  // Resolve every element once and store in module-level caches.
   // From this point forward, no function needs to call getElementById.
-  SIDES.forEach(({ key, player, title, rating, suggestions }) => {
-    SIDE_ELS.set(key, {
+  UI.players.forEach(({ key, player, title, rating, suggestions }) => {
+    PLAYER_ELS.set(key, {
       player: document.getElementById(player),
       title: document.getElementById(title),
       rating: document.getElementById(rating),
@@ -410,23 +424,23 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   formEls = {
-    result: document.getElementById("result"),
-    time: document.getElementById("time"),
-    tournament: document.getElementById("tournament"),
-    round: document.getElementById("round"),
-    date: document.getElementById("date"),
-    gameLink: document.getElementById("gameLink"),
+    result: document.getElementById(UI.form.fields.result),
+    time: document.getElementById(UI.form.fields.time),
+    tournament: document.getElementById(UI.form.fields.tournament),
+    round: document.getElementById(UI.form.fields.round),
+    date: document.getElementById(UI.form.fields.date),
+    gameLink: document.getElementById(UI.form.fields.gameLink),
   };
 
   gameForm?.addEventListener("submit", addGame);
 
   gameForm?.addEventListener("reset", () => {
-    SIDES.forEach(({ key }) => {
+    UI.players.forEach(({ key }) => {
       const {
         player: playerEl,
         rating: ratingEl,
         title: titleEl,
-      } = SIDE_ELS.get(key);
+      } = PLAYER_ELS.get(key);
       if (ratingEl) delete ratingEl.dataset.userSet;
       if (playerEl) {
         delete playerEl.dataset.standard;
@@ -438,12 +452,12 @@ document.addEventListener("DOMContentLoaded", () => {
     clearFormError();
   });
 
-  // Opt 5: Single initialization pass combines autocomplete setup, rating
-  // ownership tracking, and title ownership tracking.
-  SIDES.forEach((side) => {
+  // Single initialization pass combines autocomplete setup, rating ownership
+  // tracking, and title ownership tracking.
+  UI.players.forEach((side) => {
     setupAutocomplete(side);
 
-    const { rating: ratingEl, title: titleEl } = SIDE_ELS.get(side.key);
+    const { rating: ratingEl, title: titleEl } = PLAYER_ELS.get(side.key);
 
     // Marks the rating field as user-owned on any manual edit so auto-fill
     // never clobbers intentional input.
@@ -455,7 +469,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Any manual edit to the title field removes the autoFilled marker so
-    // clearSide knows not to wipe it.
+    // clearPlayer knows not to wipe it.
     if (titleEl) {
       titleEl.addEventListener("input", () => {
         delete titleEl.dataset.autoFilled;
@@ -466,8 +480,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // On blur (not input) so ratings recalculate only once the user leaves the
   // time-control field, not on every character typed.
   formEls.time?.addEventListener("blur", ({ target }) => {
-    SIDES.forEach(({ key }) => {
-      const { player: playerEl, rating: ratingEl } = SIDE_ELS.get(key);
+    UI.players.forEach(({ key }) => {
+      const { player: playerEl, rating: ratingEl } = PLAYER_ELS.get(key);
       if (!playerEl?.dataset.standard || ratingEl?.dataset.userSet) return;
       const cached = {
         standard: Number(playerEl.dataset.standard),
@@ -483,8 +497,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener(
     "pointerdown",
     (e) => {
-      SIDES.forEach(({ key }) => {
-        const { player, suggestions } = SIDE_ELS.get(key);
+      UI.players.forEach(({ key }) => {
+        const { player, suggestions } = PLAYER_ELS.get(key);
         if (!player?.contains(e.target) && !suggestions?.contains(e.target)) {
           suggestions?.replaceChildren();
         }
@@ -496,7 +510,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 document.addEventListener("keydown", ({ key }) => {
   if (key !== "Escape") return;
-  SIDES.forEach(({ key: k }) =>
-    SIDE_ELS.get(k)?.suggestions?.replaceChildren(),
+  UI.players.forEach(({ key: k }) =>
+    PLAYER_ELS.get(k)?.suggestions?.replaceChildren(),
   );
 });
