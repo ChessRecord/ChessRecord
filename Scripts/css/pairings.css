@@ -11,7 +11,7 @@ table {
     border-collapse: separate;
     border-spacing: 0;
     border: 1.5px var(--white-d) solid; /* Outer border */
-    border-radius: var(--border-radius);
+    border-radius: var(--border);
 }
 
 /* ─── Typography ────────────────────────────────── */
@@ -52,7 +52,7 @@ table {
 
 th,
 td {
-    padding: 6px 10px;
+    padding: 6px var(--border);
     border: 1px var(--white-d) solid;
 
     text-align: center;
@@ -87,19 +87,19 @@ tbody tr:last-child td {
 }
 
 th:first-child {
-    border-top-left-radius: calc(var(--border-radius) - 3px);
+    border-top-left-radius: calc(var(--border) - 3px);
 }
 
 th:last-child {
-    border-top-right-radius: calc(var(--border-radius) - 3px);
+    border-top-right-radius: calc(var(--border) - 3px);
 }
 
 tr:last-child td:first-child {
-    border-bottom-left-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border);
 }
 
 tr:last-child td:last-child {
-    border-bottom-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border);
 }
 
 .result-cell {
