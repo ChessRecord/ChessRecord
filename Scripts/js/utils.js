@@ -155,8 +155,10 @@ function toUnicodeVariant(str, variant, flags) {
 
 // Renders a player name with its title in bold-sans Unicode variant.
 // Guards against empty titles — toUnicodeVariant("") produces a stray space.
-const formatPlayerLabel = (title, name) =>
-  title ? `${toUnicodeVariant(title, "bold sans", "sans")} ${name}` : name;
+const formatPlayerLabel = (title, name) => {
+  const t = title?.trim();
+  return t ? `${toUnicodeVariant(t, "bold sans", "sans")} ${name}` : name;
+};
 
 function highlightMatch(text, query) {
   const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
