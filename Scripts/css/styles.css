@@ -103,7 +103,7 @@ button {
     padding: 14px 18px;
 
     background-color: var(--white-primary);
-    border: 1.5px var(--white-d) solid;
+    border: var(--border-thin) var(--white-d) solid;
     border-radius: var(--border);
 
     font-family: "Poppins", sans-serif;
@@ -153,7 +153,7 @@ button.outline {
     color: var(--text-100);
     font-weight: 600;
 
-    border: 2px solid var(--white-d);
+    border: var(--border-thick) var(--white-d) solid;
     cursor: pointer;
 }
 
@@ -193,7 +193,7 @@ button.outline {
     width: var(--normal);
     aspect-ratio: 1;
 
-    border: 5px solid var(--white-e0-95);
+    border: 5px var(--white-e0-95) solid;
     border-right-color: transparent;
     border-radius: 50%;
 

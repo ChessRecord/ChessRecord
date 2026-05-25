@@ -10,7 +10,7 @@ table {
     min-width: max-content; /* Allow table to expand and be scrollable */
     border-collapse: separate;
     border-spacing: 0;
-    border: 1.5px var(--white-d) solid; /* Outer border */
+    border: var(--border-thin) var(--white-d) solid; /* Outer border */
     border-radius: var(--border);
 }
 
@@ -131,7 +131,7 @@ tr:last-child td:last-child {
 
     width: 1em;
     height: 1em;
-    border: 1.5px solid #777;
+    border: var(--border-thin) var(--grey-7) solid;
     border-radius: 0.15em;
 
     background: #222;
@@ -146,7 +146,7 @@ tr:last-child td:last-child {
 
     width: 1em;
     height: 1em;
-    border: 1.5px solid #bbb;
+    border: var(--border-thin) #bbb solid;
     border-radius: 0.15em;
 
     background: #fff;
@@ -165,24 +165,24 @@ tr:last-child td:last-child {
 }
 
 .dark-theme .player-points {
-    background: var(--grey-444);
+    background: var(--grey-4);
 }
 
 .dark-theme table {
-    border: 1.5px var(--grey-333) solid; /* Outer border */
+    border: var(--border-thin) var(--grey-3) solid; /* Outer border */
 }
 
 .dark-theme th,
 .dark-theme td {
-    border: 1px var(--grey-333) solid;
+    border: 1px var(--grey-3) solid;
 }
 
 .dark-theme th {
-    background: var(--grey-444);
+    background: var(--grey-4);
 }
 
 .dark-theme tr:nth-child(even) td {
-    background: var(--grey-333);
+    background: var(--grey-3);
 }
 
 .dark-theme #note {

@@ -231,10 +231,10 @@ function setupAutocomplete({ key }) {
       errDiv.style.pointerEvents = "none";
       errDiv.innerHTML = "<i>FIDE ID not found</i>";
       container.replaceChildren(errDiv);
-      // Auto-clear after 2500 ms, but only if this exact bad ID is still typed.
+      // Auto-clear after 1000 ms, but only if this exact bad ID is still typed.
       setTimeout(() => {
         if (input.value.trim() === query) container.replaceChildren();
-      }, 2500);
+      }, 1000);
     }
   }
 
