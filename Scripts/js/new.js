@@ -45,7 +45,7 @@ const FIDE_BASE = "https://lichess.org/api/fide/player";
 // here. Every listener and helper reads from these maps rather than touching
 // the DOM on each keystroke or event.
 const PLAYER_ELS = new Map(); // key → { player, title, rating, suggestions }
-let formEls = {}; // { result, time, tournament, round, date, gameLink }
+let formEls = {}; // { result, time, tournament, round, date, gameLink, submit, error }
 
 /* ─── API ────────────────────────────────────────────────────────────────── */
 
@@ -114,33 +114,14 @@ function pickRating({ standard = 0, rapid = 0, blitz = 0 } = {}, time) {
 
 /* ─── Inline Form Error ──────────────────────────────────────────────────── */
 
-// Created once on first use and reused for every subsequent error. Inserted
-// immediately before the submit button so it appears in natural reading order
-// without modifying the HTML.
-let _formErrorEl = null;
-
-function getFormErrorEl() {
-  if (_formErrorEl) return _formErrorEl;
-  _formErrorEl = document.createElement("p");
-  _formErrorEl.setAttribute("role", "alert");
-  _formErrorEl.style.cssText =
-    "color:#c0392b;font-size:.875rem;margin:.25rem 0 0;display:none";
-  document
-    .getElementById(UI.form.submit)
-    ?.insertAdjacentElement("beforebegin", _formErrorEl);
-  return _formErrorEl;
-}
-
 function showFormError(msg) {
-  const el = getFormErrorEl();
-  el.textContent = msg;
-  el.style.display = "block";
+  formEls.error.textContent = msg;
+  formEls.error.style.display = "block";
 }
 
 function clearFormError() {
-  if (!_formErrorEl) return;
-  _formErrorEl.textContent = "";
-  _formErrorEl.style.display = "none";
+  formEls.error.textContent = "";
+  formEls.error.style.display = "none";
 }
 
 /* ─── Autocomplete ───────────────────────────────────────────────────────── */
@@ -149,19 +130,16 @@ function isFideId(query) {
   return /^\d{5,10}$/.test(query.trim());
 }
 
-function highlightMatch(text, query) {
-  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return text.replace(
-    new RegExp(`(${escaped})`, "gi"),
-    '<span style="font-weight:700">$1</span>',
-  );
-}
-
 // Builds the entire list into a DocumentFragment in one pass, then replaces
 // the container's children atomically — no intermediate empty paint.
+// The match regex is compiled once here rather than once per player.
 function renderSuggestions(container, query, players) {
+  const regex = new RegExp(
+    `(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+    "gi",
+  );
   const fragment = document.createDocumentFragment();
-  players.forEach((p) => {
+  for (const p of players) {
     const div = document.createElement("div");
     div.className = "autocomplete-suggestion";
     Object.assign(div.dataset, {
@@ -173,7 +151,7 @@ function renderSuggestions(container, query, players) {
     });
     div.innerHTML = `${p.title ? `<span class="player-title">${p.title}</span> ` : ""}${highlightMatch(p.name, query)}`;
     fragment.appendChild(div);
-  });
+  }
   container.replaceChildren(fragment);
 }
 
@@ -221,10 +199,11 @@ function setupAutocomplete({ key }) {
 
   async function onFideQuery(query) {
     try {
-      const player = await fetchFidePlayer(parseInt(query));
+      // Explicit radix prevents misinterpretation of zero-padded strings.
+      const player = await fetchFidePlayer(parseInt(query, 10));
       if (input.value.trim() !== query) return; // stale
       applyPlayer(player);
-    } catch {
+    } catch (err) {
       if (input.value.trim() !== query) return; // stale
       const errDiv = document.createElement("div");
       errDiv.className = "autocomplete-suggestion";
@@ -252,16 +231,14 @@ function setupAutocomplete({ key }) {
 
   input.addEventListener("input", ({ target }) => {
     const query = target.value.trim();
+    nameController?.abort();
+    nameController = null;
     container.replaceChildren();
     if (!query) {
-      nameController?.abort();
-      nameController = null;
       clearPlayer();
       return;
     }
     if (isFideId(query)) {
-      nameController?.abort();
-      nameController = null;
       onFideQuery(query);
       return;
     }
@@ -348,7 +325,7 @@ function buildGame(
     blackTitle: players.black.title,
     result,
     tournament,
-    round: Number(round),
+    round,
     time,
     date,
     gameLink,
@@ -368,9 +345,9 @@ function isDuplicate({ white, black, date, tournament, round }) {
 }
 
 function gameAddedAlert({ whiteTitle, white, blackTitle, black }) {
-  const fmt = (title, name) =>
-    `${toUnicodeVariant(title, "bold sans", "sans")} ${name}`;
-  alert(`${fmt(whiteTitle, white)} vs ${fmt(blackTitle, black)} Game Added!`);
+  alert(
+    `${formatPlayerLabel(whiteTitle, white)} vs ${formatPlayerLabel(blackTitle, black)} — Game Added!`,
+  );
 }
 
 /* ─── Form Submission ────────────────────────────────────────────────────── */
@@ -380,7 +357,12 @@ function gameAddedAlert({ whiteTitle, white, blackTitle, black }) {
 async function addGame(event) {
   event.preventDefault();
   clearFormError();
+
+  // Disable the submit button for the duration of the async pipeline so a
+  // double-click cannot enqueue a second submission while the first is in flight.
+  formEls.submit.disabled = true;
   showLoader(`#${UI.form.submit} span`);
+
   try {
     // 1. Collect — one DOM pass, raw values
     const state = getFormState();
@@ -403,6 +385,7 @@ async function addGame(event) {
     event.target.reset();
     gameAddedAlert(game);
   } finally {
+    formEls.submit.disabled = false;
     hideLoader(`#${UI.form.submit} span`);
   }
 }
@@ -430,7 +413,17 @@ document.addEventListener("DOMContentLoaded", () => {
     round: document.getElementById(UI.form.fields.round),
     date: document.getElementById(UI.form.fields.date),
     gameLink: document.getElementById(UI.form.fields.gameLink),
+    submit: document.getElementById(UI.form.submit),
   };
+
+  // Created eagerly here so showFormError and clearFormError can reference it
+  // directly — no lazy-init wrapper needed.
+  const errorEl = document.createElement("p");
+  errorEl.setAttribute("role", "alert");
+  errorEl.style.cssText =
+    "color:#c0392b;font-size:.875rem;margin:.25rem 0 0;display:none";
+  formEls.submit?.insertAdjacentElement("beforebegin", errorEl);
+  formEls.error = errorEl;
 
   gameForm?.addEventListener("submit", addGame);
 
@@ -506,11 +499,13 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     { passive: true },
   );
-});
 
-document.addEventListener("keydown", ({ key }) => {
-  if (key !== "Escape") return;
-  UI.players.forEach(({ key: k }) =>
-    PLAYER_ELS.get(k)?.suggestions?.replaceChildren(),
-  );
+  // Kept inside DOMContentLoaded for structural consistency — all listeners
+  // that reference PLAYER_ELS live here.
+  document.addEventListener("keydown", ({ key }) => {
+    if (key !== "Escape") return;
+    UI.players.forEach(({ key: k }) =>
+      PLAYER_ELS.get(k)?.suggestions?.replaceChildren(),
+    );
+  });
 });

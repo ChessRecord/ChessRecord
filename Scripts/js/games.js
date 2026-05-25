@@ -1,6 +1,25 @@
-// games.js - Index page controller
+// games.js — Index page controller
 
-/* --- Data Import / Export --- */
+/* ─── UI Selectors (Configurable) ────────────────────────────────────────── */
+
+const UI = {
+  list: "gamesList",
+  counts: {
+    games: "game-count",
+    tournaments: "tournament-count",
+  },
+  search: "searchInput",
+};
+
+/* ─── DOM Cache ──────────────────────────────────────────────────────────── */
+
+// All element lookups happen exactly once at DOMContentLoaded and are stored
+// here. Every helper reads from these references rather than querying the DOM
+// on every render cycle.
+let els = {}; // { list, gameCount, tournamentCount }
+
+/* ─── Data Import / Export ───────────────────────────────────────────────── */
+
 function exportJSON() {
   if (isEmpty(window.games)) {
     alert("No games were found in this database");
@@ -17,8 +36,9 @@ function exportJSON() {
       alert("No valid games found to export");
       return;
     }
-    const jsonData = JSON.stringify(exportData, null, 2);
-    const blob = new Blob([jsonData], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+      type: "application/json",
+    });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = `chessrecord-${today}.json`;
@@ -66,7 +86,7 @@ async function resolveImport(importedData) {
   }
 
   const finalize = (resolve) => {
-    importedData.forEach((game) => (game.id = generateUniqueID()));
+    for (const game of importedData) game.id = generateUniqueID();
     if (resolve === "replace") {
       window.games = importedData;
     } else {
@@ -108,11 +128,10 @@ async function importJSON(event) {
   }
 }
 
-/* --- Rendering Logic --- */
+/* ─── Rendering Logic ────────────────────────────────────────────────────── */
+
 function countGames() {
-  const gameCountElement = document.getElementById("game-count");
-  const tournamentCountElement = document.getElementById("tournament-count");
-  if (!gameCountElement || !tournamentCountElement) return;
+  if (!els.gameCount || !els.tournamentCount) return;
 
   const gameCount = window.games.length;
   const tournamentSet = new Set();
@@ -120,11 +139,11 @@ function countGames() {
     tournamentSet.add(tournament || "Unknown");
   const tournamentCount = tournamentSet.size;
 
-  gameCountElement.innerHTML =
+  els.gameCount.innerHTML =
     gameCount === 0
       ? "No Games"
       : `${gameCount} ${gameCount === 1 ? "Game" : "Games"}`;
-  tournamentCountElement.innerHTML =
+  els.tournamentCount.innerHTML =
     tournamentCount === 0
       ? ""
       : `${tournamentCount} ${tournamentCount === 1 ? "Event" : "Events"}`;
@@ -150,6 +169,7 @@ function gameEntry(game) {
 
   const gameMetaLeft = `<span class="game-round">${game.round}</span><strong class="round-label">${roundLabel}</strong>`;
   const gameMetaRight = `${timeDisplay ? `<span class="game-time">${timeIcon} ${timeDisplay}</span>` : ""}${timeDisplay && game.date ? " | " : ""}${game.date ? `<strong class="game-date">${game.date}</strong>` : ""}`;
+
   const whiteTitle = game.whiteTitle
     ? `<span class="player-title">${game.whiteTitle}</span>`
     : "";
@@ -181,8 +201,7 @@ function gameEntry(game) {
         </div>
       </div>
 
-      <button class="delete-game-btn"
-        onclick="event.stopPropagation(); event.preventDefault(); deleteGame('${gameId}')">
+      <button class="delete-game-btn">
         <i class="fa-solid fa-delete-left"></i>
       </button>
 
@@ -194,17 +213,12 @@ function gameEntry(game) {
 function deleteGame(id) {
   const gameIndex = window.games.findIndex((game) => game.id === id);
   if (gameIndex === -1) return;
-  const gameToDelete = window.games[gameIndex];
-  const deleteConfirmation = `Are you sure you want to delete:\n ${toUnicodeVariant(
-    gameToDelete.whiteTitle,
-    "bold sans",
-    "sans",
-  )} ${gameToDelete.white} vs ${toUnicodeVariant(
-    gameToDelete.blackTitle,
-    "bold sans",
-    "sans",
-  )} ${gameToDelete.black} ?`;
-  if (confirm(deleteConfirmation)) {
+  const { whiteTitle, white, blackTitle, black } = window.games[gameIndex];
+  if (
+    confirm(
+      `Are you sure you want to delete:\n ${formatPlayerLabel(whiteTitle, white)} vs ${formatPlayerLabel(blackTitle, black)} ?`,
+    )
+  ) {
     window.games.splice(gameIndex, 1);
     saveGames();
     displayGames();
@@ -212,8 +226,7 @@ function deleteGame(id) {
 }
 
 function displayGames(searchTerm = window.searchTerm || "") {
-  const gamesList = document.getElementById("gamesList");
-  if (!gamesList) return;
+  if (!els.list) return;
 
   countGames();
 
@@ -235,7 +248,7 @@ function displayGames(searchTerm = window.searchTerm || "") {
   }, new Map());
 
   const fragment = document.createDocumentFragment();
-  gamesByTournament.forEach((tournamentGames, tournament) => {
+  for (const [tournament, tournamentGames] of gamesByTournament) {
     const section = document.createElement("div");
     section.className = "tournament-section";
     section.innerHTML = `
@@ -244,28 +257,43 @@ function displayGames(searchTerm = window.searchTerm || "") {
         <h3 class="dot">●</h3>
       </div>
     `;
-    tournamentGames.forEach((game) => {
-      section.appendChild(gameEntry(game));
-    });
+    for (const game of tournamentGames) section.appendChild(gameEntry(game));
     fragment.appendChild(section);
-  });
+  }
 
-  gamesList.innerHTML = "";
-  gamesList.appendChild(fragment);
+  els.list.replaceChildren(fragment);
   refreshTitle();
 }
 
-/* --- Initialization --- */
+/* ─── Initialization ─────────────────────────────────────────────────────── */
+
 loadGames();
 window.searchTerm = "";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const searchInput = document.getElementById("searchInput");
-  if (searchInput) {
-    searchInput.addEventListener("input", (e) => {
-      window.searchTerm = e.target.value;
-      displayGames(e.target.value);
-    });
-  }
+  // Resolve every element once and store in the module-level cache.
+  // From this point forward, no function needs to call getElementById.
+  els = {
+    list: document.getElementById(UI.list),
+    gameCount: document.getElementById(UI.counts.games),
+    tournamentCount: document.getElementById(UI.counts.tournaments),
+    search: document.getElementById(UI.search),
+  };
+
+  els.search?.addEventListener("input", (e) => {
+    window.searchTerm = e.target.value;
+    displayGames(e.target.value);
+  });
+
+  // Single delegated listener covers all delete buttons regardless of how many
+  // times the list is re-rendered — no per-entry listeners to attach or leak.
+  els.list?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".delete-game-btn");
+    if (!btn) return;
+    e.stopPropagation();
+    e.preventDefault();
+    deleteGame(btn.closest("[data-game-id]")?.dataset.gameId);
+  });
+
   displayGames();
 });
