@@ -1,6 +1,17 @@
-// =============================================================================
-// Constants
-// =============================================================================
+// pairings.js — Chess-Results pairings page controller
+
+/* ─── UI Selectors (Configurable) ────────────────────────────────────────── */
+
+const UI = {
+  form: "chess-resultsForm",
+  input: "url-input",
+  submit: "searchURL",
+  table: "pairings-table",
+  profile: "player-profile",
+  note: "note",
+};
+
+/* ─── Constants ──────────────────────────────────────────────────────────── */
 
 const PROXY_URL = "https://proxy.chessrecord.workers.dev/";
 
@@ -22,9 +33,15 @@ const PLAYER_PROFILE_KEYS = new Set([
   "Year of birth",
 ]);
 
-// =============================================================================
-// Storage
-//
+/* ─── DOM Cache ──────────────────────────────────────────────────────────── */
+
+// All element lookups happen exactly once at DOM-ready and are stored here.
+// Every function reads from els rather than re-querying the DOM on each call.
+// profile is omitted — it is created dynamically and handled at call-site.
+let els = {}; // { input, table, note, form }
+
+/* ─── Storage ────────────────────────────────────────────────────────────── */
+
 // Two scopes with distinct lifetimes:
 //   PersistentStorage — localStorage; survives tab/browser close.
 //                       Holds only the URL so the input is pre-filled on
@@ -33,7 +50,6 @@ const PLAYER_PROFILE_KEYS = new Set([
 //                       Holds rounds and playerData for instant within-session
 //                       restores. Always verified against a fresh fetch before
 //                       deciding whether to re-render.
-// =============================================================================
 
 const PersistentStorage = {
   KEY: "chessResultsUrl",
@@ -67,15 +83,11 @@ const SessionStorage = {
     );
   },
   clear(...keys) {
-    keys.forEach((storageKey) =>
-      sessionStorage.removeItem(this.KEYS[storageKey]),
-    );
+    keys.forEach((k) => sessionStorage.removeItem(this.KEYS[k]));
   },
 };
 
-// =============================================================================
-// Utilities
-// =============================================================================
+/* ─── Utilities ──────────────────────────────────────────────────────────── */
 
 /**
  * Builds a chess-results.com profile URL for a given start number by
@@ -85,20 +97,20 @@ function buildOpponentProfileUrl(baseUrl, startNo) {
   const snr = Number(startNo);
   if (!baseUrl || !startNo || isNaN(snr) || snr <= 0) return null;
   try {
-    const parsedUrl = new URL(baseUrl);
-    parsedUrl.searchParams.set("snr", String(snr));
-    return parsedUrl.toString();
+    const parsed = new URL(baseUrl);
+    parsed.searchParams.set("snr", String(snr));
+    return parsed.toString();
   } catch {
     if (typeof baseUrl !== "string") return null;
-    const snrEncoded = encodeURIComponent(String(snr));
+    const encoded = encodeURIComponent(String(snr));
     if (baseUrl.includes("snr="))
-      return baseUrl.replace(/([?&]snr=)[^&]*/, "$1" + snrEncoded);
-    return baseUrl + (baseUrl.includes("?") ? "&" : "?") + "snr=" + snrEncoded;
+      return baseUrl.replace(/([?&]snr=)[^&]*/, "$1" + encoded);
+    return baseUrl + (baseUrl.includes("?") ? "&" : "?") + "snr=" + encoded;
   }
 }
 
 /**
- * Formats a projected rating change as "+N" or "-N".
+ * Formats a projected rating change as "+N" or "−N".
  * Returns "" when calcChange signals the result is indeterminate.
  * score: 1 = win, 0.5 = draw, 0 = loss.
  */
@@ -107,9 +119,7 @@ function formatRatingDelta(playerRating, oppRating, score) {
   return delta === "" ? "" : signum(delta);
 }
 
-// =============================================================================
-// Data acquisition
-// =============================================================================
+/* ─── Data Acquisition ───────────────────────────────────────────────────── */
 
 /** Tracks the in-flight fetch so a subsequent search can cancel it. */
 let currentFetchController = null;
@@ -128,13 +138,13 @@ const LAYOUT_MISMATCH =
  * Extracts player metadata from the info table.
  * The table is located by checking its own direct first-column cells for the
  * exact label "Name", preventing outer layout tables (whose cells contain all
- * descendant text) from matching. Only keys in PLAYER_INFO_KEYS are retained.
+ * descendant text) from matching. Only keys in PLAYER_PROFILE_KEYS are retained.
  */
 function parsePlayerInfo($html) {
   const $table = $html
     .find("table")
-    .filter((_, tableElement) =>
-      $(tableElement)
+    .filter((_, el) =>
+      $(el)
         .children("tbody")
         .children("tr")
         .children("td:first-child")
@@ -172,19 +182,17 @@ function parsePlayerInfo($html) {
 function parsePairings($html, url) {
   const $table = $html
     .find("table")
-    .filter((_, tableElement) => {
-      const $firstRow = $(tableElement)
+    .filter((_, el) => {
+      const $headers = $(el)
         .children("tbody")
         .children("tr")
-        .first();
-      const $headers = $firstRow.children("th, td");
+        .first()
+        .children("th, td");
       if (!$headers.filter("th").length) return false;
-      const headers = $headers
-        .map((_, headerCell) => $(headerCell).text().trim())
-        .get();
+      const texts = $headers.map((_, th) => $(th).text().trim()).get();
       return (
-        headers.some((header) => header.includes("Rd")) &&
-        headers.some((header) => header.includes("Res"))
+        texts.some((t) => t.includes("Rd")) &&
+        texts.some((t) => t.includes("Res"))
       );
     })
     .first();
@@ -197,9 +205,8 @@ function parsePairings($html, url) {
     .children("th")
     .map((_, th) => $(th).text().trim() || "Title")
     .get();
-  const colIdx = (keyword) =>
-    headers.findIndex((header) => header.includes(keyword));
 
+  const colIdx = (keyword) => headers.findIndex((h) => h.includes(keyword));
   const idx = {
     rd: colIdx("Rd"),
     bo: colIdx("Bo"),
@@ -220,8 +227,7 @@ function parsePairings($html, url) {
     .get()
     .map((row) => {
       const $cells = $(row).children("td");
-      const cell = (cellIndex) =>
-        cellIndex >= 0 ? $cells.eq(cellIndex).text().trim() : "";
+      const cell = (i) => (i >= 0 ? $cells.eq(i).text().trim() : "");
       const $resultCell = $cells.eq(idx.res);
       return {
         round: cell(idx.rd),
@@ -229,7 +235,7 @@ function parsePairings($html, url) {
         playerStartNo: cell(idx.sno),
         opponentTitle: cell(idx.title),
         opponentName: cell(idx.name),
-        opponentRating: parseInt(cell(idx.rtg)) || 0,
+        opponentRating: parseInt(cell(idx.rtg), 10) || 0,
         opponentFederation: cell(idx.fed),
         opponentClub: cell(idx.club),
         opponentPoints: cell(idx.pts),
@@ -270,9 +276,7 @@ async function fetchOpponentRank(profileUrl, signal) {
   }
 }
 
-// =============================================================================
-// Data transformation
-// =============================================================================
+/* ─── Data Transformation ────────────────────────────────────────────────── */
 
 /**
  * Fetches, parses, and enriches a player's results page.
@@ -284,11 +288,14 @@ async function getChessResults(url, signal) {
 
   const { playerInfo, pairings } = await scrapeChessResults(url, signal);
 
+  if (!pairings.length) throw new Error("No pairings found for this player.");
+
   const rating =
     parseInt(
       playerInfo["Rating"] ??
         playerInfo["Rating international"] ??
         playerInfo["Rating national"],
+      10,
     ) || 0;
 
   const rtgchg = parseFloat(
@@ -334,14 +341,12 @@ function buildPlayerData(playerInfo, rating, rtgchg, url) {
     rank: playerInfo["Rank"] ?? "",
     federation: playerInfo["Federation"] ?? "",
     points: playerInfo["Points"] ?? "",
-    rating,
-    rtgchg,
+    rating: toNumberOr(rating, 0),
+    rtgchg: toNumberOr(rtgchg, 0),
   };
 }
 
-// =============================================================================
-// Presentation
-// =============================================================================
+/* ─── Presentation ───────────────────────────────────────────────────────── */
 
 /**
  * Factory for the common column shape: present when hasValue, renders as plain <td>.
@@ -357,9 +362,9 @@ const simpleCol = (header, key) => ({
  * Column definitions for the pairings table.
  *
  * Each entry carries:
- *   header     — the <th> label
- *   isPresent  — (round) => bool: does this round have data for the column?
- *   render     — (round) => <td> HTML string
+ *   header    — the <th> label
+ *   isPresent — (round) => bool: does this round have data for the column?
+ *   render    — (round) => <td> HTML string
  *
  * A column is only included when at least one round returns true from isPresent.
  */
@@ -367,11 +372,7 @@ const PAIRINGS_COLUMNS = [
   simpleCol("Round", "round"),
   simpleCol("Board", "boardNo"),
   simpleCol("Start", "playerStartNo"),
-  {
-    header: "Rank",
-    isPresent: (round) => hasValue(round.opponentRank),
-    render: (round) => `<td>${round.opponentRank}</td>`,
-  },
+  simpleCol("Rank", "opponentRank"),
   {
     header: "Name",
     isPresent: (round) => hasValue(round.opponentName),
@@ -391,8 +392,8 @@ const PAIRINGS_COLUMNS = [
       `<td>${
         round.opponentRating
           ? `<span class="tooltip" style="height:100%;width:100%;">${round.opponentRating}
-           <span class="tooltiptext">Win: ${round.win}<br>Draw: ${round.draw}<br>Loss: ${round.loss}</span>
-         </span>`
+               <span class="tooltiptext">Win: ${round.win}<br>Draw: ${round.draw}<br>Loss: ${round.loss}</span>
+             </span>`
           : "0"
       }</td>`,
   },
@@ -426,8 +427,11 @@ function renderPlayerHeader(playerData, url, totalRounds) {
   const { name, title, rank, rating, rtgchg, federation, points } = playerData;
   if (!name) return;
 
-  if (!$("#player-profile").length)
-    $("#pairings-table").before('<div id="player-profile"></div>');
+  let $profile = $(`#${UI.profile}`);
+  if (!$profile.length) {
+    $profile = $(`<div id="${UI.profile}"></div>`);
+    els.table.before($profile);
+  }
 
   const rtgchgFinite = Number.isFinite(rtgchg);
   const newRating = Math.round(rating + (rtgchgFinite ? rtgchg : 0));
@@ -435,12 +439,11 @@ function renderPlayerHeader(playerData, url, totalRounds) {
     rtgchgFinite && rtgchg !== 0
       ? `<span class="player-rtgchg">(${signum(rtgchg)})</span>`
       : "";
-
   const pointsStr = points
     ? `<span class="gap"></span><span class="player-points">${normalisePoints(points)}${totalRounds ? ` / ${totalRounds}` : ""}</span>`
     : "";
 
-  $("#player-profile").html(
+  $profile.html(
     [
       rank ? `<span class="player-rank">#${rank}</span> ` : "",
       federation ? `<span class="player-federation">${federation}</span> ` : "",
@@ -464,15 +467,25 @@ function renderPairingsTable(rounds, playerData, url) {
   const totalRounds = rounds[rounds.length - 1]?.round ?? "";
   renderPlayerHeader(playerData, url, totalRounds);
 
-  const visible = PAIRINGS_COLUMNS.filter((col) =>
-    rounds.some((round) => col.isPresent(round)),
+  // Single pass over PAIRINGS_COLUMNS: determine visible columns and build
+  // the header row simultaneously, avoiding a separate .map() over visible.
+  const { visible, headerCells } = PAIRINGS_COLUMNS.reduce(
+    (acc, col) => {
+      if (rounds.some((r) => col.isPresent(r))) {
+        acc.visible.push(col);
+        acc.headerCells += `<th>${col.header}</th>`;
+      }
+      return acc;
+    },
+    { visible: [], headerCells: "" },
   );
-  const thead = `<thead><tr>${visible.map((col) => `<th>${col.header}</th>`).join("")}</tr></thead>`;
+  const thead = `<thead><tr>${headerCells}</tr></thead>`;
   const tbody = `<tbody>${rounds
     .map(
       (round) => `<tr>${visible.map((col) => col.render(round)).join("")}</tr>`,
     )
     .join("")}</tbody>`;
+
   const showNote =
     playerData.rating > 0 &&
     rounds.some(
@@ -481,17 +494,15 @@ function renderPairingsTable(rounds, playerData, url) {
         Math.abs(playerData.rating - round.opponentRating) > 400,
     );
 
-  $("#pairings-table").html(`<table>${thead}${tbody}</table>`);
-  $("#note").html(
+  els.table.html(`<table>${thead}${tbody}</table>`);
+  els.note.html(
     showNote
       ? "*) Rating difference of more than 400. It was limited to 400."
       : "",
   );
 }
 
-// =============================================================================
-// UI controller
-// =============================================================================
+/* ─── UI Controller ──────────────────────────────────────────────────────── */
 
 /**
  * Resolves the URL from the input field or persistent cache, fetches live
@@ -505,17 +516,18 @@ function renderPairingsTable(rounds, playerData, url) {
  * The loader is always dismissed on exit, whether the fetch succeeds or fails.
  */
 async function showPairingsTableFromInput() {
-  let url = $("#url-input").val().trim();
+  let url = els.input.val().trim();
   if (!url) {
     url = PersistentStorage.get() ?? "";
-    if (url) $("#url-input").val(url);
+    if (url) els.input.val(url);
   }
   if (!url) return;
 
-  showLoader("#searchURL span");
+  showLoader(`#${UI.submit} span`);
   currentFetchController?.abort();
   currentFetchController = new AbortController();
   const { signal } = currentFetchController;
+
   try {
     const { playerInfo, rating, rtgchg, rounds } = await getChessResults(
       url,
@@ -530,11 +542,8 @@ async function showPairingsTableFromInput() {
       livePlayerDataJSON !== SessionStorage.get("playerData")
     ) {
       renderPairingsTable(rounds, playerData, url);
-      sessionStorage.setItem(SessionStorage.KEYS.rounds, liveRoundsJSON);
-      sessionStorage.setItem(
-        SessionStorage.KEYS.playerData,
-        livePlayerDataJSON,
-      );
+      SessionStorage.set("rounds", rounds);
+      SessionStorage.set("playerData", playerData);
     }
     PersistentStorage.set(url);
   } catch (err) {
@@ -542,21 +551,36 @@ async function showPairingsTableFromInput() {
     alert(err.message || "No Pairings found for this URL.");
     console.error(err);
   } finally {
-    hideLoader("#searchURL span");
+    hideLoader(`#${UI.submit} span`);
   }
 }
 
+/* ─── Initialization ─────────────────────────────────────────────────────── */
+
 $(function () {
+  // Resolve every element once and store in the module-level cache.
+  // From this point forward, no function needs to build a #-prefixed selector.
+  els = {
+    input: $(`#${UI.input}`),
+    table: $(`#${UI.table}`),
+    note: $(`#${UI.note}`),
+    form: $(`#${UI.form}`),
+  };
+
   const storedUrl = PersistentStorage.get();
   const cachedRounds = SessionStorage.getJSON("rounds");
   const cachedPlayerData = SessionStorage.getJSON("playerData");
 
-  if (storedUrl) $("#url-input").val(storedUrl);
+  if (storedUrl) els.input.val(storedUrl);
+
+  // Restore from session cache immediately so the table appears without
+  // waiting for the network, then kick off a live fetch to check for updates.
   if (cachedRounds && cachedPlayerData && cachedPlayerData.url === storedUrl)
     renderPairingsTable(cachedRounds, cachedPlayerData, storedUrl);
+
   if (storedUrl) showPairingsTableFromInput();
 
-  $("#chess-resultsForm").on("submit", (e) => {
+  els.form.on("submit", (e) => {
     e.preventDefault();
     showPairingsTableFromInput();
   });
