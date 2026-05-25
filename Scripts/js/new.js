@@ -49,24 +49,6 @@ let formEls = {}; // { result, time, tournament, round, date, gameLink, submit, 
 
 /* ─── API ────────────────────────────────────────────────────────────────── */
 
-// Normalization lives only at the API boundary — all objects leaving this
-// function are already clean, so nothing downstream needs to reformat them.
-function normalizePlayer({
-  name,
-  title = "",
-  standard = 0,
-  rapid = 0,
-  blitz = 0,
-}) {
-  return {
-    name: formatName(capitalize(name)),
-    title: abbreviateTitle(title),
-    standard,
-    rapid,
-    blitz,
-  };
-}
-
 async function fetchFidePlayer(id) {
   if (!id || isNaN(id)) throw new Error(`Invalid FIDE ID: ${id}`);
   const controller = new AbortController();
@@ -125,10 +107,6 @@ function clearFormError() {
 }
 
 /* ─── Autocomplete ───────────────────────────────────────────────────────── */
-
-function isFideId(query) {
-  return /^\d{5,10}$/.test(query.trim());
-}
 
 // Builds the entire list into a DocumentFragment in one pass, then replaces
 // the container's children atomically — no intermediate empty paint.
