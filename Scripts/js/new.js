@@ -149,7 +149,7 @@ function renderSuggestions(container, query, players) {
       rapid: p.rapid,
       blitz: p.blitz,
     });
-    div.innerHTML = `${p.title ? `<span class="player-title">${p.title}</span> ` : ""}${highlightMatch(p.name, query)}`;
+    div.innerHTML = `${p.title ? `<span class="player-title">${p.title}</span> ` : ""}${highlightMatch(query, p.name)}`;
     fragment.appendChild(div);
   }
   container.replaceChildren(fragment);

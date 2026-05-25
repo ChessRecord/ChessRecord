@@ -160,11 +160,11 @@ const formatPlayerLabel = (title, name) => {
   return t ? `${toUnicodeVariant(t, "bold sans", "sans")} ${name}` : name;
 };
 
-function highlightMatch(text, query) {
+function highlightMatch(query, result) {
   const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return text.replace(
+  return result.replace(
     new RegExp(`(${escaped})`, "gi"),
-    '<span style="font-weight:700">$1</span>',
+    "<strong>$1</strong>",
   );
 }
 
