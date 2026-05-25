@@ -95,13 +95,13 @@ const SessionStorage = {
  */
 function buildOpponentProfileUrl(baseUrl, startNo) {
   const snr = Number(startNo);
-  if (!baseUrl || !startNo || isNaN(snr) || snr <= 0) return null;
+  if (!isValidString(baseUrl) || !hasValue(startNo) || isNaN(snr) || snr <= 0)
+    return "";
   try {
     const parsed = new URL(baseUrl);
     parsed.searchParams.set("snr", String(snr));
     return parsed.toString();
   } catch {
-    if (typeof baseUrl !== "string") return null;
     const encoded = encodeURIComponent(String(snr));
     if (baseUrl.includes("snr="))
       return baseUrl.replace(/([?&]snr=)[^&]*/, "$1" + encoded);
@@ -262,7 +262,7 @@ async function scrapeChessResults(url, signal) {
 
 /**
  * Fetches a single opponent's profile page and returns their current rank,
- * or null if the rank is missing or the fetch fails.
+ * or "" if the rank is missing or the fetch fails.
  * Reuses the existing fetchPage + parsePlayerInfo pipeline — no extra URL
  * construction needed since the caller supplies the pre-built profile URL.
  */
@@ -270,9 +270,9 @@ async function fetchOpponentRank(profileUrl, signal) {
   try {
     const $html = $("<div>").html(await fetchPage(profileUrl, signal));
     const rank = parsePlayerInfo($html)["Rank"];
-    return rank?.trim() || null;
+    return rank?.trim() || "";
   } catch {
-    return null;
+    return "";
   }
 }
 
@@ -288,7 +288,7 @@ async function getChessResults(url, signal) {
 
   const { playerInfo, pairings } = await scrapeChessResults(url, signal);
 
-  if (!pairings.length) throw new Error("No pairings found for this player.");
+  if (isEmpty(pairings)) throw new Error("No pairings found for this player.");
 
   const rating =
     parseInt(
@@ -319,8 +319,8 @@ async function getChessResults(url, signal) {
     ...pairing,
     opponentPoints: normalisePoints(pairing.opponentPoints),
     opponentRank: pairing.opponentProfileUrl
-      ? (rankMap.get(pairing.opponentProfileUrl) ?? null)
-      : null,
+      ? (rankMap.get(pairing.opponentProfileUrl) ?? "")
+      : "",
     win: formatRatingDelta(rating, pairing.opponentRating, 1),
     draw: formatRatingDelta(rating, pairing.opponentRating, 0.5),
     loss: formatRatingDelta(rating, pairing.opponentRating, 0),
