@@ -47,7 +47,7 @@
     width: 30vw;
     height: fit-content;
     padding: var(--normal);
-    border: 1.5px var(--white-d) solid;
+    border: var(--border-thin) var(--white-d) solid;
     border-radius: var(--border);
 
     background-color: var(--white-primary);

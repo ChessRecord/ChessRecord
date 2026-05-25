@@ -24,7 +24,7 @@ body.dark-theme {
 
 .dark-theme .game-entry {
     background-color: var(--black-secondary);
-    border: 1.5px solid var(--grey-333);
+    border: var(--border-thin) var(--grey-3) solid;
 
     box-shadow:
         5px 5px 10px #1e1e1e,
@@ -46,7 +46,7 @@ body.dark-theme {
 }
 
 .dark-theme .game-meta .game-meta-right {
-    color: var(--grey-888);
+    color: var(--grey-8);
 }
 
 .dark-theme .game-result {
@@ -66,7 +66,7 @@ body.dark-theme {
 
 .dark-theme .meta-bar {
     background-color: var(--black-secondary);
-    border-top: 2px var(--grey-333) solid;
+    border-top: 2px var(--grey-3) solid;
 }
 
 .dark-theme .meta-bar #game-count,
@@ -83,7 +83,7 @@ body.dark-theme {
     background-color: var(--black-primary);
 
     color: var(--white-e0);
-    border: 1.5px solid var(--grey-444);
+    border: var(--border-thin) var(--grey-4) solid;
 }
 
 .dark-theme button {
@@ -102,7 +102,7 @@ body.dark-theme {
 
     color: var(--white-e0);
 
-    border: 2px solid var(--grey-555);
+    border: var(--border-thick) var(--grey-5) solid;
 }
 
 .dark-theme input:focus::placeholder {
@@ -113,20 +113,20 @@ body.dark-theme {
 
 .dark-theme,
 .dark-theme .custom-select {
-    --select-bg: var(--dark-bg, #2c2c2c);
-    --select-text-color: var(--dark-text, #ccc);
-    --select-arrow-color: #ccc;
-    --select-border-color: var(--grey-444);
-    --select-item-color: #ccc;
+    --select-bg: var(--dark-bg, var(--black-primary));
+    --select-text-color: var(--dark-text, var(--grey-c));
+    --select-arrow-color: var(--grey-c);
+    --select-border-color: var(--grey-4);
+    --select-item-color: var(--grey-c);
     --select-hover-bg: rgba(255, 255, 255, 0.1);
-    --select-item-border-color: var(--grey-444);
+    --select-item-border-color: var(--grey-4);
 }
 
 .dark-theme .dropdown,
 .dark-theme .dropdown::before,
 .dark-theme .dropdown::after {
     background-color: var(--select-bg);
-    border: 2px solid var(--grey-333);
+    border: var(--border-thick) var(--grey-3) solid;
 }
 
 .dark-theme .load i {
@@ -201,5 +201,5 @@ body.dark-theme {
     background-color: var(--black-primary);
 
     color: var(--white-e0);
-    border: 2px solid var(--grey-333);
+    border: var(--border-thick) var(--grey-3) solid;
 }

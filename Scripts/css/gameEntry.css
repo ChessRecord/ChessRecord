@@ -31,7 +31,7 @@
 
     margin-bottom: var(--small);
     padding: var(--small) var(--normal);
-    border: 1.5px var(--white-d) solid;
+    border: var(--border-thin) var(--white-d) solid;
     border-radius: 8px;
 
     background-color: var(--white-primary);
@@ -51,11 +51,11 @@
     width: 100%;
     margin-bottom: var(--small);
 
-    color: var(--grey-444);
+    color: var(--grey-4);
 }
 
 .game-entry .game-meta .game-meta-right {
-    color: var(--grey-666);
+    color: var(--grey-6);
 }
 
 .game-entry .game-meta .timecontrol-category {

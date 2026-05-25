@@ -19,17 +19,19 @@
     --white-d: #ddd;
     --black-primary: #2c2c2c;
     --black-secondary: #2a2a2a;
-    --grey-333: #333;
-    --grey-444: #444;
-    --grey-555: #555;
-    --grey-666: #666;
-    --grey-777: #777;
-    --grey-888: #888;
-    --grey-999: #999;
+    --grey-3: #333;
+    --grey-4: #444;
+    --grey-5: #555;
+    --grey-6: #666;
+    --grey-7: #777;
+    --grey-8: #888;
+    --grey-c: #ccc;
 
     /* Measurements */
     --border: 10px;
     --small-border: 6px;
+    --border-thin: 1.5px;
+    --border-thick: 2px;
     --small: 15px;
     --medium: 20px;
     --normal: 25px;
