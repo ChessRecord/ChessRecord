@@ -36,14 +36,8 @@ function exportJSON() {
       alert("No valid games found to export");
       return;
     }
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: "application/json",
-    });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `chessrecord-${today}.json`;
-    link.click();
-    URL.revokeObjectURL(link.href);
+
+    download(JSON.stringify(exportData, null, 2), `chessrecord-${today}.json`);
   } catch (error) {
     console.error("Export failed:", error);
     alert("Failed to export games. Please try again.");

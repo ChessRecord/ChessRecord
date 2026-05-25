@@ -54,36 +54,29 @@ let els = {}; // { input, table, note, form }
 const PersistentStorage = {
   KEY: "chessResultsUrl",
   get() {
-    return localStorage.getItem(this.KEY);
+    return Storage.get(this.KEY);
   },
   set(value) {
-    localStorage.setItem(this.KEY, String(value ?? ""));
+    Storage.set(this.KEY, value);
   },
   clear() {
-    localStorage.removeItem(this.KEY);
+    Storage.remove(this.KEY);
   },
 };
 
 const SessionStorage = {
   KEYS: { rounds: "pairingsRounds", playerData: "pairingsPlayerData" },
   get(key) {
-    return sessionStorage.getItem(this.KEYS[key]);
+    return Storage.session.get(this.KEYS[key]);
   },
   getJSON(key) {
-    try {
-      return JSON.parse(this.get(key));
-    } catch {
-      return null;
-    }
+    return this.get(key); // Storage.session.get already handles JSON.parse
   },
   set(key, value) {
-    sessionStorage.setItem(
-      this.KEYS[key],
-      typeof value === "object" ? JSON.stringify(value) : String(value ?? ""),
-    );
+    Storage.session.set(this.KEYS[key], value);
   },
   clear(...keys) {
-    keys.forEach((k) => sessionStorage.removeItem(this.KEYS[k]));
+    keys.forEach((k) => Storage.session.remove(this.KEYS[k]));
   },
 };
 
@@ -534,12 +527,18 @@ async function showPairingsTableFromInput() {
       signal,
     );
     const playerData = buildPlayerData(playerInfo, rating, rtgchg, url);
+
     const liveRoundsJSON = JSON.stringify(rounds);
     const livePlayerDataJSON = JSON.stringify(playerData);
 
+    const cachedRoundsJSON = JSON.stringify(SessionStorage.get("rounds"));
+    const cachedPlayerDataJSON = JSON.stringify(
+      SessionStorage.get("playerData"),
+    );
+
     if (
-      liveRoundsJSON !== SessionStorage.get("rounds") ||
-      livePlayerDataJSON !== SessionStorage.get("playerData")
+      liveRoundsJSON !== cachedRoundsJSON ||
+      livePlayerDataJSON !== cachedPlayerDataJSON
     ) {
       renderPairingsTable(rounds, playerData, url);
       SessionStorage.set("rounds", rounds);

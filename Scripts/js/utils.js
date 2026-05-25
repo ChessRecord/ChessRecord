@@ -2,25 +2,28 @@
 
 const today = new Date().toISOString().split("T")[0];
 
+/* --- Validation & Basic Helpers --- */
+
 const isValidString = (s) => typeof s === "string" && s.length > 0;
-
 const isValidObject = (o) => o !== null && typeof o === "object";
-
-const signum = (v) => (
-  (v = +v),
-  isNaN(v) ? "NaN" : (v > 0 ? "+" : "") + (v || 0)
-);
-
 /** True when a value is non-null, non-undefined, and non-empty-string. */
 const hasValue = (value) =>
   value !== null && value !== undefined && value !== "";
+const isEmpty = (array) => !array || array.length === 0;
 
 const toNumberOr = (value, fallback) => {
   const num = Number(value);
   return Number.isFinite(num) ? num : fallback;
 };
 
+const signum = (v) => (
+  (v = +v),
+  isNaN(v) ? "NaN" : (v > 0 ? "+" : "") + (v || 0)
+);
+
 const generateUniqueID = () => crypto.randomUUID();
+
+/* --- String Formatting --- */
 
 function capitalize(str) {
   if (!isValidString(str)) return "";
@@ -38,11 +41,16 @@ function formatName(name) {
   return `${first.trim()} ${last.trim()}`.trim();
 }
 
-function isEmpty(array) {
-  return !array || array.length === 0;
+function highlightMatch(query, result) {
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return result.replace(
+    new RegExp(`(${escaped})`, "gi"),
+    "<strong>$1</strong>",
+  );
 }
 
 /* --- Unicode Variant Helpers --- */
+
 const buildSpecialMap = (startCode, rangeStart = 97, rangeEnd = 122) => {
   const map = {};
   for (let i = rangeStart; i <= rangeEnd; i++) {
@@ -54,7 +62,6 @@ const buildSpecialMap = (startCode, rangeStart = 97, rangeEnd = 122) => {
 const SPECIAL_P = Object.freeze(buildSpecialMap(0x249c));
 const SPECIAL_W = Object.freeze(buildSpecialMap(0xff41));
 
-// Allocated once at module level, shared across all toUnicodeVariant calls
 const UNICODE_OFFSETS = Object.freeze({
   m: [0x1d670, 0x1d7f6],
   b: [0x1d400, 0x1d7ce],
@@ -116,7 +123,6 @@ const UNICODE_SPECIAL = Object.freeze({
 
 function toUnicodeVariant(str, variant, flags) {
   if (!isValidString(str)) return "";
-
   const getType = (v) => VARIANT_ALIASES[v] || (UNICODE_OFFSETS[v] ? v : "m");
   const type = getType(variant);
   const flagArr = isValidString(flags)
@@ -131,7 +137,6 @@ function toUnicodeVariant(str, variant, flags) {
     if (specialCode) {
       result += String.fromCodePoint(specialCode);
     } else {
-      // O(1) char/digit lookup via charCode arithmetic
       const code = k.charCodeAt(0);
       const ci =
         code >= 65 && code <= 90
@@ -153,19 +158,71 @@ function toUnicodeVariant(str, variant, flags) {
   return result;
 }
 
-// Renders a player name with its title in bold-sans Unicode variant.
-// Guards against empty titles — toUnicodeVariant("") produces a stray space.
 const formatPlayerLabel = (title, name) => {
   const t = title?.trim();
   return t ? `${toUnicodeVariant(t, "bold sans", "sans")} ${name}` : name;
 };
 
-function highlightMatch(query, result) {
-  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return result.replace(
-    new RegExp(`(${escaped})`, "gi"),
-    "<strong>$1</strong>",
-  );
+/* --- Browser Utilities --- */
+
+/* ─── Storage ────────────────────────────────────────────────────────────── */
+
+// Factory producing a uniform get/set/remove interface over any Web Storage
+// backend. Defined once — no duplication between localStorage and
+// sessionStorage. `name` is used solely for the console warning on set failure.
+const makeStorage = (store, name) => ({
+  get(key, fallback = null) {
+    try {
+      const val = store.getItem(key);
+      if (val === null) return fallback;
+      try {
+        return JSON.parse(val);
+      } catch {
+        return val;
+      }
+    } catch {
+      return fallback;
+    }
+  },
+  set(key, val) {
+    try {
+      store.setItem(key, JSON.stringify(val));
+      return true;
+    } catch (e) {
+      console.warn(`${name} set failed:`, e.name);
+      return false;
+    }
+  },
+  remove(key) {
+    try {
+      store.removeItem(key);
+    } catch {}
+  },
+});
+
+const Storage = {
+  ...makeStorage(localStorage, "localStorage"),
+  session: makeStorage(sessionStorage, "sessionStorage"),
+};
+
+/* ─── Download ───────────────────────────────────────────────────────────── */
+
+// Modern browsers click detached anchors without requiring a DOM insertion,
+// so appendChild/removeChild are unnecessary.
+function download(content, filename, contentType = "application/json") {
+  try {
+    const url = URL.createObjectURL(new Blob([content], { type: contentType }));
+    const link = Object.assign(document.createElement("a"), {
+      href: url,
+      download: filename,
+    });
+    link.click();
+    URL.revokeObjectURL(url);
+    return true;
+  } catch (e) {
+    console.error("Download failed:", e);
+    return false;
+  }
 }
 
 /* --- Loader UI Helpers --- */
@@ -293,6 +350,26 @@ function normalizeResult(result) {
   }
 }
 
+function isFideId(query) {
+  return /^\d{5,10}$/.test(query.trim());
+}
+
+function normalizePlayer({
+  name,
+  title = "",
+  standard = 0,
+  rapid = 0,
+  blitz = 0,
+}) {
+  return {
+    name: formatName(capitalize(name)),
+    title: abbreviateTitle(title),
+    standard,
+    rapid,
+    blitz,
+  };
+}
+
 const getTagRegex = (() => {
   const cache = new Map();
   return (tag) => {
@@ -359,14 +436,10 @@ function sortGames(games) {
       (tournamentMaxDates[b.tournament] || 0) -
       (tournamentMaxDates[a.tournament] || 0);
     if (dateDiff !== 0) return dateDiff;
-
-    if (a.tournament !== b.tournament) {
+    if (a.tournament !== b.tournament)
       return (a.tournament || "").localeCompare(b.tournament || "");
-    }
-
     const roundDiff = (a.round ?? 0) - (b.round ?? 0);
     if (roundDiff !== 0) return roundDiff;
-
     if (a.board == null && b.board == null) return 0;
     if (a.board == null) return -1;
     if (b.board == null) return 1;
@@ -395,23 +468,17 @@ function normalizeGames(games) {
 }
 
 function loadGames(target = window.games || (window.games = [])) {
-  try {
-    const data = localStorage.getItem("chessGames");
-    const games = data ? JSON.parse(data) : [];
-    const normalized = normalizeGames(games);
-    sortGames(normalized);
-    if (Array.isArray(target)) {
-      target.length = 0;
-      target.push(...normalized);
-    }
-  } catch (e) {
-    console.error("Failed to load games:", e);
-    if (Array.isArray(target)) target.length = 0;
+  const games = Storage.get("chessGames", []);
+  const normalized = normalizeGames(games);
+  sortGames(normalized);
+  if (Array.isArray(target)) {
+    target.length = 0;
+    target.push(...normalized);
   }
 }
 
 function saveGames() {
   window.games = normalizeGames(window.games);
   sortGames(window.games);
-  localStorage.setItem("chessGames", JSON.stringify(window.games));
+  Storage.set("chessGames", window.games);
 }

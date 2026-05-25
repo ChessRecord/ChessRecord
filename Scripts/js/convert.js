@@ -29,13 +29,6 @@ window.addEventListener("DOMContentLoaded", function () {
     eventName = eventName.replace(/[^a-z0-9\-_ ]/gi, "_");
     const filename = eventName + ".json";
 
-    const blob = new Blob([formatted], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(link.href);
+    download(formatted, filename);
   });
 });

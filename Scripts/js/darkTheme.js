@@ -15,14 +15,14 @@ class ThemeManager {
     const isDark = body.classList.toggle("dark-theme");
 
     // Store preference
-    localStorage.setItem("darkTheme", isDark);
+    Storage.set("darkTheme", isDark);
 
     // Update appearance based on theme
     this.updateThemeAppearance(isDark);
   }
 
   loadThemePreference() {
-    const isDark = localStorage.getItem("darkTheme") === "true";
+    const isDark = Storage.get("darkTheme") === true;
     if (isDark) document.body.classList.add("dark-theme");
 
     // Update appearance based on theme
