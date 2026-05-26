@@ -79,18 +79,25 @@ async function resolveImport(importedData) {
     return;
   }
 
-  const finalize = (resolve) => {
+  const finalize = (action) => {
+    const wasEmpty = isEmpty(window.games);
     for (const game of importedData) game.id = generateUniqueID();
-    if (resolve === "replace") {
+    if (action === "replace") {
       window.games = importedData;
-    } else {
+    } else if (action === "merge") {
       window.games.push(...importedData);
+    } else {
+      return;
     }
     saveGames();
     displayGames();
-    alert(
-      `Games ${resolve === "replace" ? "replaced" : "appended"} successfully!`,
-    );
+
+    const label = wasEmpty
+      ? "imported"
+      : action === "replace"
+        ? "replaced"
+        : "merged";
+    alert(`Games ${label} successfully!`);
   };
 
   if (isEmpty(window.games)) {
@@ -98,10 +105,10 @@ async function resolveImport(importedData) {
   } else {
     const choice = await Modal.confirm({
       icon: "fa-solid fa-triangle-exclamation warning-big",
-      title: "Do you want to replace or append your games?",
+      title: "Do you want to replace or merge your games?",
       buttons: [
         { action: "replace", label: "Replace", classes: "btn outline" },
-        { action: "append", label: "Append", classes: "btn" },
+        { action: "merge", label: "Merge", classes: "btn" },
       ],
     });
     if (choice) finalize(choice);
@@ -204,15 +211,21 @@ function gameEntry(game) {
   return a;
 }
 
-function deleteGame(id) {
+async function deleteGame(id) {
   const gameIndex = window.games.findIndex((game) => game.id === id);
   if (gameIndex === -1) return;
   const { whiteTitle, white, blackTitle, black } = window.games[gameIndex];
-  if (
-    confirm(
-      `Are you sure you want to delete:\n ${formatPlayerLabel(whiteTitle, white)} vs ${formatPlayerLabel(blackTitle, black)} ?`,
-    )
-  ) {
+
+  const confirmed = await Modal.confirm({
+    icon: "fa-solid fa-triangle-exclamation warning-big",
+    title: `Are you sure you want to delete:<br>${formatPlayerLabel(whiteTitle, white)} vs ${formatPlayerLabel(blackTitle, black)}?`,
+    buttons: [
+      { action: true, label: "Delete", classes: "btn outline" },
+      { action: false, label: "Keep", classes: "btn" },
+    ],
+  });
+
+  if (confirmed) {
     window.games.splice(gameIndex, 1);
     saveGames();
     displayGames();
