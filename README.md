@@ -2,7 +2,7 @@
 
 Welcome to **ChessRecord**, the ultimate web application for tracking, storing, and organizing your chess games—whether they're played online or over-the-board (OTB). Effortlessly manage your entire chess journey from a single, streamlined interface.
 
-[Check it out here! 🚀](https://chessrecord.github.io/)
+[Check it out here! 🚀](https://chessrecord.pages.dev/)
 
 ## 📌 Table of Contents
 
@@ -25,7 +25,7 @@ Welcome to **ChessRecord**, the ultimate web application for tracking, storing, 
 
 ## 🚀 Usage
 
-1. Open the application in your web browser: [ChessRecord](https://ChessRecord.github.io/).
+1. Open the application in your web browser: [ChessRecord](https://ChessRecord.pages.dev/).
 2. Enter game details such as player names, tournament name, date, etc.
 3. Provide the link to your game to record it.
 4. Add the game to your personal database and keep it organized.
