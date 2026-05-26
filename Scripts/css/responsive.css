@@ -21,7 +21,7 @@
 
         max-width: fit-content;
 
-        transform: translate(0, -75%) !important; /* specificity-override */
+        transform: translate(0, -75%);
     }
 
     #theme-toggle-btn {
@@ -32,11 +32,11 @@
 
     .game-meta {
         display: flex;
-        align-items: center !important; /* specificity-override */
-        justify-content: center !important; /* specificity-override */
+        align-items: center;
+        justify-content: center;
         gap: var(--small);
 
-        margin-bottom: 5px !important; /* specificity-override */
+        margin-bottom: 5px;
     }
 
     .game-meta-right {
@@ -94,7 +94,7 @@
     .player-black {
         width: 100%;
 
-        text-align: left !important; /* specificity-override */
+        text-align: left;
     }
 
     .game-meta {
