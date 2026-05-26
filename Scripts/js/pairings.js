@@ -69,9 +69,6 @@ const SessionStorage = {
   get(key) {
     return Storage.session.get(this.KEYS[key]);
   },
-  getJSON(key) {
-    return this.get(key); // Storage.session.get already handles JSON.parse
-  },
   set(key, value) {
     Storage.session.set(this.KEYS[key], value);
   },
