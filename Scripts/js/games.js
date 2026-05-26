@@ -80,22 +80,28 @@ async function resolveImport(importedData) {
   }
 
   const finalize = (action) => {
+    // 1. Check the state first before modifying anything
+    const label = isEmpty(window.games)
+      ? "imported"
+      : action === "replace"
+        ? "replaced"
+        : "merged"; // Changed "added" to "merged" to match your fallback fallback action
+
+    // 2. Assign unique IDs
     for (const game of importedData) game.id = generateUniqueID();
+
+    // 3. Keep the data mutation blocks intact!
     if (action === "replace") {
       window.games = importedData;
     } else if (action === "merge") {
       window.games.push(...importedData);
     } else {
-      return;
+      return; // Safety exit for invalid actions
     }
+
+    // 4. Save, update UI, and alert
     saveGames();
     displayGames();
-
-    const label = isEmpty(window.games)
-      ? "imported"
-      : action === "replace"
-        ? "replaced"
-        : "merged";
     alert(`Games ${label} successfully!`);
   };
 
