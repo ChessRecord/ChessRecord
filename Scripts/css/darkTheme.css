@@ -6,29 +6,19 @@
 
 body.dark-theme {
     background-color: var(--black-primary);
-
     color: var(--white-e0);
+
+    /* Game Entry Overrides */
+    --game-entry-shadow: 5px 5px 10px #1e1e1e, -5px -5px 10px #272626;
 }
 
 /* ─── Container Styles ──────────────────────────── */
-
-.dark-theme .container {
-    background-color: var(--black-primary);
-}
-
-.dark-theme .container h1 {
-    color: var(--white-e0);
-}
-
+...
 /* ─── Game Entry Styles ─────────────────────────── */
 
 .dark-theme .game-entry {
     background-color: var(--black-secondary);
-    border: var(--border-thin) var(--grey-3) solid;
-
-    box-shadow:
-        5px 5px 10px #1e1e1e,
-        -5px -5px 10px #272626;
+    border-color: var(--grey-3);
 }
 
 .dark-theme .game-entry:hover {
@@ -37,7 +27,6 @@ body.dark-theme {
 
 .dark-theme .game-round {
     background-color: var(--white-e0);
-
     color: var(--black-primary);
 }
 
@@ -45,7 +34,7 @@ body.dark-theme {
     color: var(--white-b0);
 }
 
-.dark-theme .game-meta .game-meta-right {
+.dark-theme .game-meta-right {
     color: var(--grey-8);
 }
 
@@ -53,8 +42,8 @@ body.dark-theme {
     color: var(--white-d);
 }
 
-.dark-theme .player-white span,
-.dark-theme .player-black span {
+.dark-theme .player-white,
+.dark-theme .player-black {
     color: var(--white-d);
 }
 
@@ -135,12 +124,8 @@ body.dark-theme {
 
 .dark-theme .delete-game-btn {
     background-color: var(--black-primary);
-
     color: var(--white-e0);
-
-    transition:
-        background-color,
-        color 0s;
+    transition: all 0.1s ease;
 }
 
 .dark-theme .delete-game-btn:hover {
