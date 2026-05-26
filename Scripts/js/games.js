@@ -80,7 +80,6 @@ async function resolveImport(importedData) {
   }
 
   const finalize = (action) => {
-    const wasEmpty = isEmpty(window.games);
     for (const game of importedData) game.id = generateUniqueID();
     if (action === "replace") {
       window.games = importedData;
@@ -92,7 +91,7 @@ async function resolveImport(importedData) {
     saveGames();
     displayGames();
 
-    const label = wasEmpty
+    const label = isEmpty(window.games)
       ? "imported"
       : action === "replace"
         ? "replaced"
