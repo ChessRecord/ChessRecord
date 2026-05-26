@@ -211,21 +211,15 @@ function gameEntry(game) {
   return a;
 }
 
-async function deleteGame(id) {
+function deleteGame(id) {
   const gameIndex = window.games.findIndex((game) => game.id === id);
   if (gameIndex === -1) return;
   const { whiteTitle, white, blackTitle, black } = window.games[gameIndex];
-
-  const confirmed = await Modal.confirm({
-    icon: "fa-solid fa-triangle-exclamation warning-big",
-    title: `Are you sure you want to delete:<br>${formatPlayerLabel(whiteTitle, white)} vs ${formatPlayerLabel(blackTitle, black)}?`,
-    buttons: [
-      { action: true, label: "Delete", classes: "btn outline" },
-      { action: false, label: "Keep", classes: "btn" },
-    ],
-  });
-
-  if (confirmed) {
+  if (
+    confirm(
+      `Are you sure you want to delete:\n ${formatPlayerLabel(whiteTitle, white)} vs ${formatPlayerLabel(blackTitle, black)} ?`,
+    )
+  ) {
     window.games.splice(gameIndex, 1);
     saveGames();
     displayGames();
