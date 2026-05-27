@@ -20,9 +20,10 @@ const hasValue = (value) =>
   value !== null && value !== undefined && value !== "";
 const isEmpty = (array) => !array || array.length === 0;
 
-const toNumberOr = (value, fallback) => {
-  const num = Number(value);
-  return Number.isFinite(num) ? num : fallback;
+const toNumberOr = (value, fallback = 0) => {
+  if (!hasValue(value)) return fallback;
+  const n = Number(String(value).trim());
+  return Number.isFinite(n) ? n : fallback;
 };
 
 const signum = (v) => (
