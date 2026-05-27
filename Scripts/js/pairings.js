@@ -69,9 +69,6 @@ const SessionStorage = {
   get(key) {
     return Storage.session.get(this.KEYS[key]);
   },
-  getJSON(key) {
-    return this.get(key); // Storage.session.get already handles JSON.parse
-  },
   set(key, value) {
     Storage.session.set(this.KEYS[key], value);
   },
@@ -567,8 +564,8 @@ $(function () {
   };
 
   const storedUrl = PersistentStorage.get();
-  const cachedRounds = SessionStorage.getJSON("rounds");
-  const cachedPlayerData = SessionStorage.getJSON("playerData");
+  const cachedRounds = SessionStorage.get("rounds");
+  const cachedPlayerData = SessionStorage.get("playerData");
 
   if (storedUrl) els.input.val(storedUrl);
 
