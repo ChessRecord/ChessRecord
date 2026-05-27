@@ -3,38 +3,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
 @import url("root.css");
 
-/* ─── Variables ─────────────────────────────────── */
-
-:root {
-    --game-entry-radius: 8px;
-    --game-entry-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    --game-entry-transition: transform 0.3s ease;
-}
-
 /* ─── List Container ────────────────────────────── */
 
 #gamesList {
     margin-top: var(--normal);
-}
-
-.tournament-section {
-    margin-bottom: var(--normal);
-}
-
-/* ─── Tournament Header ─────────────────────────── */
-
-.tournament-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    margin-bottom: var(--border);
-    padding: var(--border) var(--normal) var(--border) var(--small);
-    border-top: var(--deep-blue-light) 2px solid;
-    border-bottom: var(--deep-blue) 2px solid;
-
-    color: var(--deep-blue);
-    transition: all 0.3s ease;
 }
 
 /* ─── Game Entry Card ───────────────────────────── */
@@ -43,61 +15,50 @@
     display: block;
     margin-bottom: var(--small);
 
+    text-decoration: none;
     color: inherit;
+}
+
+.game-entry-link:hover {
     text-decoration: none;
 }
 
 .game-entry {
     position: relative;
+
     display: flex;
     flex-direction: column;
 
     margin-bottom: var(--small);
     padding: var(--small) var(--normal);
     border: var(--border-thin) var(--white-d) solid;
-    border-radius: var(--game-entry-radius);
+    border-radius: 8px;
 
     background-color: var(--white-primary);
-    box-shadow: var(--game-entry-shadow);
-    transition: var(--game-entry-transition);
+
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
 }
 
 .game-entry:hover {
     transform: translateY(-3px);
 }
 
-/* ─── Game Meta ─────────────────────────────────── */
-
-.game-meta {
+.game-entry .game-meta {
     display: flex;
     justify-content: space-between;
+
     width: 100%;
     margin-bottom: var(--small);
 
     color: var(--grey-4);
 }
 
-.game-meta-right {
+.game-entry .game-meta .game-meta-right {
     color: var(--grey-6);
 }
 
-.game-round {
-    margin-right: var(--border);
-    padding: 4px 6px;
-    border-radius: 100px;
-
-    background-color: var(--deep-blue);
-    color: var(--white-primary);
-    font-family: "Rubik", sans-serif;
-    font-weight: 700;
-}
-
-.game-time {
-    font-family: "Rubik", sans-serif;
-    font-weight: 600;
-}
-
-.timecontrol-category {
+.game-entry .game-meta .timecontrol-category {
     font-family: "Poppins", sans-serif;
 }
 
@@ -107,26 +68,29 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     width: 100%;
 }
 
-.player-white,
-.player-black {
-    display: flex;
-    align-items: center;
-    gap: calc(var(--small) / 2);
-
-    color: var(--deep-blue);
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
 .player-white {
+    clear: both;
     text-align: left;
 }
 
 .player-black {
+    clear: both;
     text-align: right;
+}
+
+.game-entry .player-white,
+.game-entry .player-black {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--small) / 2);
+
+    text-decoration: none;
+    color: var(--deep-blue);
+    transition: color 0.3s ease;
 }
 
 .player-rating {
@@ -153,11 +117,54 @@
     white-space: nowrap;
 }
 
+.game-time {
+    font-family: "Rubik", sans-serif;
+    font-weight: 600;
+}
+
+/* ─── Tournament Header ─────────────────────────── */
+
+.tournament-header {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+
+    margin-bottom: var(--border);
+    padding: var(--border) var(--normal);
+    padding-left: var(--small) !important;
+    border-top: var(--deep-blue-light) 2px solid;
+    border-bottom: var(--deep-blue) 2px solid;
+
+    color: var(--deep-blue);
+
+    transition: all 0.3s ease;
+}
+
+.tournament-section {
+    margin-bottom: var(--normal);
+}
+
+.game-round {
+    margin-right: var(--border);
+    padding: 4px 6px;
+    border-radius: 100px;
+
+    background-color: var(--deep-blue);
+
+    color: var(--white-primary);
+    font-family: "Rubik", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+}
+
 /* ─── Components ────────────────────────────────── */
 
 #search {
     display: flex;
     align-items: center;
+    flex-direction: row;
+
     width: 100%;
 }
 
@@ -168,6 +175,7 @@
 .meta-bar {
     position: fixed;
     bottom: 0;
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -189,16 +197,19 @@
 
 .filters {
     position: relative;
+
     display: flex;
+    flex-direction: row;
 }
 
 .load {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: start;
     gap: var(--small);
 
     font-size: var(--medium);
+
     cursor: pointer;
 }
 
@@ -213,32 +224,40 @@
     top: var(--border);
     right: var(--border);
     left: 100%;
+    z-index: 0; /* implicit */
 
     display: inline-block;
+    visibility: hidden;
+    opacity: 0;
+
     width: 40px;
     height: 40px;
     padding: 5px;
     border: none;
     border-radius: 50%;
-    visibility: hidden;
-    opacity: 0;
 
     background-color: var(--white-primary);
+
     color: var(--deep-blue);
     font-size: 1.25em;
 
     cursor: pointer;
     transform: translate(-45%, 37.5%);
-    transition: all 0.1s ease;
+    transition:
+        background-color,
+        color,
+        transform 0.1s;
 }
 
 .game-entry:hover .delete-game-btn {
     visibility: visible;
     opacity: 1;
+
     transform: translate(-50%, 37.5%);
 }
 
 .delete-game-btn:hover {
     background-color: var(--deep-blue);
+
     color: #fff;
 }

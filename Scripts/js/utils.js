@@ -21,7 +21,6 @@ const hasValue = (value) =>
 const isEmpty = (array) => !array || array.length === 0;
 
 const toNumberOr = (value, fallback) => {
-  if (value === null || value === undefined || value === "") return fallback;
   const num = Number(value);
   return Number.isFinite(num) ? num : fallback;
 };
