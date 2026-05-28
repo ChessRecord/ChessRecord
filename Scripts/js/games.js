@@ -57,12 +57,12 @@ async function parseImport(files) {
         if (name.endsWith(".pgn")) return pgnToJson(text);
 
         // Handle ChesSoup compressed format
-        if (text.trim().startsWith("§")) {
+        if (name.endsWith(".chr") && text.trim().startsWith("§")) {
           return normalizeGames(fromSoup(text));
         }
 
         // Fallback to JSON
-        if (name.endsWith(".json") || name.endsWith(".chr")) {
+        if (name.endsWith(".json")) {
           const rawData = JSON.parse(text);
           if (!Array.isArray(rawData)) throw new Error("Invalid JSON format");
           return normalizeGames(rawData);
