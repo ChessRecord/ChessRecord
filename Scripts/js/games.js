@@ -37,8 +37,7 @@ function exportJSON() {
       return;
     }
 
-    const soupData = toSoup(exportData);
-    download(soupData, `chessrecord-${today}.chr`, "text/plain");
+    download(toSoup(exportData), `chessrecord-${today}.chr`, "application/octet-stream");
   } catch (error) {
     console.error("Export failed:", error);
     alert("Failed to export games. Please try again.");
