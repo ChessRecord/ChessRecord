@@ -37,7 +37,8 @@ function exportJSON() {
       return;
     }
 
-    download(JSON.stringify(exportData, null, 2), `chessrecord-${today}.json`);
+    const soupData = toSoup(exportData);
+    download(soupData, `chessrecord-${today}.chr`, "text/plain");
   } catch (error) {
     console.error("Export failed:", error);
     alert("Failed to export games. Please try again.");
@@ -55,7 +56,14 @@ async function parseImport(files) {
       }).then(({ file, text }) => {
         const name = file.name.toLowerCase();
         if (name.endsWith(".pgn")) return pgnToJson(text);
-        if (name.endsWith(".json")) {
+
+        // Handle ChesSoup compressed format
+        if (text.trim().startsWith("§")) {
+          return normalizeGames(fromSoup(text));
+        }
+
+        // Fallback to JSON
+        if (name.endsWith(".json") || name.endsWith(".chr")) {
           const rawData = JSON.parse(text);
           if (!Array.isArray(rawData)) throw new Error("Invalid JSON format");
           return normalizeGames(rawData);
