@@ -42,40 +42,12 @@ let els = {}; // { input, table, note, form }
 
 /* ─── Storage ────────────────────────────────────────────────────────────── */
 
-// Two scopes with distinct lifetimes:
-//   PersistentStorage — localStorage; survives tab/browser close.
-//                       Holds only the URL so the input is pre-filled on
-//                       every future visit.
-//   SessionStorage    — sessionStorage; cleared when the tab closes.
-//                       Holds rounds and playerData for instant within-session
-//                       restores. Always verified against a fresh fetch before
-//                       deciding whether to re-render.
+// PersistentStorage (localStorage) — pre-fills URL on future visits.
+const PersistentStorage = Storage.proxy("chessResultsUrl");
 
-const PersistentStorage = {
-  KEY: "chessResultsUrl",
-  get() {
-    return Storage.get(this.KEY);
-  },
-  set(value) {
-    Storage.set(this.KEY, value);
-  },
-  clear() {
-    Storage.remove(this.KEY);
-  },
-};
-
-const SessionStorage = {
-  KEYS: { rounds: "pairingsRounds", playerData: "pairingsPlayerData" },
-  get(key) {
-    return Storage.session.get(this.KEYS[key]);
-  },
-  set(key, value) {
-    Storage.session.set(this.KEYS[key], value);
-  },
-  clear(...keys) {
-    keys.forEach((k) => Storage.session.remove(this.KEYS[k]));
-  },
-};
+// SessionStorage (sessionStorage) — rounds and playerData for instant restores.
+const RoundsStorage = Storage.session.proxy("pairingsRounds");
+const PlayerDataStorage = Storage.session.proxy("pairingsPlayerData");
 
 /* ─── Utilities ──────────────────────────────────────────────────────────── */
 
@@ -528,18 +500,16 @@ async function showPairingsTableFromInput() {
     const liveRoundsJSON = JSON.stringify(rounds);
     const livePlayerDataJSON = JSON.stringify(playerData);
 
-    const cachedRoundsJSON = JSON.stringify(SessionStorage.get("rounds"));
-    const cachedPlayerDataJSON = JSON.stringify(
-      SessionStorage.get("playerData"),
-    );
+    const cachedRoundsJSON = JSON.stringify(RoundsStorage.get());
+    const cachedPlayerDataJSON = JSON.stringify(PlayerDataStorage.get());
 
     if (
       liveRoundsJSON !== cachedRoundsJSON ||
       livePlayerDataJSON !== cachedPlayerDataJSON
     ) {
       renderPairingsTable(rounds, playerData, url);
-      SessionStorage.set("rounds", rounds);
-      SessionStorage.set("playerData", playerData);
+      RoundsStorage.set(rounds);
+      PlayerDataStorage.set(playerData);
     }
     PersistentStorage.set(url);
   } catch (err) {
@@ -564,8 +534,8 @@ $(function () {
   };
 
   const storedUrl = PersistentStorage.get();
-  const cachedRounds = SessionStorage.get("rounds");
-  const cachedPlayerData = SessionStorage.get("playerData");
+  const cachedRounds = RoundsStorage.get();
+  const cachedPlayerData = PlayerDataStorage.get();
 
   if (storedUrl) els.input.val(storedUrl);
 

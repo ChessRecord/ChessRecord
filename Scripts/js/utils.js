@@ -219,6 +219,15 @@ const makeStorage = (store, name) => ({
       store.removeItem(key);
     } catch {}
   },
+  // Creates a scoped object for a specific key
+  proxy(key) {
+    return {
+      get: (fallback) => this.get(key, fallback),
+      set: (val) => this.set(key, val),
+      remove: () => this.remove(key),
+      clear: () => this.remove(key),
+    };
+  },
 });
 
 const Storage = {
@@ -226,7 +235,7 @@ const Storage = {
   session: makeStorage(sessionStorage, "sessionStorage"),
 };
 
-/* ─── Download ───────────────────────────────────────────────────────────── */
+/* --- Download --- */
 
 // Modern browsers click detached anchors without requiring a DOM insertion,
 // so appendChild/removeChild are unnecessary.
@@ -258,14 +267,12 @@ function showLoader(target) {
   el.innerHTML = "Loading";
 }
 
-function hideLoader(target) {
-  const el = document.querySelector(target);
-  if (!el) return;
-  const loader = document.getElementById("loader");
-  if (loader) loader.style.display = "none";
-  if (typeof el._oldLoaderValue !== "undefined") {
-    el.innerHTML = el._oldLoaderValue;
-    delete el._oldLoaderValue;
+async function withLoader(target, fn) {
+  showLoader(target);
+  try {
+    return await fn();
+  } finally {
+    hideLoader(target);
   }
 }
 
@@ -497,6 +504,8 @@ const localStorageKey = "chessGames";
 let indexStorage = null;
 let useIndexStorage = false;
 
+const gamesLocalStorage = Storage.proxy(localStorageKey);
+
 const dbReady = (async () => {
   try {
     const Dexie = window.Dexie;
@@ -512,10 +521,10 @@ const dbReady = (async () => {
     useIndexStorage = true;
 
     if ((await indexStorage.chessGames.count()) === 0) {
-      const cachedLsGames = Storage.get(localStorageKey, []);
+      const cachedLsGames = gamesLocalStorage.get([]);
       if (cachedLsGames.length > 0) {
         await indexStorage.chessGames.bulkPut(normalizeGames(cachedLsGames));
-        Storage.remove(localStorageKey);
+        gamesLocalStorage.clear();
         console.info(
           `[ChessRecord] Migration complete: Moved ${cachedLsGames.length} games to IndexedDB.`,
         );
@@ -545,10 +554,10 @@ async function loadGames(target = window.games ?? (window.games = [])) {
       try {
         raw = await indexStorage.chessGames.toArray();
       } catch {
-        raw = Storage.get(localStorageKey, []);
+        raw = gamesLocalStorage.get([]);
       }
     } else {
-      raw = Storage.get(localStorageKey, []);
+      raw = gamesLocalStorage.get([]);
     }
 
     const normalized = normalizeGames(raw);
@@ -584,5 +593,5 @@ async function saveGames() {
     }
   }
 
-  Storage.set(localStorageKey, window.games);
+  gamesLocalStorage.set(window.games);
 }
