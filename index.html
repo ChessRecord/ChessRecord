@@ -47,7 +47,9 @@
                     >
                         <div class="load">
                             <i class="fa-solid fa-folder-open"></i>
-                            <span style="font-size: var(--small)">Import Games</span>
+                            <span style="font-size: var(--small)"
+                                >Import Games</span
+                            >
                         </div>
                         <input
                             type="file"
@@ -61,7 +63,9 @@
                     <a onclick="exportJSON()" class="dropdown-item">
                         <div class="load">
                             <i class="fa-solid fa-floppy-disk"></i>
-                            <span style="font-size: var(--small)">Export Games</span>
+                            <span style="font-size: var(--small)"
+                                >Export Games</span
+                            >
                         </div>
                     </a>
                 </div>
@@ -73,6 +77,7 @@
             <div id="tournament-count"></div>
         </div>
         <!-- Global Utilities & UI -->
+        <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
         <script src="Scripts/js/utils.js"></script>
         <script src="Scripts/js/ui.js"></script>
         <script src="Scripts/js/modal.js"></script>
