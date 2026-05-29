@@ -35,6 +35,9 @@ const UI = {
 
 /* ─── Constants ──────────────────────────────────────────────────────────── */
 
+// loadGames() is async (Dexie/IndexedDB). Kick it off immediately so the DB
+// is primed well before the form is submitted. DOMContentLoaded awaits this
+// to guarantee window.games is populated before any interaction.
 loadGames();
 
 const FIDE_BASE = "https://lichess.org/api/fide/player";
@@ -342,6 +345,11 @@ async function addGame(event) {
   showLoader(`#${UI.form.submit} span`);
 
   try {
+    // 0. Ensure games are loaded before attempting any write. In practice
+    //    the background load is already resolved by the time the user hits submit,
+    //    but awaiting here is a safety net for edge cases.
+    await loadGames();
+
     // 1. Collect — one DOM pass, raw values
     const state = getFormState();
 
@@ -359,7 +367,7 @@ async function addGame(event) {
         "Game already exists or player conflict in this round!",
       );
     window.games.push(game);
-    saveGames();
+    await saveGames();
     event.target.reset();
     gameAddedAlert(game);
   } finally {
@@ -370,7 +378,7 @@ async function addGame(event) {
 
 /* ─── Initialization ─────────────────────────────────────────────────────── */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const gameForm = document.getElementById(UI.form.root);
 
   // Resolve every element once and store in module-level caches.
@@ -402,6 +410,11 @@ document.addEventListener("DOMContentLoaded", () => {
     "color:#c0392b;font-size:.875rem;margin:.25rem 0 0;display:none";
   formEls.submit?.insertAdjacentElement("beforebegin", errorEl);
   formEls.error = errorEl;
+
+  // Wait for the DB load kicked off at module scope to complete before wiring
+  // up the submit handler. This ensures window.games is populated so that
+  // isDuplicate checks are accurate even if the user opens the page fresh.
+  await loadGames();
 
   gameForm?.addEventListener("submit", addGame);
 

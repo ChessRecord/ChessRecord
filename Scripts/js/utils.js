@@ -31,7 +31,18 @@ const signum = (v) => (
   isNaN(v) ? "NaN" : (v > 0 ? "+" : "") + (v || 0)
 );
 
-const generateUniqueID = () => crypto.randomUUID();
+const generateUniqueID = () => {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    // Fallback for non-secure contexts (http) or older browsers
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === "x" ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  }
+};
 
 /* --- String Formatting --- */
 
@@ -477,18 +488,101 @@ function normalizeGames(games) {
   }));
 }
 
-function loadGames(target = window.games || (window.games = [])) {
-  const games = Storage.get("chessGames", []);
-  const normalized = normalizeGames(games);
-  sortGames(normalized);
-  if (Array.isArray(target)) {
-    target.length = 0;
-    target.push(...normalized);
+/* ─── IndexedDB / Dexie Setup ────────────────────────────────────────────── */
+
+const indexStorageKey = "ChessRecord";
+const storageVersion = 1;
+const localStorageKey = "chessGames";
+
+let indexStorage = null;
+let useIndexStorage = false;
+
+const dbReady = (async () => {
+  try {
+    const Dexie = window.Dexie;
+    if (typeof Dexie === "undefined") throw new Error("Dexie.js is not loaded");
+
+    const dexie = new Dexie(indexStorageKey);
+    dexie.version(storageVersion).stores({
+      chessGames: "id, tournament, date",
+    });
+
+    await dexie.open();
+    indexStorage = dexie;
+    useIndexStorage = true;
+
+    if ((await indexStorage.chessGames.count()) === 0) {
+      const cachedLsGames = Storage.get(localStorageKey, []);
+      if (cachedLsGames.length > 0) {
+        await indexStorage.chessGames.bulkPut(normalizeGames(cachedLsGames));
+        Storage.remove(localStorageKey);
+        console.info(
+          `[ChessRecord] Migration complete: Moved ${cachedLsGames.length} games to IndexedDB.`,
+        );
+      }
+    }
+  } catch (err) {
+    console.warn(
+      "[ChessRecord] IndexedDB unavailable — falling back to localStorage.",
+      err,
+    );
+    useIndexStorage = false;
   }
+})();
+
+/* ─── Persistence API ────────────────────────────────────────────────────── */
+
+let gamesReady = null;
+
+async function loadGames(target = window.games ?? (window.games = [])) {
+  if (gamesReady) return gamesReady;
+
+  gamesReady = (async () => {
+    await dbReady;
+
+    let raw;
+    if (useIndexStorage) {
+      try {
+        raw = await indexStorage.chessGames.toArray();
+      } catch {
+        raw = Storage.get(localStorageKey, []);
+      }
+    } else {
+      raw = Storage.get(localStorageKey, []);
+    }
+
+    const normalized = normalizeGames(raw);
+    sortGames(normalized);
+
+    if (Array.isArray(target)) {
+      target.length = 0;
+      target.push(...normalized);
+    }
+
+    return target;
+  })();
+
+  return gamesReady;
 }
 
-function saveGames() {
+async function saveGames() {
+  await dbReady;
+
   window.games = normalizeGames(window.games);
   sortGames(window.games);
-  Storage.set("chessGames", window.games);
+
+  if (useIndexStorage) {
+    try {
+      await indexStorage.chessGames.clear();
+      await indexStorage.chessGames.bulkPut(window.games);
+      return;
+    } catch (err) {
+      console.warn(
+        "[ChessRecord] IndexedDB write failed — falling back to localStorage.",
+        err,
+      );
+    }
+  }
+
+  Storage.set(localStorageKey, window.games);
 }

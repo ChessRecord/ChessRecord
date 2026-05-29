@@ -20,7 +20,7 @@ let els = {}; // { list, gameCount, tournamentCount }
 
 /* ─── Data Import / Export ───────────────────────────────────────────────── */
 
-function exportJSON() {
+async function exportJSON() {
   if (isEmpty(window.games)) {
     alert("No games were found in this database");
     return;
@@ -37,7 +37,11 @@ function exportJSON() {
       return;
     }
 
-    download(toSoup(exportData), `chessrecord-${today}.chr`, "application/octet-stream");
+    download(
+      toSoup(exportData),
+      `chessrecord-${today}.chr`,
+      "application/octet-stream",
+    );
   } catch (error) {
     console.error("Export failed:", error);
     alert("Failed to export games. Please try again.");
@@ -86,18 +90,18 @@ async function resolveImport(importedData) {
     return;
   }
 
-  const finalize = (action) => {
+  const finalize = async (action) => {
     // 1. Check the state first before modifying anything
     const label = isEmpty(window.games)
       ? "imported"
       : action === "replace"
         ? "replaced"
-        : "merged"; // Changed "added" to "merged" to match your fallback fallback action
+        : "merged";
 
     // 2. Assign unique IDs
     for (const game of importedData) game.id = generateUniqueID();
 
-    // 3. Keep the data mutation blocks intact!
+    // 3. Keep the data mutation blocks intact
     if (action === "replace") {
       window.games = importedData;
     } else if (action === "merge") {
@@ -107,13 +111,13 @@ async function resolveImport(importedData) {
     }
 
     // 4. Save, update UI, and alert
-    saveGames();
-    displayGames();
+    await saveGames();
+    await displayGames();
     alert(`Games ${label} successfully!`);
   };
 
   if (isEmpty(window.games)) {
-    finalize("replace");
+    await finalize("replace");
   } else {
     const choice = await Modal.confirm({
       icon: "fa-solid fa-triangle-exclamation warning-big",
@@ -123,7 +127,7 @@ async function resolveImport(importedData) {
         { action: "merge", label: "Merge", classes: "btn" },
       ],
     });
-    if (choice) finalize(choice);
+    if (choice) await finalize(choice);
   }
 }
 
@@ -223,7 +227,7 @@ function gameEntry(game) {
   return a;
 }
 
-function deleteGame(id) {
+async function deleteGame(id) {
   const gameIndex = window.games.findIndex((game) => game.id === id);
   if (gameIndex === -1) return;
   const { whiteTitle, white, blackTitle, black } = window.games[gameIndex];
@@ -233,12 +237,12 @@ function deleteGame(id) {
     )
   ) {
     window.games.splice(gameIndex, 1);
-    saveGames();
-    displayGames();
+    await saveGames();
+    await displayGames();
   }
 }
 
-function displayGames(searchTerm = window.searchTerm || "") {
+async function displayGames(searchTerm = window.searchTerm || "") {
   if (!els.list) return;
 
   countGames();
@@ -280,10 +284,13 @@ function displayGames(searchTerm = window.searchTerm || "") {
 
 /* ─── Initialization ─────────────────────────────────────────────────────── */
 
+// loadGames() is async (Dexie/IndexedDB). We kick it off early so the DB
+// is ready by the time DOMContentLoaded fires.
 loadGames();
+
 window.searchTerm = "";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   // Resolve every element once and store in the module-level cache.
   // From this point forward, no function needs to call getElementById.
   els = {
@@ -292,6 +299,10 @@ document.addEventListener("DOMContentLoaded", () => {
     tournamentCount: document.getElementById(UI.counts.tournaments),
     search: document.getElementById(UI.search),
   };
+
+  // Wait for the DB load that was started above before rendering anything —
+  // this guarantees window.games is fully populated before the first paint.
+  await loadGames();
 
   els.search?.addEventListener("input", (e) => {
     window.searchTerm = e.target.value;
@@ -308,5 +319,5 @@ document.addEventListener("DOMContentLoaded", () => {
     deleteGame(btn.closest("[data-game-id]")?.dataset.gameId);
   });
 
-  displayGames();
+  await displayGames();
 });
