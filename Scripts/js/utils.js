@@ -506,6 +506,16 @@ let useIndexStorage = false;
 
 const gamesLocalStorage = Storage.proxy(localStorageKey);
 
+// Guard: fires synchronously at parse time so a script-ordering mistake
+// (e.g. async/defer on the Dexie <script> tag) is immediately visible in the
+// console rather than silently degrading to localStorage.
+if (typeof window.Dexie === "undefined") {
+  console.error(
+    "[ChessRecord] Dexie.js is not loaded. " +
+      "Ensure the Dexie <script> tag appears before utils.js and carries no async/defer attribute.",
+  );
+}
+
 const dbReady = (async () => {
   try {
     const Dexie = window.Dexie;
@@ -569,7 +579,12 @@ async function loadGames(target = window.games ?? (window.games = [])) {
     }
 
     return target;
-  })();
+  })().catch((err) => {
+    // Clear the cached promise so the next call retries rather than
+    // returning the same rejected promise indefinitely.
+    gamesReady = null;
+    throw err;
+  });
 
   return gamesReady;
 }
@@ -584,7 +599,6 @@ async function saveGames() {
     try {
       await indexStorage.chessGames.clear();
       await indexStorage.chessGames.bulkPut(window.games);
-      return;
     } catch (err) {
       console.warn(
         "[ChessRecord] IndexedDB write failed — falling back to localStorage.",
@@ -593,5 +607,7 @@ async function saveGames() {
     }
   }
 
+  // Always keep a localStorage mirror so data survives IndexedDB loss,
+  // privacy-mode restrictions, or browser storage resets.
   gamesLocalStorage.set(window.games);
-}
+                                                         }
