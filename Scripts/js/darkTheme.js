@@ -2,6 +2,7 @@ class ThemeManager {
   constructor() {
     // Cache DOM reference
     this.themeToggleBtn = null;
+    this.storage = Storage.proxy("darkTheme");
 
     // Initialize when DOM is ready
     document.addEventListener("DOMContentLoaded", () => {
@@ -15,14 +16,14 @@ class ThemeManager {
     const isDark = body.classList.toggle("dark-theme");
 
     // Store preference
-    Storage.set("darkTheme", isDark);
+    this.storage.set(isDark);
 
     // Update appearance based on theme
     this.updateThemeAppearance(isDark);
   }
 
   loadThemePreference() {
-    const isDark = Storage.get("darkTheme") === true;
+    const isDark = this.storage.get() === true;
     if (isDark) document.body.classList.add("dark-theme");
 
     // Update appearance based on theme
