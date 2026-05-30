@@ -99,14 +99,10 @@ async function resolveImport(importedData) {
 
     for (const game of importedData) game.id = generateUniqueID();
 
-    // Normalise and sort synchronously so both saveGames and displayGames
-    // start from a stable, clean window.games — no mid-flight mutations.
     if (action === "replace") {
       window.games = normalizeGames(importedData);
-      sortGames(window.games);
     } else if (action === "merge") {
       window.games.push(...importedData);
-      sortGames(window.games);
     } else {
       return;
     }
@@ -245,10 +241,17 @@ async function deleteGame(id) {
   )
     return;
   window.games.splice(gameIndex, 1);
-  // saveGames(null, id) removes only this record from IDB and syncs the
-  // localStorage mirror — no full clear/reinsert of the entire dataset.
-  await saveGames(null, id);
-  displayGames();
+
+  // saveGames starts first (gets a head start on await dbReady) while
+  // displayGames runs synchronously to completion — identical outcome to
+  // sequential execution but saveGames begins its async work immediately.
+  await Promise.all([saveGames(null, id), displayGames()]);
+
+  // Yield one full paint cycle before alerting. Without this, alert() fires
+  // before the browser has painted the updated DOM — the user sees the old
+  // page behind the dialog and perceives the games as "not yet loaded" when
+  // they dismiss it.
+  await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
 }
 
 function displayGames(searchTerm = window.searchTerm || "") {

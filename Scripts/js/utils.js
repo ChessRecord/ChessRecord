@@ -636,20 +636,19 @@ async function loadGames(target = window.games ?? (window.games = [])) {
  *                          rewritten for a one-record removal.
  */
 async function saveGames(newGames, deleteId) {
-  await dbReady;
-
   const isMerge = Array.isArray(newGames);
   const isDelete = !isMerge && deleteId != null;
 
-  // Full-replace path: normalise and sort before touching storage.
-  if (!isMerge && !isDelete) {
-    window.games = normalizeGames(window.games);
-    sortGames(window.games);
-  }
+  // Always stabilize the global state synchronously before any async suspension.
+  // This ensures window.games is always clean and ordered for concurrent UI
+  // updates, regardless of whether we are replacing, merging, or deleting.
+  window.games = normalizeGames(window.games);
+  sortGames(window.games);
 
-  // Merge path: sort the full in-memory array so the localStorage mirror and
-  // any future loadGames() call both receive a consistently ordered dataset.
-  if (isMerge) sortGames(window.games);
+  // Delta records must also be normalised to guarantee valid IDs and types.
+  if (isMerge) newGames = normalizeGames(newGames);
+
+  await dbReady;
 
   if (useIndexStorage) {
     try {
