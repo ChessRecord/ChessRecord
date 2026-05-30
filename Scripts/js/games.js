@@ -20,7 +20,7 @@ let els = {}; // { list, gameCount, tournamentCount }
 
 /* ─── Data Import / Export ───────────────────────────────────────────────── */
 
-async function exportJSON() {
+function exportJSON() {
   if (isEmpty(window.games)) {
     alert("No games were found in this database");
     return;
@@ -48,32 +48,34 @@ async function exportJSON() {
   }
 }
 
+function readFileAsText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
+}
+
 async function parseImport(files) {
   const results = await Promise.all(
-    Array.from(files).map((file) =>
-      new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve({ file, text: e.target.result });
-        reader.onerror = reject;
-        reader.readAsText(file);
-      }).then(({ file, text }) => {
-        const name = file.name.toLowerCase();
-        if (name.endsWith(".pgn")) return pgnToJson(text);
+    Array.from(files).map(async (file) => {
+      const text = await readFileAsText(file);
+      const name = file.name.toLowerCase();
+      if (name.endsWith(".pgn")) return pgnToJson(text);
 
-        // Handle ChesSoup compressed format
-        if (name.endsWith(".chr") && text.trim().startsWith("§")) {
-          return normalizeGames(fromSoup(text));
-        }
+      // Handle ChessSoup compressed format
+      if (name.endsWith(".chr") && text.trim().startsWith("§"))
+        return normalizeGames(fromSoup(text));
 
-        // Fallback to JSON
-        if (name.endsWith(".json")) {
-          const rawData = JSON.parse(text);
-          if (!Array.isArray(rawData)) throw new Error("Invalid JSON format");
-          return normalizeGames(rawData);
-        }
-        throw new Error("Unsupported file format");
-      }),
-    ),
+      // Fallback to JSON
+      if (name.endsWith(".json")) {
+        const rawData = JSON.parse(text);
+        if (!Array.isArray(rawData)) throw new Error("Invalid JSON format");
+        return normalizeGames(rawData);
+      }
+      throw new Error("Unsupported file format");
+    }),
   );
   return results.flat();
 }
@@ -105,11 +107,9 @@ async function resolveImport(importedData) {
       return;
     }
 
-    // Run persist and render concurrently instead of sequentially.
-    // displayGames() contains no awaits — it runs to completion before
-    // saveGames() resumes from its first await (dbReady), so both operations
-    // always see the same stable window.games.
-    // Total blocking time: max(saveTime, renderTime) instead of save + render.
+    // saveGames starts first (gets a head start on await dbReady) while
+    // displayGames runs synchronously to completion — identical outcome to
+    // sequential execution but saveGames begins its async work immediately.
     await Promise.all([
       saveGames(action === "merge" ? importedData : undefined),
       displayGames(),
@@ -191,7 +191,12 @@ function gameEntry(game, searchTerm = "") {
   const roundLabel =
     game.board != null ? `Board ${game.board}` : `Round ${game.round}`;
   const gameMetaLeft = `<span class="game-round">${game.round}</span><strong class="round-label">${roundLabel}</strong>`;
-  const gameMetaRight = `${timeDisplay ? `<span class="game-time">${timeIcon} ${timeDisplay}</span>` : ""}${timeDisplay && game.date ? " | " : ""}${game.date ? `<strong class="game-date">${game.date}</strong>` : ""}`;
+  const metaParts = [];
+  if (timeDisplay)
+    metaParts.push(`<span class="game-time">${timeIcon} ${timeDisplay}</span>`);
+  if (game.date)
+    metaParts.push(`<strong class="game-date">${game.date}</strong>`);
+  const gameMetaRight = metaParts.join(" | ");
 
   const whiteTitle = game.whiteTitle
     ? `<span class="player-title">${game.whiteTitle}</span>`
@@ -231,19 +236,19 @@ async function deleteGame(id) {
   if (gameIndex === -1) return;
   const { whiteTitle, white, blackTitle, black } = window.games[gameIndex];
   if (
-    confirm(
+    !confirm(
       `Are you sure you want to delete:\n ${formatPlayerLabel(whiteTitle, white)} vs ${formatPlayerLabel(blackTitle, black)} ?`,
     )
-  ) {
-    window.games.splice(gameIndex, 1);
-    // saveGames(null, id) removes only this record from IDB and syncs the
-    // localStorage mirror — no full clear/reinsert of the entire dataset.
-    await saveGames(null, id);
-    await displayGames();
-  }
+  )
+    return;
+  window.games.splice(gameIndex, 1);
+  // saveGames(null, id) removes only this record from IDB and syncs the
+  // localStorage mirror — no full clear/reinsert of the entire dataset.
+  await saveGames(null, id);
+  displayGames();
 }
 
-async function displayGames(searchTerm = window.searchTerm || "") {
+function displayGames(searchTerm = window.searchTerm || "") {
   if (!els.list) return;
 
   countGames();
@@ -327,5 +332,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     deleteGame(btn.closest("[data-game-id]")?.dataset.gameId);
   });
 
-  await displayGames();
+  displayGames();
 });
