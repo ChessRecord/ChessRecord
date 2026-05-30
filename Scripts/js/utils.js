@@ -267,12 +267,14 @@ function showLoader(target) {
   el.innerHTML = "Loading";
 }
 
-async function withLoader(target, fn) {
-  showLoader(target);
-  try {
-    return await fn();
-  } finally {
-    hideLoader(target);
+function hideLoader(target) {
+  const el = document.querySelector(target);
+  if (!el) return;
+  const loader = document.getElementById("loader");
+  if (loader) loader.style.display = "none";
+  if (typeof el._oldLoaderValue !== "undefined") {
+    el.innerHTML = el._oldLoaderValue;
+    delete el._oldLoaderValue;
   }
 }
 
@@ -634,7 +636,7 @@ async function loadGames(target = window.games ?? (window.games = [])) {
 async function saveGames(newGames, deleteId) {
   await dbReady;
 
-  const isMerge  = Array.isArray(newGames);
+  const isMerge = Array.isArray(newGames);
   const isDelete = !isMerge && deleteId != null;
 
   // Full-replace path: normalise and sort before touching storage.
@@ -661,10 +663,14 @@ async function saveGames(newGames, deleteId) {
         // browser close between the two awaits would silently empty the store.
         // Dexie commits the transaction only when the callback resolves without
         // throwing; any error rolls back both operations atomically.
-        await indexStorage.transaction("rw", indexStorage.chessGames, async () => {
-          await indexStorage.chessGames.clear();
-          await indexStorage.chessGames.bulkPut(window.games);
-        });
+        await indexStorage.transaction(
+          "rw",
+          indexStorage.chessGames,
+          async () => {
+            await indexStorage.chessGames.clear();
+            await indexStorage.chessGames.bulkPut(window.games);
+          },
+        );
       }
     } catch (err) {
       if (isMerge) {
