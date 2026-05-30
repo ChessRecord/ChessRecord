@@ -369,8 +369,17 @@ async function addGame(event) {
         "Game already exists or player conflict in this round!",
       );
     window.games.push(game);
-    await saveGames();
-    event.target.reset();
+
+    // saveGames starts first (gets a head start on await dbReady) while
+    // displayGames runs synchronously to completion — identical outcome to
+    // sequential execution but saveGames begins its async work immediately.
+    await Promise.all([saveGames(), event.target.reset()]);
+
+    // Yield one full paint cycle before alerting. Without this, alert() fires
+    // before the browser has painted the updated DOM — the user sees the old
+    // page behind the dialog and perceives the games as "not yet loaded" when
+    // they dismiss it.
+    await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
     gameAddedAlert(game);
   } finally {
     formEls.submit.disabled = false;
