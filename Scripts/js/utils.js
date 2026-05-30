@@ -11,7 +11,7 @@ console.log(`
 
 const today = new Date().toISOString().split("T")[0];
 
-/* --- Validation & Basic Helpers --- */
+/* ─── Validation & Basic Helpers ──────────────────────────────────────── */
 
 const isValidString = (s) => typeof s === "string" && s.length > 0;
 const isValidObject = (o) => o !== null && typeof o === "object";
@@ -26,10 +26,10 @@ const toNumberOr = (value, fallback = 0) => {
   return Number.isFinite(n) ? n : fallback;
 };
 
-const signum = (v) => (
-  (v = +v),
-  isNaN(v) ? "NaN" : (v > 0 ? "+" : "") + (v || 0)
-);
+const signum = (v) => {
+  const n = +v;
+  return isNaN(n) ? "NaN" : (n > 0 ? "+" : "") + (n || 0);
+};
 
 const generateUniqueID = () => {
   try {
@@ -44,7 +44,7 @@ const generateUniqueID = () => {
   }
 };
 
-/* --- String Formatting --- */
+/* ─── String Formatting ─────────────────────────────────────────────────── */
 
 function capitalize(str) {
   if (!isValidString(str)) return "";
@@ -70,7 +70,7 @@ function highlightMatch(query, result) {
   );
 }
 
-/* --- Unicode Variant Helpers --- */
+/* ─── Unicode Variant Helpers ───────────────────────────────────────────── */
 
 const buildSpecialMap = (startCode, rangeStart = 97, rangeEnd = 122) => {
   const map = {};
@@ -184,7 +184,7 @@ const formatPlayerLabel = (title, name) => {
   return t ? `${toUnicodeVariant(t, "bold sans", "sans")} ${name}` : name;
 };
 
-/* --- Browser Utilities --- */
+/* ─── Browser Utilities ─────────────────────────────────────────────────── */
 
 /* ─── Storage ────────────────────────────────────────────────────────────── */
 
@@ -235,7 +235,7 @@ const Storage = {
   session: makeStorage(sessionStorage, "sessionStorage"),
 };
 
-/* --- Download --- */
+/* ─── Download ──────────────────────────────────────────────────────────── */
 
 // Modern browsers click detached anchors without requiring a DOM insertion,
 // so appendChild/removeChild are unnecessary.
@@ -255,7 +255,7 @@ function download(content, filename, contentType = "application/json") {
   }
 }
 
-/* --- Loader UI Helpers --- */
+/* ─── Loader UI Helpers ─────────────────────────────────────────────────── */
 function showLoader(target, message) {
   const el = document.querySelector(target);
   if (!el) return;
@@ -263,14 +263,8 @@ function showLoader(target, message) {
     el._oldLoaderValue = el.innerHTML;
   }
   const loader = document.getElementById("loader");
-
-  if (isValidString(message)) {
-    if (loader) loader.style.display = "inline";
-    el.innerHTML = `${message}`;
-  } else {
-    if (loader) loader.style.display = "inline";
-    el.innerHTML = "Loading";
-  }
+  if (loader) loader.style.display = "inline";
+  el.innerHTML = isValidString(message) ? message : "Loading";
 }
 
 function hideLoader(target) {
@@ -284,7 +278,7 @@ function hideLoader(target) {
   }
 }
 
-/* --- Chess Specific Logic --- */
+/* ─── Chess Specific Logic ──────────────────────────────────────────────── */
 
 const TITLE_MAP = Object.freeze({
   grandmaster: "GM",
@@ -314,19 +308,13 @@ function abbreviateTitle(title) {
 
 function parseTimeControl(tc) {
   const cleanTC = String(tc).toLowerCase().replace(/\s+/g, "");
-  let initialTime, increment;
-  if (cleanTC.includes("+")) {
-    [initialTime, increment] = cleanTC.split("+").map(Number);
-  } else if (cleanTC.includes("|")) {
-    [initialTime, increment] = cleanTC.split("|").map(Number);
-  } else if (cleanTC.includes("min")) {
-    initialTime = Number(cleanTC.replace("min", ""));
-    increment = 0;
-  } else {
-    initialTime = Number(cleanTC);
-    increment = 0;
+  const sep = cleanTC.includes("+") ? "+" : cleanTC.includes("|") ? "|" : null;
+  if (sep) {
+    const [initialTime, increment] = cleanTC.split(sep).map(Number);
+    return { initialTime, increment };
   }
-  return { initialTime, increment };
+  // Handles both "90min" and plain numeric strings ("90").
+  return { initialTime: Number(cleanTC.replace("min", "")), increment: 0 };
 }
 
 function classifyTimeControl(initial, increment) {
@@ -437,7 +425,7 @@ function pgnToJson(pgn) {
       board:
         toNumberOr(getTag("Board"), 0) || toNumberOr(roundParts[1], 0) || null,
       time: getTag("TimeControl").trim() || "",
-      date: getTag("Date")?.replace(/\./g, "-") || "",
+      date: getTag("Date").replace(/\./g, "-") || "",
       gameLink: getTag("ChapterURL") || getTag("Site") || "",
     };
   });
@@ -453,19 +441,19 @@ function calcChange(myRating, oppRating, result, k = 40) {
   return Math.round(k * (result - E) * 10) / 10;
 }
 
-/* --- Shared Chess Data Logic --- */
+/* ─── Shared Chess Data Logic ───────────────────────────────────────────── */
 
 function sortGames(games) {
   if (!Array.isArray(games)) return;
 
   const tournamentMaxDates = {};
-  games.forEach((g) => {
+  for (const g of games) {
     const d = g.date ? new Date(g.date).getTime() : 0;
     tournamentMaxDates[g.tournament] = Math.max(
       tournamentMaxDates[g.tournament] || 0,
       isNaN(d) ? 0 : d,
     );
-  });
+  }
 
   games.sort((a, b) => {
     const dateDiff =
