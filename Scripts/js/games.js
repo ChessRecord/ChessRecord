@@ -273,28 +273,24 @@ function displayGames(searchTerm = window.searchTerm || "") {
     return acc;
   }, new Map());
 
-  const fragment = document.createDocumentFragment();
-  for (const [tournament, tournamentGames] of gamesByTournament) {
-    const section = document.createElement("div");
-    section.className = "tournament-section";
+  // Building one large HTML string is significantly faster than creating N
+  // elements and setting innerHTML individually inside a loop. The browser
+  // parses the entire list in one pass.
+  els.list.innerHTML = Array.from(gamesByTournament)
+    .map(([tournament, tournamentGames]) => {
+      const tournamentLabel = normalizedSearchTerm
+        ? highlightMatch(normalizedSearchTerm, tournament)
+        : tournament;
+      return `
+      <div class="tournament-section">
+        <div class="tournament-header">
+          <h3>${tournamentLabel}</h3><h3 class="dot">●</h3>
+        </div>
+        ${tournamentGames.map((game) => gameEntry(game, normalizedSearchTerm)).join("")}
+      </div>`;
+    })
+    .join("");
 
-    // Build the entire section — header + all game entries — as one HTML string
-    // and parse it in a single innerHTML call. This collapses what was N separate
-    // parse-and-build cycles (one per gameEntry DOM element) into one, which is
-    // substantially faster for large tournament groups.
-    const tournamentLabel = normalizedSearchTerm
-      ? highlightMatch(normalizedSearchTerm, tournament)
-      : tournament;
-    section.innerHTML =
-      `<div class="tournament-header"><h3>${tournamentLabel}</h3><h3 class="dot">●</h3></div>` +
-      tournamentGames
-        .map((game) => gameEntry(game, normalizedSearchTerm))
-        .join("");
-
-    fragment.appendChild(section);
-  }
-
-  els.list.replaceChildren(fragment);
   refreshTitle();
 }
 
