@@ -13,12 +13,12 @@ const today = new Date().toISOString().split("T")[0];
 
 /* ─── Validation & Basic Helpers ──────────────────────────────────────── */
 
-const isValidString = (s) => typeof s === "string" && s.length > 0;
+const isValidString = (s) => typeof s === "string" && !isEmpty(s);
 const isValidObject = (o) => o !== null && typeof o === "object";
 /** True when a value is non-null, non-undefined, and non-empty-string. */
 const hasValue = (value) =>
   value !== null && value !== undefined && value !== "";
-const isEmpty = (array) => !array || array.length === 0;
+const isEmpty = (value) => !value || value.length === 0;
 
 const toNumberOr = (value, fallback = 0) => {
   if (!hasValue(value)) return fallback;

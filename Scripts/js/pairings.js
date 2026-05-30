@@ -115,7 +115,7 @@ function parsePlayerInfo($html) {
     )
     .first();
 
-  if (!$table.length) throw new Error(LAYOUT_MISMATCH);
+  if (isEmpty($table)) throw new Error(LAYOUT_MISMATCH);
 
   return Object.fromEntries(
     $table
@@ -150,7 +150,7 @@ function parsePairings($html, url) {
         .children("tr")
         .first()
         .children("th, td");
-      if (!$headers.filter("th").length) return false;
+      if (isEmpty($headers.filter("th"))) return false;
       const texts = $headers.map((_, th) => $(th).text().trim()).get();
       return (
         texts.some((t) => t.includes("Rd")) &&
@@ -159,7 +159,7 @@ function parsePairings($html, url) {
     })
     .first();
 
-  if (!$table.length) throw new Error(LAYOUT_MISMATCH);
+  if (isEmpty($table)) throw new Error(LAYOUT_MISMATCH);
 
   const $rows = $table.children("tbody").children("tr");
   const headers = $rows
@@ -185,7 +185,7 @@ function parsePairings($html, url) {
   if (idx.rd < 0 || idx.res < 0) throw new Error(LAYOUT_MISMATCH);
 
   return $rows
-    .filter((_, row) => !$(row).children("th").length)
+    .filter((_, row) => isEmpty($(row).children("th")))
     .get()
     .map((row) => {
       const $cells = $(row).children("td");
@@ -390,7 +390,7 @@ function renderPlayerHeader(playerData, url, totalRounds) {
   if (!name) return;
 
   let $profile = $(`#${UI.profile}`);
-  if (!$profile.length) {
+  if (isEmpty($profile)) {
     $profile = $(`<div id="${UI.profile}"></div>`);
     els.table.before($profile);
   }

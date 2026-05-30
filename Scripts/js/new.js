@@ -209,7 +209,7 @@ function setupAutocomplete({ key }) {
     nameController?.abort();
     nameController = new AbortController();
     const players = await fetchPlayerSuggestions(query, nameController.signal);
-    if (players === null) return; // aborted — a newer query is already in flight
+    if (isEmpty(players)) return; // aborted — a newer query is already in flight
     if (input.value.trim() !== query) return; // stale
     renderSuggestions(container, query, players);
   }

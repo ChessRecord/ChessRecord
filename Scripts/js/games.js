@@ -167,10 +167,9 @@ function countGames() {
     tournamentSet.add(tournament || "Unknown");
   const tournamentCount = tournamentSet.size;
 
-  els.gameCount.innerHTML =
-    gameCount === 0
-      ? "No Games"
-      : `${gameCount} ${gameCount === 1 ? "Game" : "Games"}`;
+  els.gameCount.innerHTML = isEmpty(window.games)
+    ? "No Games"
+    : `${gameCount} ${gameCount === 1 ? "Game" : "Games"}`;
   els.tournamentCount.innerHTML =
     tournamentCount === 0
       ? ""
