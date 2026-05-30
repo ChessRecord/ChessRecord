@@ -264,8 +264,8 @@ async function getChessResults(url, signal) {
     (playerInfo["FIDE rtg +/-"] ?? "0").replace(/,/g, "."),
   );
 
-  // Fetch opponent ranks in parallel, deduplicating by profile URL so the
-  // same player is never fetched twice (e.g. in team events or rematches).
+  // Fetch opponent ranks in parallel for efficiency, deduplicating by profile
+  // URL so the same player is never fetched twice (e.g. in team events).
   const uniqueProfileUrls = [
     ...new Set(pairings.map((p) => p.opponentProfileUrl).filter(Boolean)),
   ];

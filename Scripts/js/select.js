@@ -4,26 +4,23 @@
   function initSelect(wrapper) {
     const select = wrapper.querySelector("select");
 
-    // ── Selected-value display ───────────────────────────────────────────
-    const selected = document.createElement("div");
-    selected.className = "select-selected";
-    selected.textContent = select.options[select.selectedIndex].text;
-    wrapper.appendChild(selected);
-
-    // ── Options list (index 0 is the placeholder — skip it) ─────────────
-    const items = document.createElement("div");
-    items.className = "select-items select-hide";
-
-    Array.from(select.options)
+    // Building the dropdown structure atomically via innerHTML is faster than
+    // multiple createElement/appendChild cycles.
+    const optionsHtml = Array.from(select.options)
       .slice(1)
-      .forEach((option, i) => {
-        const item = document.createElement("div");
-        item.textContent = option.text;
-        item.dataset.index = i + 1; // preserves the real select index
-        items.appendChild(item);
-      });
+      .map((opt, i) => `<div data-index="${i + 1}">${opt.text}</div>`)
+      .join("");
 
-    wrapper.appendChild(items);
+    wrapper.insertAdjacentHTML(
+      "beforeend",
+      `
+      <div class="select-selected">${select.options[select.selectedIndex].text}</div>
+      <div class="select-items select-hide">${optionsHtml}</div>
+    `,
+    );
+
+    const selected = wrapper.querySelector(".select-selected");
+    const items = wrapper.querySelector(".select-items");
 
     // ── Delegate option clicks to the container ──────────────────────────
     items.addEventListener("click", ({ target }) => {

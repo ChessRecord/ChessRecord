@@ -111,9 +111,6 @@ function clearFormError() {
 
 /* ─── Autocomplete ───────────────────────────────────────────────────────── */
 
-// Builds the entire list into a DocumentFragment in one pass, then replaces
-// the container's children atomically — no intermediate empty paint.
-// The match regex is compiled once here rather than once per player.
 function renderSuggestions(container, query, players) {
   if (isEmpty(players)) {
     container.replaceChildren();
@@ -190,11 +187,12 @@ function setupAutocomplete({ key }) {
       applyPlayer(player);
     } catch (err) {
       if (input.value.trim() !== query) return; // stale
-      const errDiv = document.createElement("div");
-      errDiv.className = "autocomplete-suggestion";
-      errDiv.style.pointerEvents = "none";
-      errDiv.innerHTML = "<i>FIDE ID not found</i>";
-      container.replaceChildren(errDiv);
+      // Building the error suggestion atomically via innerHTML is faster than
+      // multiple createElement/appendChild cycles.
+      container.innerHTML = `
+        <div class="autocomplete-suggestion" style="pointer-events: none;">
+          <i>FIDE ID not found</i>
+        </div>`;
       // Auto-clear after 1000 ms, but only if this exact bad ID is still typed.
       setTimeout(() => {
         if (input.value.trim() === query) container.replaceChildren();
