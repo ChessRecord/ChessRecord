@@ -115,25 +115,29 @@ function clearFormError() {
 // the container's children atomically — no intermediate empty paint.
 // The match regex is compiled once here rather than once per player.
 function renderSuggestions(container, query, players) {
-  const regex = new RegExp(
-    `(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
-    "gi",
-  );
-  const fragment = document.createDocumentFragment();
-  for (const p of players) {
-    const div = document.createElement("div");
-    div.className = "autocomplete-suggestion";
-    Object.assign(div.dataset, {
-      name: p.name,
-      title: p.title || "",
-      standard: p.standard,
-      rapid: p.rapid,
-      blitz: p.blitz,
-    });
-    div.innerHTML = `${p.title ? `<span class="player-title">${p.title}</span> ` : ""}${highlightMatch(query, p.name)}`;
-    fragment.appendChild(div);
+  if (isEmpty(players)) {
+    container.replaceChildren();
+    return;
   }
-  container.replaceChildren(fragment);
+  // Building one large HTML string is significantly faster than creating N
+  // elements and setting innerHTML individually inside a loop. The browser
+  // parses the entire list in one pass.
+  container.innerHTML = players
+    .map((p) => {
+      const titleTag = p.title
+        ? `<span class="player-title">${p.title}</span> `
+        : "";
+      return `
+      <div class="autocomplete-suggestion"
+           data-name="${p.name}"
+           data-title="${p.title || ""}"
+           data-standard="${p.standard}"
+           data-rapid="${p.rapid}"
+           data-blitz="${p.blitz}">
+        ${titleTag}${highlightMatch(query, p.name)}
+      </div>`;
+    })
+    .join("");
 }
 
 function setupAutocomplete({ key }) {

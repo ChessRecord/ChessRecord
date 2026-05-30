@@ -32,7 +32,7 @@ function exportJSON() {
       return [{ ...rest, result: normalizeResult(result) }];
     });
 
-    if (exportData.length === 0) {
+    if (isEmpty(exportData)) {
       alert("No valid games found to export");
       return;
     }
@@ -58,26 +58,30 @@ function readFileAsText(file) {
 }
 
 async function parseImport(files) {
-  const results = await Promise.all(
-    Array.from(files).map(async (file) => {
-      const text = await readFileAsText(file);
-      const name = file.name.toLowerCase();
-      if (name.endsWith(".pgn")) return pgnToJson(text);
+  const allGames = [];
+  // Sequential processing prevents peak memory spikes by not holding N large
+  // intermediate arrays in memory before flattening. For typical browser
+  // environments, this is significantly safer than Promise.all([...]).flat().
+  for (const file of files) {
+    const text = await readFileAsText(file);
+    const name = file.name.toLowerCase();
 
-      // Handle ChessSoup compressed format
-      if (name.endsWith(".chr") && text.trim().startsWith("§"))
-        return normalizeGames(fromSoup(text));
+    let games = [];
+    if (name.endsWith(".pgn")) {
+      games = pgnToJson(text);
+    } else if (name.endsWith(".chr") && text.trim().startsWith("§")) {
+      games = normalizeGames(fromSoup(text));
+    } else if (name.endsWith(".json")) {
+      const rawData = JSON.parse(text);
+      if (!Array.isArray(rawData)) throw new Error("Invalid JSON format");
+      games = normalizeGames(rawData);
+    } else {
+      throw new Error(`Unsupported file format: ${file.name}`);
+    }
 
-      // Fallback to JSON
-      if (name.endsWith(".json")) {
-        const rawData = JSON.parse(text);
-        if (!Array.isArray(rawData)) throw new Error("Invalid JSON format");
-        return normalizeGames(rawData);
-      }
-      throw new Error("Unsupported file format");
-    }),
-  );
-  return results.flat();
+    if (!isEmpty(games)) allGames.push(...games);
+  }
+  return allGames;
 }
 
 async function resolveImport(importedData) {
@@ -140,7 +144,7 @@ async function resolveImport(importedData) {
 
 async function importJSON(event) {
   const input = event.target;
-  if (!input.files || input.files.length === 0) return;
+  if (isEmpty(input.files)) return;
 
   try {
     const games = await parseImport(input.files);
