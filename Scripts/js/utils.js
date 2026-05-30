@@ -643,10 +643,13 @@ async function saveGames(newGames, deleteId) {
   // This ensures window.games is always clean and ordered for concurrent UI
   // updates, regardless of whether we are replacing, merging, or deleting.
   window.games = normalizeGames(window.games);
-  sortGames(window.games);
 
   // Delta records must also be normalised to guarantee valid IDs and types.
   if (isMerge) newGames = normalizeGames(newGames);
+
+  // Sorting must be the final synchronous step so it operates on fully
+  // normalised data before any UI updates or async operations begin.
+  sortGames(window.games);
 
   await dbReady;
 
