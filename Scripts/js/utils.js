@@ -522,6 +522,17 @@ const dbReady = (async () => {
     if (typeof Dexie === "undefined") throw new Error("Dexie.js is not loaded");
 
     const dexie = new Dexie(indexStorageKey);
+
+    // ── Schema versioning ────────────────────────────────────────────────────
+    // Always declare every past version so Dexie can run the correct upgrade
+    // path when a user opens a database created by an older release. Never
+    // mutate an existing .version() entry — add a new block with an .upgrade()
+    // callback instead, e.g.:
+    //
+    //   dexie.version(2)
+    //     .stores({ chessGames: "id, tournament, date, white, black" })
+    //     .upgrade(tx => tx.chessGames.toCollection().modify(g => { ... }));
+    // ────────────────────────────────────────────────────────────────────────
     dexie.version(storageVersion).stores({
       chessGames: "id, tournament, date",
     });
@@ -530,6 +541,9 @@ const dbReady = (async () => {
     indexStorage = dexie;
     useIndexStorage = true;
 
+    // ── One-time migration from localStorage ─────────────────────────────────
+    // Runs only when the store is empty (fresh install or first upgrade).
+    // Clears the localStorage key afterward so the two stores don't diverge.
     if ((await indexStorage.chessGames.count()) === 0) {
       const cachedLsGames = gamesLocalStorage.get([]);
       if (cachedLsGames.length > 0) {
@@ -551,6 +565,8 @@ const dbReady = (async () => {
 
 /* ─── Persistence API ────────────────────────────────────────────────────── */
 
+// Cached promise for the initial DB → window.games population.
+// Subsequent calls return the same promise; callers await without re-querying.
 let gamesReady = null;
 
 async function loadGames(target = window.games ?? (window.games = [])) {
@@ -564,6 +580,7 @@ async function loadGames(target = window.games ?? (window.games = [])) {
       try {
         raw = await indexStorage.chessGames.toArray();
       } catch {
+        // IDB read failed mid-session; fall back to the localStorage mirror.
         raw = gamesLocalStorage.get([]);
       }
     } else {
@@ -589,25 +606,100 @@ async function loadGames(target = window.games ?? (window.games = [])) {
   return gamesReady;
 }
 
-async function saveGames() {
+/**
+ * Persists games to both IndexedDB and the localStorage mirror.
+ *
+ * saveGames()            — full replace. Normalises and re-sorts window.games,
+ *                          then atomically clears the store and reinserts every
+ *                          record. Use after any bulk mutation (import/replace).
+ *
+ * saveGames(newGames)    — merge. Writes only the supplied delta to IDB via
+ *                          bulkPut (existing records are untouched), then syncs
+ *                          the localStorage mirror with the full window.games.
+ *                          Use after pushing new games onto window.games so the
+ *                          entire dataset isn't needlessly cleared and reinserted.
+ *                          Falls back to a full replace if the incremental write
+ *                          fails.
+ *
+ * saveGames(null, id)    — single delete. Removes one record from IDB by key,
+ *                          then syncs the localStorage mirror. Use after splicing
+ *                          the game from window.games so the full store isn't
+ *                          rewritten for a one-record removal.
+ */
+async function saveGames(newGames, deleteId) {
   await dbReady;
 
-  window.games = normalizeGames(window.games);
-  sortGames(window.games);
+  const isMerge  = Array.isArray(newGames);
+  const isDelete = !isMerge && deleteId != null;
+
+  // Full-replace path: normalise and sort before touching storage.
+  if (!isMerge && !isDelete) {
+    window.games = normalizeGames(window.games);
+    sortGames(window.games);
+  }
+
+  // Merge path: sort the full in-memory array so the localStorage mirror and
+  // any future loadGames() call both receive a consistently ordered dataset.
+  if (isMerge) sortGames(window.games);
 
   if (useIndexStorage) {
     try {
-      await indexStorage.chessGames.clear();
-      await indexStorage.chessGames.bulkPut(window.games);
+      if (isDelete) {
+        // Single targeted delete — no clear/reinsert of the full store.
+        await indexStorage.chessGames.delete(deleteId);
+      } else if (isMerge) {
+        // Incremental put of only the new delta records.
+        await indexStorage.chessGames.bulkPut(newGames);
+      } else {
+        // Wrapping clear() + bulkPut() in a single read-write transaction is
+        // critical for data safety. Without it, a crash, quota error, or forced
+        // browser close between the two awaits would silently empty the store.
+        // Dexie commits the transaction only when the callback resolves without
+        // throwing; any error rolls back both operations atomically.
+        await indexStorage.transaction("rw", indexStorage.chessGames, async () => {
+          await indexStorage.chessGames.clear();
+          await indexStorage.chessGames.bulkPut(window.games);
+        });
+      }
     } catch (err) {
+      if (isMerge) {
+        // Incremental merge failed (e.g. key conflict after a partial write) —
+        // retry as a full replace, which will also disable IDB if it fails again.
+        console.warn(
+          "[ChessRecord] IndexedDB merge failed — falling back to full save.",
+          err,
+        );
+        return saveGames();
+      }
+      if (isDelete) {
+        // Targeted delete failed — the record still exists in IDB. Setting
+        // useIndexStorage = false would protect this session, but on the next
+        // page load IDB re-opens and loadGames() reads the stale (un-deleted)
+        // record, causing the game to silently reappear. A full replace
+        // re-syncs IDB with the already-spliced window.games, or disables IDB
+        // entirely if the store is truly broken — either way localStorage
+        // becomes the persistent source of truth.
+        console.warn(
+          "[ChessRecord] IndexedDB delete failed — falling back to full save.",
+          err,
+        );
+        return saveGames();
+      }
       console.warn(
         "[ChessRecord] IndexedDB write failed — falling back to localStorage.",
         err,
       );
+      // Disable IDB writes for this session; avoids flooding the console with
+      // repeated failures if the store is in a broken state (e.g. quota exceeded).
+      useIndexStorage = false;
     }
   }
 
-  // Always keep a localStorage mirror so data survives IndexedDB loss,
-  // privacy-mode restrictions, or browser storage resets.
-  gamesLocalStorage.set(window.games);
-                                                         }
+  // Always write a localStorage mirror so data survives IDB loss,
+  // private-browsing quota restrictions, or browser storage resets.
+  try {
+    gamesLocalStorage.set(window.games);
+  } catch (e) {
+    console.warn("[ChessRecord] localStorage mirror write failed:", e.name);
+  }
+}
