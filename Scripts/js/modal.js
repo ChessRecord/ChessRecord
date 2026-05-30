@@ -1,6 +1,10 @@
 // modal.js
 
 const Modal = (() => {
+  // True while a modal is open. Prevents re-entrant open() calls from
+  // clobbering the backdrop and leaking the in-flight Promise.
+  let settled = true;
+
   function getBackdrop() {
     let el = document.getElementById("blur");
     if (!el) {
@@ -13,16 +17,24 @@ const Modal = (() => {
   }
 
   // Accepts raw HTML string. Resolves with the data-modal-action value, or null on dismiss.
+  // Returns null immediately (without opening) if a modal is already open.
   function open(html) {
+    if (!settled) return Promise.resolve(null);
+    settled = false;
+
     return new Promise((resolve) => {
       const backdrop = getBackdrop();
       backdrop.innerHTML = html;
-      backdrop.classList.replace("hidden", "visible");
+      backdrop.classList.remove("hidden");
+      backdrop.classList.add("visible");
 
       const finish = (value) => {
+        if (settled) return; // guard against race between click + keydown
+        settled = true;
         backdrop.removeEventListener("click", onClick);
         document.removeEventListener("keydown", onKeydown);
-        backdrop.classList.replace("visible", "hidden");
+        backdrop.classList.remove("visible");
+        backdrop.classList.add("hidden");
         backdrop.innerHTML = "";
         resolve(value);
       };
@@ -70,9 +82,14 @@ const Modal = (() => {
       </div>`);
   }
 
+  // Imperatively dismisses the current modal (e.g. after an async operation
+  // completes). Also removes any lingering event listeners so nothing leaks
+  // if hide() is called while open() is in-flight.
   function hide() {
+    settled = true;
     const backdrop = getBackdrop();
-    backdrop.classList.replace("visible", "hidden");
+    backdrop.classList.remove("visible");
+    backdrop.classList.add("hidden");
     backdrop.innerHTML = "";
   }
 
