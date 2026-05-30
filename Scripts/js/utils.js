@@ -444,27 +444,35 @@ function calcChange(myRating, oppRating, result, k = 40) {
 /* ─── Shared Chess Data Logic ───────────────────────────────────────────── */
 
 function sortGames(games) {
-  if (!Array.isArray(games)) return;
+  if (isEmpty(games)) return;
 
-  const tournamentMaxDates = {};
+  // Calculate tournamentMaxDates once per sort. Using a numeric timestamp
+  // directly avoids repeated New Date() / getTime() calls during the sort loop.
+  const tournamentMaxDates = new Map();
   for (const g of games) {
-    const d = g.date ? new Date(g.date).getTime() : 0;
-    tournamentMaxDates[g.tournament] = Math.max(
-      tournamentMaxDates[g.tournament] || 0,
-      isNaN(d) ? 0 : d,
-    );
+    const d = g.date ? Date.parse(g.date) : 0;
+    const currentMax = tournamentMaxDates.get(g.tournament) || 0;
+    if (!isNaN(d) && d > currentMax) {
+      tournamentMaxDates.set(g.tournament || "Unknown", d);
+    }
   }
 
   games.sort((a, b) => {
-    const dateDiff =
-      (tournamentMaxDates[b.tournament] || 0) -
-      (tournamentMaxDates[a.tournament] || 0);
-    if (dateDiff !== 0) return dateDiff;
+    // 1. Sort by Tournament Date (Newest first)
+    const dateA = tournamentMaxDates.get(a.tournament || "Unknown") || 0;
+    const dateB = tournamentMaxDates.get(b.tournament || "Unknown") || 0;
+    if (dateB !== dateA) return dateB - dateA;
+
+    // 2. Sort by Tournament Name (Alphabetical)
     if (a.tournament !== b.tournament)
       return (a.tournament || "").localeCompare(b.tournament || "");
+
+    // 3. Sort by Round (Ascending)
     const roundDiff = (a.round ?? 0) - (b.round ?? 0);
     if (roundDiff !== 0) return roundDiff;
-    if (a.board == null && b.board == null) return 0;
+
+    // 4. Sort by Board (Ascending, Nulls first to match original logic)
+    if (a.board === b.board) return 0;
     if (a.board == null) return -1;
     if (b.board == null) return 1;
     return a.board - b.board;
@@ -547,7 +555,7 @@ const dbReady = (async () => {
     // Clears the localStorage key afterward so the two stores don't diverge.
     if ((await indexStorage.chessGames.count()) === 0) {
       const cachedLsGames = gamesLocalStorage.get([]);
-      if (cachedLsGames.length > 0) {
+      if (!isEmpty(cachedLsGames)) {
         await indexStorage.chessGames.bulkPut(normalizeGames(cachedLsGames));
         gamesLocalStorage.clear();
         console.info(
