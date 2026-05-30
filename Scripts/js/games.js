@@ -79,16 +79,10 @@ async function parseImport(files) {
 }
 
 async function resolveImport(importedData) {
-  if (isEmpty(importedData)) {
-    alert("No games were found in this database");
-    return;
-  }
-  if (importedData.some((game) => !game.gameLink)) {
-    alert(
-      "Import failed: Some games are missing a game link (URL). Please ensure every game includes a valid link before importing.",
-    );
-    return;
-  }
+  if (isEmpty(importedData))
+    return alert("No games were found in this database");
+  if (importedData.some((g) => !g.gameLink))
+    return alert("Import failed: Some games are missing a game link (URL).");
 
   const finalize = async (action) => {
     const label = isEmpty(window.games)
@@ -185,7 +179,7 @@ function countGames() {
 function gameEntry(game, searchTerm = "") {
   const hl = (s) => (searchTerm ? highlightMatch(searchTerm, s) : s);
 
-  const gameId   = game.id || "unknown";
+  const gameId = game.id || "unknown";
   const category = getTimeControlCategory(game.time);
   const timeIcon = TIME_CONTROL_ICONS[category] || TIME_CONTROL_ICONS.Unknown;
   const timeDisplay = game.time
@@ -194,12 +188,17 @@ function gameEntry(game, searchTerm = "") {
       : `${game.time}<span class="timecontrol-category"> • ${category}</span>`
     : "";
 
-  const roundLabel   = game.board != null ? `Board ${game.board}` : `Round ${game.round}`;
+  const roundLabel =
+    game.board != null ? `Board ${game.board}` : `Round ${game.round}`;
   const gameMetaLeft = `<span class="game-round">${game.round}</span><strong class="round-label">${roundLabel}</strong>`;
   const gameMetaRight = `${timeDisplay ? `<span class="game-time">${timeIcon} ${timeDisplay}</span>` : ""}${timeDisplay && game.date ? " | " : ""}${game.date ? `<strong class="game-date">${game.date}</strong>` : ""}`;
 
-  const whiteTitle = game.whiteTitle ? `<span class="player-title">${game.whiteTitle}</span>` : "";
-  const blackTitle = game.blackTitle ? `<span class="player-title">${game.blackTitle}</span>` : "";
+  const whiteTitle = game.whiteTitle
+    ? `<span class="player-title">${game.whiteTitle}</span>`
+    : "";
+  const blackTitle = game.blackTitle
+    ? `<span class="player-title">${game.blackTitle}</span>`
+    : "";
 
   return `<a href="${game.gameLink || "#"}"${game.gameLink ? ' target="_blank"' : ""} class="game-entry-link">
       <div class="game-entry" data-game-id="${gameId}">
@@ -253,8 +252,8 @@ async function displayGames(searchTerm = window.searchTerm || "") {
   const filteredGames = normalizedSearchTerm
     ? window.games.filter(
         (game) =>
-          (game.white      || "").toLowerCase().includes(normalizedSearchTerm) ||
-          (game.black      || "").toLowerCase().includes(normalizedSearchTerm) ||
+          (game.white || "").toLowerCase().includes(normalizedSearchTerm) ||
+          (game.black || "").toLowerCase().includes(normalizedSearchTerm) ||
           (game.tournament || "").toLowerCase().includes(normalizedSearchTerm),
       )
     : window.games;
@@ -280,7 +279,9 @@ async function displayGames(searchTerm = window.searchTerm || "") {
       : tournament;
     section.innerHTML =
       `<div class="tournament-header"><h3>${tournamentLabel}</h3><h3 class="dot">●</h3></div>` +
-      tournamentGames.map((game) => gameEntry(game, normalizedSearchTerm)).join("");
+      tournamentGames
+        .map((game) => gameEntry(game, normalizedSearchTerm))
+        .join("");
 
     fragment.appendChild(section);
   }

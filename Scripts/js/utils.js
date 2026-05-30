@@ -256,15 +256,21 @@ function download(content, filename, contentType = "application/json") {
 }
 
 /* --- Loader UI Helpers --- */
-function showLoader(target) {
+function showLoader(target, message) {
   const el = document.querySelector(target);
   if (!el) return;
   if (typeof el._oldLoaderValue === "undefined") {
     el._oldLoaderValue = el.innerHTML;
   }
   const loader = document.getElementById("loader");
-  if (loader) loader.style.display = "inline";
-  el.innerHTML = "Loading";
+
+  if (isValidString(message)) {
+    if (loader) loader.style.display = "inline";
+    el.innerHTML = `${message}`;
+  } else {
+    if (loader) loader.style.display = "inline";
+    el.innerHTML = "Loading";
+  }
 }
 
 function hideLoader(target) {
