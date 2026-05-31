@@ -59,9 +59,9 @@ const Modal = (() => {
         if (action === "cancel") return finish(null);
 
         if (loading === "true") {
-          // Show loader inside the button, hide siblings and the cancel control.
-          const loader = backdrop.querySelector("#loader");
-          if (loader) actionEl.appendChild(loader);
+          // Ensure this button's loader has the magic ID showLoader expects.
+          const loader = actionEl.querySelector(".loader");
+          if (loader) loader.id = "loader";
 
           showLoader(`.confirmation [data-modal-action="${action}"] span`);
 
@@ -77,8 +77,11 @@ const Modal = (() => {
             ?.style.setProperty("display", "none");
 
           // Resolve immediately without hiding — caller drives the close via hide().
+          settled = true;
+          backdrop.removeEventListener("click", onClick);
+          document.removeEventListener("keydown", onKeydown);
           actionEl.disabled = true;
-          teardown(resolve, action);
+          resolve(action);
         } else {
           finish(action);
         }
@@ -106,14 +109,15 @@ const Modal = (() => {
    * @returns {Promise<string|null>}
    */
   function confirm({ icon = "", title = "", buttons = [] } = {}) {
-    const iconHtml = icon ? `<i class="${icon}"></i>` : "";
-    const titleHtml = title ? `<h3>${title}</h3>` : "";
+    const iconHtml = hasValue(icon) ? `<i class="${icon}"></i>` : "";
+    const titleHtml = hasValue(title) ? `<h3>${title}</h3>` : "";
     const buttonsHtml = buttons
       .map(
         ({ action, label, classes = "btn", loading = false }) =>
           `<button class="${classes}" data-modal-action="${action}" data-modal-loading="${loading}">
-        <span>${label}</span>
-      </button>`,
+            <span>${label}</span>
+            ${loading ? '<div class="loader"></div>' : ""}
+          </button>`,
       )
       .join("");
 
@@ -123,7 +127,6 @@ const Modal = (() => {
         ${iconHtml}
         ${titleHtml}
         <div class="options">${buttonsHtml}</div>
-        <div class="loader" id="loader"></div>
       </div>`);
   }
 
