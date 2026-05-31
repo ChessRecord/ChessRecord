@@ -259,9 +259,11 @@ function download(content, filename, contentType = "application/json") {
 function showLoader(target, message) {
   const el = document.querySelector(target);
   if (!el) return;
+
   if (typeof el._oldLoaderValue === "undefined") {
     el._oldLoaderValue = el.innerHTML;
   }
+
   const loader = document.getElementById("loader");
   if (loader) loader.style.display = "inline";
   el.innerHTML = isValidString(message) ? message : "Loading";
@@ -270,8 +272,10 @@ function showLoader(target, message) {
 function hideLoader(target) {
   const el = document.querySelector(target);
   if (!el) return;
+
   const loader = document.getElementById("loader");
   if (loader) loader.style.display = "none";
+
   if (typeof el._oldLoaderValue !== "undefined") {
     el.innerHTML = el._oldLoaderValue;
     delete el._oldLoaderValue;

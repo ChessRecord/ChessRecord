@@ -1,57 +1,90 @@
 // modal.js
 
 const Modal = (() => {
-  // True while a modal is open. Prevents re-entrant open() calls from
-  // clobbering the backdrop and leaking the in-flight Promise.
+  /** Flipped to false while a modal is open; guards against re-entrant open() calls. */
   let settled = true;
 
-  function getBackdrop() {
-    let el = document.getElementById("blur");
-    if (!el) {
-      el = document.createElement("div");
-      el.id = "blur";
-      el.className = "blur hidden";
-      document.body.appendChild(el);
-    }
+  /** Lazily created once and reused for every modal. */
+  const backdrop = (() => {
+    const el = document.createElement("div");
+    el.id = "blur";
+    el.className = "blur hidden";
+    document.body.appendChild(el);
     return el;
+  })();
+
+  /** Remove both listeners and resolve the in-flight Promise. */
+  function teardown(resolve, value) {
+    settled = true;
+    backdrop.removeEventListener("click", onClick);
+    document.removeEventListener("keydown", onKeydown);
+    backdrop.classList.replace("visible", "hidden");
+    backdrop.innerHTML = "";
+    resolve(value);
   }
 
-  // Accepts raw HTML string. Resolves with the data-modal-action value, or null on dismiss.
-  // Returns null immediately (without opening) if a modal is already open.
+  // Declared here so teardown can reference them by name for removeEventListener.
+  let onClick, onKeydown;
+
+  /**
+   * Open a modal with arbitrary HTML content.
+   * Resolves with the `data-modal-action` value of the clicked button,
+   * or `null` on backdrop-click / Escape / cancel.
+   * Returns `null` immediately if a modal is already open.
+   *
+   * @param {string} html
+   * @returns {Promise<string|null>}
+   */
   function open(html) {
     if (!settled) return Promise.resolve(null);
     settled = false;
 
     return new Promise((resolve) => {
-      const backdrop = getBackdrop();
       backdrop.innerHTML = html;
-      backdrop.classList.remove("hidden");
-      backdrop.classList.add("visible");
+      backdrop.classList.replace("hidden", "visible");
 
       const finish = (value) => {
-        if (settled) return; // guard against race between click + keydown
-        settled = true;
-        backdrop.removeEventListener("click", onClick);
-        document.removeEventListener("keydown", onKeydown);
-        backdrop.classList.remove("visible");
-        backdrop.classList.add("hidden");
-        backdrop.innerHTML = "";
-        resolve(value);
+        if (settled) return; // race guard: click + keydown can both fire
+        teardown(resolve, value);
       };
 
-      const onClick = (e) => {
-        if (e.target === backdrop) {
-          finish(null);
-          return;
+      onClick = (e) => {
+        if (e.target === backdrop) return finish(null);
+
+        const actionEl = e.target.closest("[data-modal-action]");
+        if (!actionEl) return;
+
+        const { modalAction: action, modalLoading: loading } = actionEl.dataset;
+
+        if (action === "cancel") return finish(null);
+
+        if (loading === "true") {
+          // Show loader inside the button, hide siblings and the cancel control.
+          const loader = backdrop.querySelector("#loader");
+          if (loader) actionEl.appendChild(loader);
+
+          showLoader(`.confirmation [data-modal-action="${action}"] span`);
+
+          actionEl
+            .closest(".options")
+            ?.querySelectorAll("button")
+            .forEach((btn) => {
+              if (btn !== actionEl) btn.style.display = "none";
+            });
+
+          backdrop
+            .querySelector(".cancel")
+            ?.style.setProperty("display", "none");
+
+          // Resolve immediately without hiding — caller drives the close via hide().
+          actionEl.disabled = true;
+          teardown(resolve, action);
+        } else {
+          finish(action);
         }
-        const el = e.target.closest("[data-modal-action]");
-        if (el)
-          finish(
-            el.dataset.modalAction === "cancel" ? null : el.dataset.modalAction,
-          );
       };
 
-      const onKeydown = (e) => {
+      onKeydown = (e) => {
         if (e.key === "Escape") {
           e.preventDefault();
           finish(null);
@@ -63,33 +96,44 @@ const Modal = (() => {
     });
   }
 
-  // Built-in confirmation dialog helper.
-  // buttons: Array of { action, label, classes }
+  /**
+   * Built-in confirmation dialog.
+   *
+   * @param {object}   opts
+   * @param {string}  [opts.icon]    CSS class(es) for an <i> icon element.
+   * @param {string}  [opts.title]   Dialog heading text.
+   * @param {Array}   [opts.buttons] Array of { action, label, classes, loading }.
+   * @returns {Promise<string|null>}
+   */
   function confirm({ icon = "", title = "", buttons = [] } = {}) {
     const iconHtml = icon ? `<i class="${icon}"></i>` : "";
+    const titleHtml = title ? `<h3>${title}</h3>` : "";
     const buttonsHtml = buttons
       .map(
-        ({ action, label, classes = "btn" }) =>
-          `<button class="${classes}" data-modal-action="${action}">${label}</button>`,
+        ({ action, label, classes = "btn", loading = false }) =>
+          `<button class="${classes}" data-modal-action="${action}" data-modal-loading="${loading}">
+        <span>${label}</span>
+      </button>`,
       )
       .join("");
+
     return open(`
       <div class="confirmation">
         <div class="cancel" data-modal-action="cancel" title="Cancel">&times;</div>
         ${iconHtml}
-        ${title ? `<h3>${title}</h3>` : ""}
+        ${titleHtml}
         <div class="options">${buttonsHtml}</div>
+        <div class="loader" id="loader"></div>
       </div>`);
   }
 
-  // Imperatively dismisses the current modal (e.g. after an async operation
-  // completes). Also removes any lingering event listeners so nothing leaks
-  // if hide() is called while open() is in-flight.
+  /**
+   * Imperatively dismiss the current modal — e.g. after an async operation
+   * finishes inside a loading-button flow.
+   */
   function hide() {
     settled = true;
-    const backdrop = getBackdrop();
-    backdrop.classList.remove("visible");
-    backdrop.classList.add("hidden");
+    backdrop.classList.replace("visible", "hidden");
     backdrop.innerHTML = "";
   }
 

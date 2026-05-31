@@ -130,11 +130,22 @@ async function resolveImport(importedData) {
       icon: "fa-solid fa-triangle-exclamation warning-big",
       title: "Do you want to replace or merge your games?",
       buttons: [
-        { action: "replace", label: "Replace", classes: "btn outline" },
-        { action: "merge", label: "Merge", classes: "btn" },
+        {
+          action: "replace",
+          label: "Replace",
+          classes: "btn outline",
+          loading: true,
+        },
+        { action: "merge", label: "Merge", classes: "btn", loading: true },
       ],
     });
-    if (choice) await finalize(choice);
+    if (choice) {
+      try {
+        await finalize(choice);
+      } finally {
+        Modal.hide();
+      }
+    }
   }
 }
 
