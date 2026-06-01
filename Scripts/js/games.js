@@ -109,9 +109,9 @@ async function resolveImport(importedData) {
     for (const game of importedData) game.id = generateUniqueID();
 
     if (action === "replace") {
-      window.games = normalizeGames(importedData);
+      window.games = importedData;
     } else if (action === "merge") {
-      window.games.push(...normalizeGames(importedData));
+      window.games.push(...importedData);
     } else {
       return;
     }

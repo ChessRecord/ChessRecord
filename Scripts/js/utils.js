@@ -613,10 +613,7 @@ async function saveGames(newGames, deleteId) {
   // Always stabilize the global state synchronously before any async suspension.
   // This ensures window.games is always clean and ordered for concurrent UI
   // updates, regardless of whether we are replacing, merging, or deleting.
-  window.games = normalizeGames(window.games);
-
-  // Delta records must also be normalised to guarantee valid IDs and types.
-  if (isMerge) newGames = normalizeGames(newGames);
+  // window.games is guaranteed to be normalized already.
 
   // Sorting must be the final synchronous step so it operates on fully
   // normalised data before any UI updates or async operations begin.
