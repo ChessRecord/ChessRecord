@@ -92,19 +92,7 @@ function pickRating({ standard = 0, rapid = 0, blitz = 0 } = {}, time) {
   );
 }
 
-/* ─── Inline Form Error ──────────────────────────────────────────────────── */
-
-function showFormError(msg) {
-  formEls.error.textContent = msg;
-  formEls.error.style.display = "block";
-}
-
-function clearFormError() {
-  formEls.error.textContent = "";
-  formEls.error.style.display = "none";
-}
-
-/* ─── Autocomplete ───────────────────────────────────────────────────────── */
+/* ─── API ────────────────────────────────────────────────────────────────── */
 
 function renderSuggestions(container, query, players) {
   if (isEmpty(players)) {
@@ -333,8 +321,9 @@ function gameAddedAlert({ whiteTitle, white, blackTitle, black }) {
 // Pipeline: collect → validate (cheap) → format (expensive) → build → dedupe
 //           → persist → reset UI.
 async function addGame(event) {
+  const form = event.target;
   event.preventDefault();
-  clearFormError();
+  clearFormError(form);
 
   // Disable the submit button for the duration of the async pipeline so a
   // double-click cannot enqueue a second submission while the first is in flight.
@@ -347,7 +336,7 @@ async function addGame(event) {
 
     // 2. Validate — cheap string checks before any formatting
     const error = validateState(state);
-    if (error) return showFormError(error);
+    if (error) return showFormError(form, error);
 
     // 3. Format — expensive normalization runs only for valid submissions
     const players = formatPlayers(state.players);
@@ -356,6 +345,7 @@ async function addGame(event) {
     const game = buildGame(players, state);
     if (isDuplicate(game))
       return showFormError(
+        form,
         "Game already exists or player conflict in this round!",
       );
     window.games.push(game);
@@ -363,7 +353,7 @@ async function addGame(event) {
     // saveGames starts first (gets a head start on await dbReady) while
     // displayGames runs synchronously to completion — identical outcome to
     // sequential execution but saveGames begins its async work immediately.
-    await Promise.all([saveGames(), event.target.reset()]);
+    await Promise.all([saveGames(), form.reset()]);
 
     // Yield one full paint cycle before alerting. Without this, alert() fires
     // before the browser has painted the updated DOM — the user sees the old
@@ -403,15 +393,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     submit: document.getElementById(UI.form.submit),
   };
 
-  // Created eagerly here so showFormError and clearFormError can reference it
-  // directly — no lazy-init wrapper needed.
-  const errorEl = document.createElement("p");
-  errorEl.setAttribute("role", "alert");
-  errorEl.style.cssText =
-    "color:#c0392b;font-size:.875rem;margin:.25rem 0 0;display:none";
-  formEls.submit?.insertAdjacentElement("beforebegin", errorEl);
-  formEls.error = errorEl;
-
   // Wait for the DB load kicked off at module scope to complete before wiring
   // up the submit handler. This ensures window.games is populated so that
   // isDuplicate checks are accurate even if the user opens the page fresh.
@@ -434,7 +415,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       if (titleEl) delete titleEl.dataset.autoFilled;
     });
-    clearFormError();
+    clearFormError(gameForm);
   });
 
   // Single initialization pass combines autocomplete setup, rating ownership

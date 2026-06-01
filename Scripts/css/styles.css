@@ -200,6 +200,15 @@ button.outline {
     animation: l2 1s infinite linear;
 }
 
+.form-error {
+    display: none;
+
+    margin: 0.25rem 0 0;
+
+    color: #c0392b;
+    font-size: 0.875rem;
+}
+
 a.redirect {
     position: fixed;
     bottom: var(--medium);
