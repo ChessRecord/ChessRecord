@@ -342,7 +342,7 @@ async function addGame(event) {
     const players = formatPlayers(state.players);
 
     // 4. Build  5. Dedupe  6. Persist  7. Reset UI
-    const game = buildGame(players, state);
+    const game = normalizeGames([buildGame(players, state)])[0];
     if (isDuplicate(game))
       return showFormError(
         form,
