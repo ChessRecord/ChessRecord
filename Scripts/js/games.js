@@ -245,11 +245,16 @@ function gameEntry(game) {
 }
 
 async function deleteGame(id) {
-  const idx = window.games.findIndex((g) => g.id === id);
-  if (idx === -1) return;
-  const { whiteTitle, white, blackTitle, black } = window.games[idx];
-  if (!confirm(`Delete ${formatPlayerLabel(whiteTitle, white)} vs ${formatPlayerLabel(blackTitle, black)}?\n\nThis cannot be undone.`)) return;
-  window.games.splice(idx, 1);
+  const gameIndex = window.games.findIndex((game) => game.id === id);
+  if (gameIndex === -1) return;
+  const { whiteTitle, white, blackTitle, black } = window.games[gameIndex];
+  if (
+    !confirm(
+      `Delete:\n ${formatPlayerLabel(whiteTitle, white)} vs ${formatPlayerLabel(blackTitle, black)} ?`,
+    )
+  )
+    return;
+  window.games.splice(gameIndex, 1);
 
   // saveGames starts first (gets a head start on await dbReady) while
   // displayGames runs synchronously to completion — identical outcome to
