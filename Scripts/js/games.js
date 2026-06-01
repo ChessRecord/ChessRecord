@@ -72,7 +72,7 @@ async function parseImport(files) {
       Array.from(files).map(async (file) => {
         const content = await readFileAsText(file);
         const name = file.name.toLowerCase();
-        if (name.endsWith(".pgn")) return pgnToJson(content);
+        if (name.endsWith(".pgn")) return normalizeGames(pgnToJson(content));
         if (name.endsWith(".chr") && content.trim().startsWith("§"))
           return normalizeGames(fromSoup(content));
         if (name.endsWith(".json")) {
