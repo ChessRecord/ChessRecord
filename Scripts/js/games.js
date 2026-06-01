@@ -77,7 +77,7 @@ async function parseImport(files) {
           return normalizeGames(fromSoup(content));
         if (name.endsWith(".json")) {
           const rawData = JSON.parse(content);
-          if (!Array.isArray(rawData))
+          if (!isValidArray(rawData))
             throw new Error(
               `"${file.name}" doesn't contain a valid list of games.`,
             );
