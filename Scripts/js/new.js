@@ -35,11 +35,6 @@ const UI = {
 
 /* ─── Constants ──────────────────────────────────────────────────────────── */
 
-// loadGames() is async (Dexie/IndexedDB). Kick it off immediately so the DB
-// is primed well before the form is submitted. DOMContentLoaded awaits this
-// to guarantee window.games is populated before any interaction.
-loadGames();
-
 const FIDE_BASE = "https://lichess.org/api/fide/player";
 
 /* ─── DOM Cache ──────────────────────────────────────────────────────────── */
@@ -347,11 +342,6 @@ async function addGame(event) {
   showLoader(`#${UI.form.submit} span`);
 
   try {
-    // 0. Ensure games are loaded before attempting any write. In practice
-    //    the background load is already resolved by the time the user hits submit,
-    //    but awaiting here is a safety net for edge cases.
-    await loadGames();
-
     // 1. Collect — one DOM pass, raw values
     const state = getFormState();
 

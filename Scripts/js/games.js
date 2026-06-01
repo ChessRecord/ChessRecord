@@ -181,10 +181,15 @@ function countGames() {
   if (!els.gameCount || !els.tournamentCount) return;
   const n = window.games.length;
   const tournaments = new Set();
-  for (const { tournament } of window.games) tournaments.add(tournament || "Unknown");
+  for (const { tournament } of window.games)
+    tournaments.add(tournament || "Unknown");
   const t = tournaments.size;
-  els.gameCount.innerHTML = n ? `${n} ${n === 1 ? "Game" : "Games"}` : "No Games";
-  els.tournamentCount.innerHTML = t ? `${t} ${t === 1 ? "Event" : "Events"}` : "";
+  els.gameCount.innerHTML = n
+    ? `${n} ${n === 1 ? "Game" : "Games"}`
+    : "No Games";
+  els.tournamentCount.innerHTML = t
+    ? `${t} ${t === 1 ? "Event" : "Events"}`
+    : "";
 }
 
 // Returns an HTML string rather than a DOM element so that displayGames()
@@ -268,10 +273,23 @@ async function deleteGame(id) {
   await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
 }
 
+// Games to render per batch. The first batch paints synchronously; all
+// subsequent batches run through setTimeout so the main thread stays
+// responsive and the browser can paint between chunks.
+const RENDER_BATCH_SIZE = 100;
+
 function displayGames(searchTerm = els.search?.value || "") {
   if (!els.list) return;
 
   countGames();
+
+  // Cancel any in-progress background render before starting a new one —
+  // prevents a stale batch from appending to a list that has already been
+  // cleared for a newer call (e.g. rapid search input).
+  if (displayGames._pendingTimer != null) {
+    clearTimeout(displayGames._pendingTimer);
+    displayGames._pendingTimer = null;
+  }
 
   const normalizedSearchTerm = searchTerm.trim().toLowerCase();
   const filteredGames = normalizedSearchTerm
@@ -283,34 +301,59 @@ function displayGames(searchTerm = els.search?.value || "") {
       )
     : window.games;
 
-  // Single Map pass replaces reduce (no closure-per-iteration overhead).
-  // get() result is cached in `group` — avoids a second Map lookup after set().
+  // Single Map pass — unchanged from before.
   const gamesByTournament = new Map();
   for (const game of filteredGames) {
     const key = game.tournament || "Unknown";
     let group = gamesByTournament.get(key);
-    if (!group) gamesByTournament.set(key, group = []);
+    if (!group) gamesByTournament.set(key, (group = []));
     group.push(game);
   }
 
-  // Building one large HTML string is significantly faster than creating N
-  // elements and setting innerHTML individually inside a loop. The browser
-  // parses the entire list in one pass.
-  // for...of over the Map avoids Array.from(), outer .map(), and outer .join()
-  // — no intermediate arrays at any level.
-  let html = "";
-  for (const [tournament, tournamentGames] of gamesByTournament) {
-    const tournamentLabel = normalizedSearchTerm
-      ? highlightMatch(normalizedSearchTerm, tournament)
-      : tournament;
-    html += `<div class="tournament-section"><div class="tournament-header"><h3>${tournamentLabel}</h3><h3 class="dot">●</h3></div>`;
-    for (const game of tournamentGames) html += gameEntry(game);
-    html += `</div>`;
-  }
-  els.list.innerHTML = html;
+  // Flatten once so renderBatch can consume it with a plain index.
+  const tournamentEntries = [...gamesByTournament];
+  let nextIndex = 0;
+
+  // Appends up to RENDER_BATCH_SIZE games worth of sections, then schedules
+  // itself again if more remain.
+  const renderBatch = () => {
+    let html = "";
+    let gameCount = 0;
+
+    while (
+      nextIndex < tournamentEntries.length &&
+      gameCount < RENDER_BATCH_SIZE
+    ) {
+      const [tournament, tournamentGames] = tournamentEntries[nextIndex++];
+      const tournamentLabel = normalizedSearchTerm
+        ? highlightMatch(normalizedSearchTerm, tournament)
+        : tournament;
+      html += `<div class="tournament-section"><div class="tournament-header"><h3>${tournamentLabel}</h3><h3 class="dot">●</h3></div>`;
+      for (const game of tournamentGames) html += gameEntry(game);
+      html += `</div>`;
+      gameCount += tournamentGames.length;
+    }
+
+    // insertAdjacentHTML appends without touching already-painted nodes,
+    // unlike a full innerHTML replace.
+    els.list.insertAdjacentHTML("beforeend", html);
+
+    if (nextIndex < tournamentEntries.length) {
+      displayGames._pendingTimer = setTimeout(renderBatch, 0);
+    } else {
+      displayGames._pendingTimer = null;
+    }
+  };
+
+  // Clear once, then kick off the first batch synchronously. The browser
+  // paints the first RENDER_BATCH_SIZE games on the very next frame instead
+  // of waiting for all 31 K entries to be built.
+  els.list.innerHTML = "";
+  renderBatch();
 
   refreshTitle();
 }
+displayGames._pendingTimer = null;
 
 /* ─── Initialization ─────────────────────────────────────────────────────── */
 
