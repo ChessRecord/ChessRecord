@@ -37,6 +37,47 @@ function hideLoader(target) {
   }
 }
 
+/* ─── Form Error Helpers ────────────────────────────────────────────────── */
+
+function showFormError(targetForm, msg) {
+  const form =
+    typeof targetForm === "string"
+      ? document.querySelector(targetForm)
+      : targetForm;
+  if (!form) return;
+
+  let errorEl = form.querySelector(".form-error");
+  if (!errorEl) {
+    errorEl = document.createElement("p");
+    errorEl.className = "form-error";
+    errorEl.setAttribute("role", "alert");
+    // Standard position: before the submit button
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.insertAdjacentElement("beforebegin", errorEl);
+    } else {
+      form.appendChild(errorEl);
+    }
+  }
+
+  errorEl.textContent = msg;
+  errorEl.style.display = "block";
+}
+
+function clearFormError(targetForm) {
+  const form =
+    typeof targetForm === "string"
+      ? document.querySelector(targetForm)
+      : targetForm;
+  if (!form) return;
+
+  const errorEl = form.querySelector(".form-error");
+  if (errorEl) {
+    errorEl.textContent = "";
+    errorEl.style.display = "none";
+  }
+}
+
 /* ─── Global UI Initializer ──────────────────────────────────────────────── */
 
 const initGlobalUI = () => {
