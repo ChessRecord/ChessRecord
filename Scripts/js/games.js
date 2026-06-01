@@ -135,17 +135,32 @@ async function resolveImport(importedData) {
   if (isEmpty(window.games)) {
     await finalize("replace");
   } else {
-    // OK = merge (safe, non-destructive default). Cancel = replace (destructive).
-    const shouldMerge = confirm(
-      "You already have saved games.\n\nOK — Merge the imported games with your existing ones.\nCancel — Replace all your games with the imported ones.",
-    );
-    await finalize(shouldMerge ? "merge" : "replace");
+    const choice = await Modal.confirm({
+      icon: "fa-solid fa-triangle-exclamation warning-big",
+      title: "Do you want to replace or merge your games?",
+      buttons: [
+        {
+          action: "replace",
+          label: "Replace",
+          classes: "btn outline",
+          loading: true,
+        },
+        { action: "merge", label: "Merge", classes: "btn", loading: true },
+      ],
+    });
+    if (choice) {
+      try {
+        await finalize(choice);
+      } finally {
+        Modal.hide();
+      }
+    }
   }
 }
 
 async function importJSON(event) {
   const input = event.target;
-  if (!input.files?.length) return;
+  if (isEmpty(input.files)) return;
 
   try {
     const games = await parseImport(input.files);
