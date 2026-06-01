@@ -83,10 +83,6 @@ const Modal = (() => {
         if (action === "cancel") return finish(null);
 
         if (loading === "true") {
-          // Ensure this button's loader has the magic ID showLoader expects.
-          const loader = actionEl.querySelector(".loader");
-          if (loader) loader.id = "loader";
-
           showLoader(`.confirmation [data-modal-action="${action}"] span`);
 
           actionEl

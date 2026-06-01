@@ -256,33 +256,6 @@ function download(content, filename, contentType = "application/json") {
   }
 }
 
-/* ─── Loader UI Helpers ─────────────────────────────────────────────────── */
-function showLoader(target, message) {
-  const el = document.querySelector(target);
-  if (!el) return;
-
-  if (typeof el._oldLoaderValue === "undefined") {
-    el._oldLoaderValue = el.innerHTML;
-  }
-
-  const loader = document.getElementById("loader");
-  if (loader) loader.style.display = "inline";
-  el.innerHTML = isValidString(message) ? message : "Loading";
-}
-
-function hideLoader(target) {
-  const el = document.querySelector(target);
-  if (!el) return;
-
-  const loader = document.getElementById("loader");
-  if (loader) loader.style.display = "none";
-
-  if (typeof el._oldLoaderValue !== "undefined") {
-    el.innerHTML = el._oldLoaderValue;
-    delete el._oldLoaderValue;
-  }
-}
-
 /* ─── Chess Specific Logic ──────────────────────────────────────────────── */
 
 const TITLE_MAP = Object.freeze({
@@ -583,9 +556,15 @@ async function loadGames(target = window.games ?? (window.games = [])) {
   await dbReady;
 
   let raw;
+  let alreadyNormalized = false;
+
   if (useIndexStorage) {
     try {
       raw = await indexStorage.chessGames.toArray();
+      // saveGames always normalizes before writing to IDB, so records read back
+      // here are already valid — skip the full normalizeGames pass and its
+      // ~31 K object re-allocations.
+      alreadyNormalized = true;
     } catch {
       // IDB read failed mid-session; fall back to the localStorage mirror.
       raw = gamesLocalStorage.get([]);
@@ -594,12 +573,14 @@ async function loadGames(target = window.games ?? (window.games = [])) {
     raw = gamesLocalStorage.get([]);
   }
 
-  const normalized = normalizeGames(raw);
+  const normalized = alreadyNormalized ? raw : normalizeGames(raw);
   sortGames(normalized);
 
   if (Array.isArray(target)) {
-    target.length = 0;
-    target.push(...normalized);
+    // Indexed assignment avoids push(...largeArray), which copies all items
+    // as function arguments and wastes stack space for nothing.
+    target.length = normalized.length;
+    for (let i = 0; i < normalized.length; i++) target[i] = normalized[i];
   }
 
   return target;
