@@ -1,7 +1,26 @@
-// ui.js - Global UI behaviors (Dropdowns, etc.)
+/**
+ * ui.js — Global UI behaviors (Dropdowns, loaders, form errors)
+ *
+ * Depends on: utils.js (isValidString)
+ *
+ * Provides small helpers for UI feedback: loader toggles, form error rendering,
+ * and a lightweight global initializer for dropdown controls.
+ *
+ * Exposed globals:
+ *   initGlobalUI() → void
+ */
+
+"use strict";
 
 /* ─── Global UI Helpers ──────────────────────────────────────────────────── */
 
+/**
+ * Show or hide player-title elements depending on their content.
+ *
+ * Hides when the text is empty or "none" (case-insensitive).
+ *
+ * @returns {void}
+ */
 function refreshTitle() {
   document.querySelectorAll(".player-title").forEach((el) => {
     const content = el.textContent.trim().toLowerCase();
@@ -9,6 +28,13 @@ function refreshTitle() {
   });
 }
 
+/**
+ * Display a loading state for a target element, saving prior content to restore later.
+ *
+ * @param {string} target - CSS selector for element whose content will be replaced
+ * @param {string} [message] - Optional message to show in place of the element content
+ * @returns {void}
+ */
 function showLoader(target, message) {
   const el = document.querySelector(target);
   if (!el) return;
@@ -24,6 +50,12 @@ function showLoader(target, message) {
   el.innerHTML = isValidString(message) ? message : "Loading";
 }
 
+/**
+ * Restore previously saved content and hide any inline loader indicator.
+ *
+ * @param {string} target - CSS selector for element to restore
+ * @returns {void}
+ */
 function hideLoader(target) {
   const el = document.querySelector(target);
   if (!el) return;
@@ -39,6 +71,13 @@ function hideLoader(target) {
 
 /* ─── Form Error Helpers ────────────────────────────────────────────────── */
 
+/**
+ * Render a form-level error message inside the form. Creates the error node if missing.
+ *
+ * @param {HTMLElement|string} targetForm - Form element or selector string
+ * @param {string} msg - Error message to display
+ * @returns {void}
+ */
 function showFormError(targetForm, msg) {
   const form =
     typeof targetForm === "string"
@@ -64,6 +103,12 @@ function showFormError(targetForm, msg) {
   errorEl.style.display = "block";
 }
 
+/**
+ * Clear any form-level error message previously rendered by showFormError.
+ *
+ * @param {HTMLElement|string} targetForm - Form element or selector string
+ * @returns {void}
+ */
 function clearFormError(targetForm) {
   const form =
     typeof targetForm === "string"
@@ -80,6 +125,13 @@ function clearFormError(targetForm) {
 
 /* ─── Global UI Initializer ──────────────────────────────────────────────── */
 
+/**
+ * Initialize global UI behaviors (options dropdown toggles, outside-click handlers).
+ *
+ * This is intended to be called once on DOMContentLoaded.
+ *
+ * @returns {void}
+ */
 const initGlobalUI = () => {
   const optionsButton = document.querySelector(".options");
   const dropdown = document.querySelector(".dropdown");

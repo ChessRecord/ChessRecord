@@ -1,4 +1,18 @@
-// games.js — Index page controller
+/**
+ * games.js — Index page controller
+ *
+ * Depends on: utils.js (isEmpty, isValidObject, normalizeResult, toSoup, download, Storage, loadGames, saveGames)
+ *
+ * Controls the home/index page: rendering the games list, handling imports/exports,
+ * search, and deletion. Uses batched rendering to keep the UI responsive for large datasets.
+ *
+ * Exposed globals:
+ *   exportJSON()        → void
+ *   importJSON(event)   → Promise<void>
+ *   displayGames(search) → void
+ */
+
+"use strict";
 
 /* ─── UI Selectors (Configurable) ────────────────────────────────────────── */
 
@@ -20,6 +34,12 @@ let els = {}; // { list, gameCount, tournamentCount }
 
 /* ─── Data Import / Export ───────────────────────────────────────────────── */
 
+/**
+ * Exports the current games collection to a ChesSoup (.chr) file.
+ * Validates there is at least one game and normalizes the export payload.
+ *
+ * @returns {void}
+ */
 function exportJSON() {
   if (isEmpty(window.games)) {
     alert("Your game list is empty — there's nothing to export yet.");
@@ -49,10 +69,12 @@ function exportJSON() {
   }
 }
 
-// FileReader.readAsText() is event-driven: the browser fires onload/onerror
-// asynchronously after reading on a background thread. FileReaderSync only
-// exists in Web Workers, so a Promise wrapper is the only option on the main
-// thread — this function cannot be made synchronous.
+/**
+ * Asynchronously reads a File object as text.
+ *
+ * @param {File} file
+ * @returns {Promise<string>}
+ */
 function readFileAsText(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -62,6 +84,13 @@ function readFileAsText(file) {
   });
 }
 
+/**
+ * Parses an array-like collection of File objects (.pgn, .json, .chr) and
+ * returns a flattened array of normalized game objects.
+ *
+ * @param {FileList|File[]} files
+ * @returns {Promise<Object[]>}
+ */
 async function parseImport(files) {
   // Promise.all fires all file reads concurrently. For typical imports (1–10
   // files) the speed gain outweighs the modest peak-memory increase from
@@ -91,6 +120,14 @@ async function parseImport(files) {
   ).flat();
 }
 
+/**
+ * Resolves parsed imported game objects by either replacing or merging them
+ * into the existing window.games array. Shows a confirmation modal when the
+ * destination already contains games.
+ *
+ * @param {Object[]} importedData - Normalized game objects to import
+ * @returns {Promise<void>}
+ */
 async function resolveImport(importedData) {
   if (isEmpty(importedData))
     return alert("The selected files didn't contain any recognisable games.");
@@ -158,6 +195,13 @@ async function resolveImport(importedData) {
   }
 }
 
+/**
+ * Handler for the file input change event. Reads selected files and delegates
+ * to parseImport → resolveImport.
+ *
+ * @param {Event} event - File input change event
+ * @returns {Promise<void>}
+ */
 async function importJSON(event) {
   const input = event.target;
   if (isEmpty(input.files)) return;
@@ -177,6 +221,11 @@ async function importJSON(event) {
 
 /* ─── Rendering Logic ────────────────────────────────────────────────────── */
 
+/**
+ * Updates the counts display (total games and unique tournaments).
+ *
+ * @returns {void}
+ */
 function countGames() {
   if (!els.gameCount || !els.tournamentCount) return;
   const n = window.games.length;
@@ -192,9 +241,12 @@ function countGames() {
     : "";
 }
 
-// Returns an HTML string rather than a DOM element so that displayGames()
-// can set section.innerHTML once per tournament group, collapsing N separate
-// HTML-parse-and-build cycles into one.
+/**
+ * Builds an HTML string for a single game entry suitable for inserting into the DOM.
+ *
+ * @param {Object} game
+ * @returns {string} HTML fragment for the game
+ */
 function gameEntry(game) {
   const gameId = game.id || "unknown";
   const category = getTimeControlCategory(game.time);
@@ -249,6 +301,12 @@ function gameEntry(game) {
     </a>`;
 }
 
+/**
+ * Deletes a game by id after prompting the user for confirmation.
+ *
+ * @param {string} id
+ * @returns {Promise<void>}
+ */
 async function deleteGame(id) {
   const gameIndex = window.games.findIndex((game) => game.id === id);
   if (gameIndex === -1) return;
@@ -273,11 +331,20 @@ async function deleteGame(id) {
   await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
 }
 
-// Games to render per batch. The first batch paints synchronously; all
-// subsequent batches run through setTimeout so the main thread stays
-// responsive and the browser can paint between chunks.
+/**
+ * Games to render per batch. The first batch paints synchronously; all
+ * subsequent batches run through setTimeout so the main thread stays
+ * responsive and the browser can paint between chunks.
+ */
 const RENDER_BATCH_SIZE = 100;
 
+/**
+ * Renders the games list, optionally filtered by the provided search term.
+ * Rendering is batched (RENDER_BATCH_SIZE) to avoid locking the main thread.
+ *
+ * @param {string} [searchTerm]
+ * @returns {void}
+ */
 function displayGames(searchTerm = els.search?.value || "") {
   if (!els.list) return;
 

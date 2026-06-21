@@ -1,4 +1,19 @@
-// pairings.js — Chess-Results pairings page controller
+/**
+ * pairings.js — Chess-Results pairings page controller
+ *
+ * Depends on: utils.js (isEmpty, toNumberOr, calcChange, normalisePoints), jQuery
+ *
+ * Fetches and parses chess-results.com player pages (via a CORS proxy),
+ * extracts pairings, enriches rounds with rating delta projections, and renders
+ * a responsive pairings table.
+ *
+ * Exposed globals:
+ *   fetchPage(url, signal) → Promise<string>
+ *   getChessResults(url, signal) → Promise<{playerInfo, rating, rtgchg, rounds}>
+ *   showPairingsTableFromInput() → Promise<void>
+ */
+
+"use strict";
 
 /* ─── UI Selectors (Configurable) ────────────────────────────────────────── */
 
@@ -33,7 +48,7 @@ const PLAYER_PROFILE_KEYS = new Set([
   "Year of birth",
 ]);
 
-/* ─── DOM Cache ──────────────────────────────────────────────────────────── */
+/* ─── DOM Cache ─────────────────────────────────────────────────────────── */
 
 // All element lookups happen exactly once at DOM-ready and are stored here.
 // Every function reads from els rather than re-querying the DOM on each call.
@@ -49,11 +64,15 @@ const PersistentStorage = Storage.proxy("chessResultsUrl");
 const RoundsStorage = Storage.session.proxy("pairingsRounds");
 const PlayerDataStorage = Storage.session.proxy("pairingsPlayerData");
 
-/* ─── Utilities ──────────────────────────────────────────────────────────── */
+/* ─── Utilities ─────────────────────────────────────────────────────────── */
 
 /**
  * Builds a chess-results.com profile URL for a given start number by
  * replacing the `snr` query parameter in the source URL.
+ *
+ * @param {string} baseUrl - Source chess-results URL
+ * @param {string|number} startNo - Start number to insert (snr)
+ * @returns {string} A URL string with the snr parameter set, or empty string on invalid input
  */
 function buildOpponentProfileUrl(baseUrl, startNo) {
   const snr = Number(startNo);
@@ -75,6 +94,11 @@ function buildOpponentProfileUrl(baseUrl, startNo) {
  * Formats a projected rating change as "+N" or "−N".
  * Returns "" when calcChange signals the result is indeterminate.
  * score: 1 = win, 0.5 = draw, 0 = loss.
+ *
+ * @param {number} playerRating
+ * @param {number} oppRating
+ * @param {number} score
+ * @returns {string}
  */
 function formatRatingDelta(playerRating, oppRating, score) {
   const delta = calcChange(playerRating, oppRating, score);
@@ -86,7 +110,13 @@ function formatRatingDelta(playerRating, oppRating, score) {
 /** Tracks the in-flight fetch so a subsequent search can cancel it. */
 let currentFetchController = null;
 
-/** Fetches raw HTML through the CORS proxy and returns it as a string. */
+/**
+ * Fetches raw HTML through the CORS proxy and returns it as a string.
+ *
+ * @param {string} url
+ * @param {AbortSignal} [signal]
+ * @returns {Promise<string>}
+ */
 async function fetchPage(url, signal) {
   const res = await fetch(PROXY_URL + url, { signal });
   if (!res.ok) throw new Error(`HTTP ${res.status} fetching page.`);
@@ -101,6 +131,9 @@ const LAYOUT_MISMATCH =
  * The table is located by checking its own direct first-column cells for the
  * exact label "Name", preventing outer layout tables (whose cells contain all
  * descendant text) from matching. Only keys in PLAYER_PROFILE_KEYS are retained.
+ *
+ * @param {jQuery} $html - jQuery-wrapped fragment containing the fetched page
+ * @returns {Object} Map of profile keys → values (filtered to PLAYER_PROFILE_KEYS)
  */
 function parsePlayerInfo($html) {
   const $table = $html
@@ -140,6 +173,10 @@ function parsePlayerInfo($html) {
  * are derived dynamically via .includes() so new columns are handled
  * automatically. children() traversal throughout prevents nested result-cell
  * tables from bleeding into the index mapping.
+ *
+ * @param {jQuery} $html - jQuery-wrapped page fragment
+ * @param {string} url - The source URL (used to build opponent profile URLs)
+ * @returns {Array<Object>} Array of pairing objects
  */
 function parsePairings($html, url) {
   const $table = $html
@@ -213,7 +250,13 @@ function parsePairings($html, url) {
     .filter((pairing) => pairing.round !== "");
 }
 
-/** Fetches and parses a chess-results.com player page. */
+/**
+ * Fetches and parses a chess-results.com player page.
+ *
+ * @param {string} url
+ * @param {AbortSignal} [signal]
+ * @returns {Promise<{playerInfo:Object,pairings:Object[]}>}
+ */
 async function scrapeChessResults(url, signal) {
   const $html = $("<div>").html(await fetchPage(url, signal));
   return {
@@ -223,10 +266,12 @@ async function scrapeChessResults(url, signal) {
 }
 
 /**
- * Fetches a single opponent's profile page and returns their current rank,
- * or "" if the rank is missing or the fetch fails.
- * Reuses the existing fetchPage + parsePlayerInfo pipeline — no extra URL
- * construction needed since the caller supplies the pre-built profile URL.
+ * Fetch a single opponent's profile page and return their current Rank field.
+ * Returns an empty string when the rank is missing or the fetch fails.
+ *
+ * @param {string} profileUrl
+ * @param {AbortSignal} [signal]
+ * @returns {Promise<string>}
  */
 async function fetchOpponentRank(profileUrl, signal) {
   try {
@@ -243,6 +288,10 @@ async function fetchOpponentRank(profileUrl, signal) {
 /**
  * Fetches, parses, and enriches a player's results page.
  * Each round is extended with projected rating deltas for win, draw, and loss.
+ *
+ * @param {string} url
+ * @param {AbortSignal} [signal]
+ * @returns {Promise<{playerInfo:Object,rating:number,rtgchg:number,rounds:Object[]}>}
  */
 async function getChessResults(url, signal) {
   if (!url.includes("chess-results.com"))
@@ -292,8 +341,14 @@ async function getChessResults(url, signal) {
 }
 
 /**
- * Shapes the raw playerInfo map and computed rating fields into the flat
+ * Shape the raw playerInfo map and computed rating fields into the flat
  * playerData object used by the presentation layer.
+ *
+ * @param {Object} playerInfo
+ * @param {number} rating
+ * @param {number} rtgchg
+ * @param {string} url
+ * @returns {Object}
  */
 function buildPlayerData(playerInfo, rating, rtgchg, url) {
   return {
@@ -313,6 +368,10 @@ function buildPlayerData(playerInfo, rating, rtgchg, url) {
 /**
  * Factory for the common column shape: present when hasValue, renders as plain <td>.
  * Used for any column whose presence and display are both driven by a single field.
+ *
+ * @param {string} header
+ * @param {string} key
+ * @returns {{header:string,isPresent:function,render:function}}
  */
 const simpleCol = (header, key) => ({
   header,
@@ -320,16 +379,6 @@ const simpleCol = (header, key) => ({
   render: (round) => `<td>${round[key]}</td>`,
 });
 
-/**
- * Column definitions for the pairings table.
- *
- * Each entry carries:
- *   header    — the <th> label
- *   isPresent — (round) => bool: does this round have data for the column?
- *   render    — (round) => <td> HTML string
- *
- * A column is only included when at least one round returns true from isPresent.
- */
 const PAIRINGS_COLUMNS = [
   simpleCol("Round", "round"),
   simpleCol("Board", "boardNo"),
@@ -384,6 +433,11 @@ const PAIRINGS_COLUMNS = [
 /**
  * Renders (or updates) the player header above the table.
  * Format: #[Rank] [Federation] <Title> [Name] [New Rating] ([rtgchg]) — [Points]/[totalRounds]
+ *
+ * @param {Object} playerData
+ * @param {string} url
+ * @param {number|string} totalRounds
+ * @returns {void}
  */
 function renderPlayerHeader(playerData, url, totalRounds) {
   const { name, title, rank, rating, rtgchg, federation, points } = playerData;
@@ -422,8 +476,13 @@ function renderPlayerHeader(playerData, url, totalRounds) {
 }
 
 /**
- * Renders the pairings table into #pairings-table.
+ * Render the pairings table into #pairings-table.
  * Any column whose values are absent across every round is omitted.
+ *
+ * @param {Object[]} rounds
+ * @param {Object} playerData
+ * @param {string} url
+ * @returns {void}
  */
 function renderPairingsTable(rounds, playerData, url) {
   const totalRounds = rounds[rounds.length - 1]?.round ?? "";
@@ -464,7 +523,7 @@ function renderPairingsTable(rounds, playerData, url) {
   );
 }
 
-/* ─── UI Controller ──────────────────────────────────────────────────────── */
+/* ─── UI Controller ─────────────────────────────────────────────────────── */
 
 /**
  * Resolves the URL from the input field or persistent cache, fetches live
@@ -476,6 +535,8 @@ function renderPairingsTable(rounds, playerData, url) {
  * and the session cache are updated.
  *
  * The loader is always dismissed on exit, whether the fetch succeeds or fails.
+ *
+ * @returns {Promise<void>}
  */
 async function showPairingsTableFromInput() {
   let url = els.input.val().trim();

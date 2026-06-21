@@ -1,4 +1,22 @@
-// utils.js - General utility functions and Chess logic
+/**
+ * utils.js — General utility functions and Chess logic
+ *
+ * Depends on: None (utility library). Used by: games.js, new.js, pairings.js, soup.js
+ *
+ * Provides validation & formatting helpers, Unicode variant utilities, a small
+ * storage wrapper for local/session storage, a download helper, chess-specific
+ * utilities (title abbreviations, time control parsing), PGN parsing, and
+ * persistence (Dexie + localStorage mirror).
+ *
+ * Exposed globals:
+ *   Storage
+ *   toUnicodeVariant(str, variant, flags)
+ *   normalizeGames(games)
+ *   loadGames(target) → 1 Promise<Array>
+ *   saveGames(newGames, deleteId) → 1 Promise<void>
+ */
+
+"use strict";
 
 console.log(`
   ██████╗██╗  ██╗███████╗███████╗███████╗██████╗ ███████╗ ██████╗ ██████╗ ██████╗ ██████╗
@@ -14,11 +32,14 @@ const today = new Date().toISOString().split("T")[0];
 /* ─── Validation & Basic Helpers ──────────────────────────────────────── */
 
 const isValidString = (s) => typeof s === "string" && !isEmpty(s);
+
 const isValidObject = (o) => o !== null && typeof o === "object";
+
 const isValidArray = (a) => Array.isArray(a) && a.length > 0;
-/** True when a value is non-null, non-undefined, and non-empty-string. */
+
 const hasValue = (value) =>
   value !== null && value !== undefined && value !== "";
+
 const isEmpty = (value) => !value || value.length === 0;
 
 const toNumberOr = (value, fallback = 0) => {
@@ -143,6 +164,15 @@ const UNICODE_SPECIAL = Object.freeze({
   w: SPECIAL_W,
 });
 
+/**
+ * Convert ASCII characters to a Unicode variant based on variant alias or code offsets.
+ * Flags may include 'underline' and 'strike' to add combining characters.
+ *
+ * @param {string} str
+ * @param {string} variant
+ * @param {string} flags
+ * @returns {string}
+ */
 function toUnicodeVariant(str, variant, flags) {
   if (!isValidString(str)) return "";
   const getType = (v) => VARIANT_ALIASES[v] || (UNICODE_OFFSETS[v] ? v : "m");
@@ -192,6 +222,15 @@ const formatPlayerLabel = (title, name) => {
 // Factory producing a uniform get/set/remove interface over any Web Storage
 // backend. Defined once — no duplication between localStorage and
 // sessionStorage. `name` is used solely for the console warning on set failure.
+/**
+ * Factory producing a uniform get/set/remove interface over any Web Storage
+ * backend. Defined once — no duplication between localStorage and
+ * sessionStorage. `name` is used solely for the console warning on set failure.
+ *
+ * @param {Storage} store
+ * @param {string} name
+ * @returns {{get:Function,set:Function,remove:Function,proxy:Function}}
+ */
 const makeStorage = (store, name) => ({
   get(key, fallback = null) {
     try {
@@ -240,6 +279,15 @@ const Storage = {
 
 // Modern browsers click detached anchors without requiring a DOM insertion,
 // so appendChild/removeChild are unnecessary.
+/**
+ * Trigger a browser download of the supplied content under the given filename.
+ * Uses a Blob + object URL to avoid DOM insertion. Returns true on success.
+ *
+ * @param {string|Blob|ArrayBuffer|string[]} content
+ * @param {string} filename
+ * @param {string} [contentType="application/json"]
+ * @returns {boolean}
+ */
 function download(content, filename, contentType = "application/json") {
   try {
     const url = URL.createObjectURL(new Blob([content], { type: contentType }));
@@ -284,6 +332,13 @@ function abbreviateTitle(title) {
   return TITLE_MAP[normalized] || title;
 }
 
+/**
+ * Parse a time control string into initialTime (minutes) and increment (seconds).
+ * Accepts formats like "90+30", "90|min", "90", etc.
+ *
+ * @param {string|number} tc
+ * @returns {{initialTime:number, increment:number}}
+ */
 function parseTimeControl(tc) {
   const cleanTC = String(tc).toLowerCase().replace(/\s+/g, "");
   const sep = cleanTC.includes("+") ? "+" : cleanTC.includes("|") ? "|" : null;
@@ -295,6 +350,13 @@ function parseTimeControl(tc) {
   return { initialTime: Number(cleanTC.replace("min", "")), increment: 0 };
 }
 
+/**
+ * Classify a time control into the category Bullet/Blitz/Rapid/Classical/Unknown.
+ *
+ * @param {number} initial - initial time in minutes
+ * @param {number} increment - increment in seconds
+ * @returns {string}
+ */
 function classifyTimeControl(initial, increment) {
   if (![initial, increment].every((n) => Number.isFinite(n) && n >= 0))
     return "Unknown";
@@ -306,6 +368,12 @@ function classifyTimeControl(initial, increment) {
   return "Classical";
 }
 
+/**
+ * Determine the time control category given a time control string.
+ *
+ * @param {string|number} timeControl
+ * @returns {string}
+ */
 function getTimeControlCategory(timeControl) {
   try {
     const { initialTime, increment } = parseTimeControl(timeControl);
@@ -315,9 +383,24 @@ function getTimeControlCategory(timeControl) {
   }
 }
 
+/**
+ * Normalize a result token for internal processing: convert unicode half symbol
+ * to "1/2" and remove whitespace.
+ *
+ * @param {string} result
+ * @returns {string}
+ */
 const cleanResult = (result) =>
   result.trim().replace(/½/g, "1/2").replace(/\s+/g, "");
 
+/**
+ * Format a result string into a display-friendly form.
+ * Known canonical outputs: "1 - 0", "0 - 1", "½ - ½". Falls back to the
+ * trimmed input for any unknown value and returns "*" when the input is invalid.
+ *
+ * @param {string} result
+ * @returns {string}
+ */
 function formatResult(result) {
   if (!isValidString(result)) return "*";
   switch (cleanResult(result)) {
@@ -335,10 +418,20 @@ function formatResult(result) {
 /**
  * Normalises fractional-point notation from the server format
  * (e.g. "1,5" → "1½", "0,5" → "½").
+ *
+ * @param {string} raw
+ * @returns {string}
  */
 const normalisePoints = (raw) =>
   isValidString(raw) ? raw.replace(/0?,5/g, "&#189;") : "";
 
+/**
+ * Normalise a result into one of the canonical JSON results used by the app
+ * ("1-0", "0-1", "1/2-1/2"). Returns "*" when the input cannot be mapped.
+ *
+ * @param {string} result
+ * @returns {string}
+ */
 function normalizeResult(result) {
   if (!isValidString(result)) return "*";
   const cleaned = cleanResult(result);
@@ -352,10 +445,22 @@ function normalizeResult(result) {
   }
 }
 
+/**
+ * Quick heuristic: is the query a numeric FIDE ID (5–10 digits)?
+ *
+ * @param {string} query
+ * @returns {boolean}
+ */
 function isFideId(query) {
   return /^\d{5,10}$/.test(query.trim());
 }
 
+/**
+ * Normalize a player payload (from remote API) into the compact local shape.
+ *
+ * @param {{name:string,title?:string,standard?:number,rapid?:number,blitz?:number}} param0
+ * @returns {{name:string,title:string,standard:number,rapid:number,blitz:number}}
+ */
 function normalizePlayer({
   name,
   title = "",
@@ -372,6 +477,12 @@ function normalizePlayer({
   };
 }
 
+/**
+ * Return a cached RegExp for extracting a PGN tag value like [Event "..."]
+ * Caches compiled expressions to avoid repeated RegExp allocation.
+ *
+ * @returns {(tag:string) => RegExp}
+ */
 const getTagRegex = (() => {
   const cache = new Map();
   return (tag) => {
@@ -380,6 +491,14 @@ const getTagRegex = (() => {
   };
 })();
 
+/**
+ * Parse a PGN string into an array of canonical game objects.
+ * Supports multiple games separated by PGN headers. Returns an empty
+ * array when input is empty or invalid.
+ *
+ * @param {string} pgn
+ * @returns {Object[]}
+ */
 function pgnToJson(pgn) {
   if (!isValidString(pgn)) return [];
   const games = pgn.split(/\n\n(?=\[Event)/).filter(Boolean);
@@ -409,10 +528,28 @@ function pgnToJson(pgn) {
   });
 }
 
+/**
+ * Compute expected score (Elo) given ratings.
+ *
+ * @param {number} myRating
+ * @param {number} oppRating
+ * @returns {number}
+ */
 function expectedScore(myRating, oppRating) {
   return 1 / (1 + Math.pow(10, (oppRating - myRating) / 400));
 }
 
+/**
+ * Calculate an Elo rating change projection for a single game.
+ * Returns a numeric delta rounded to one decimal, or an empty string when
+ * the opponent rating is zero (indeterminate).
+ *
+ * @param {number} myRating
+ * @param {number} oppRating
+ * @param {number} result - 1 = win, 0.5 = draw, 0 = loss
+ * @param {number} [k=40]
+ * @returns {number|string}
+ */
 function calcChange(myRating, oppRating, result, k = 40) {
   if (oppRating === 0) return "";
   const E = expectedScore(myRating, oppRating);
@@ -421,6 +558,17 @@ function calcChange(myRating, oppRating, result, k = 40) {
 
 /* ─── Shared Chess Data Logic ───────────────────────────────────────────── */
 
+/**
+ * In-place sort of a games array.
+ * Ordering:
+ *   1) Tournament date (newest first)
+ *   2) Tournament name (alphabetical)
+ *   3) Round (ascending)
+ *   4) Board (ascending, nulls first)
+ *
+ * @param {Array<Object>} games
+ * @returns {void}
+ */
 function sortGames(games) {
   if (isEmpty(games)) return;
 
@@ -457,6 +605,13 @@ function sortGames(games) {
   });
 }
 
+/**
+ * Normalize a raw games array into the canonical internal shape expected by
+ * the application (ids, numeric ratings, trimmed strings, default values).
+ *
+ * @param {Object[]} games
+ * @returns {Object[]} normalizedGames
+ */
 function normalizeGames(games) {
   if (!isValidArray(games)) return [];
   return games.map((game) => ({
@@ -552,6 +707,14 @@ const dbReady = (async () => {
 
 /* ─── Persistence API ────────────────────────────────────────────────────── */
 
+/**
+ * Load games from the active storage backend (IndexedDB or localStorage mirror)
+ * and return them normalized and sorted. If `target` is an array, it will be
+ * populated in-place to avoid unnecessary allocations.
+ *
+ * @param {Array} [target=window.games]
+ * @returns {Promise<Array>} The normalized games array
+ */
 async function loadGames(target = window.games ?? (window.games = [])) {
   await dbReady;
 
@@ -589,22 +752,18 @@ async function loadGames(target = window.games ?? (window.games = [])) {
 /**
  * Persists games to both IndexedDB and the localStorage mirror.
  *
- * saveGames()            — full replace. Normalises and re-sorts window.games,
- *                          then atomically clears the store and reinserts every
- *                          record. Use after any bulk mutation (import/replace).
+ * Behavior:
+ *   - saveGames() (no args): full replace — normalises and re-sorts window.games
+ *     then atomically clears the IndexedDB store and reinserts every record.
+ *   - saveGames(newGames: Array): incremental merge — bulkPut only the supplied
+ *     delta records, then sync the localStorage mirror.
+ *   - saveGames(null, id: string): delete by id — removes a single record.
  *
- * saveGames(newGames)    — merge. Writes only the supplied delta to IDB via
- *                          bulkPut (existing records are untouched), then syncs
- *                          the localStorage mirror with the full window.games.
- *                          Use after pushing new games onto window.games so the
- *                          entire dataset isn't needlessly cleared and reinserted.
- *                          Falls back to a full replace if the incremental write
- *                          fails.
- *
- * saveGames(null, id)    — single delete. Removes one record from IDB by key,
- *                          then syncs the localStorage mirror. Use after splicing
- *                          the game from window.games so the full store isn't
- *                          rewritten for a one-record removal.
+ * @param {Object[]|undefined|null} newGames
+ *   When an array, treated as a merge delta. When undefined, performs a full replace.
+ *   When null and deleteId provided, performs a targeted delete.
+ * @param {string} [deleteId] ID of a single record to delete when performing a delete
+ * @returns {Promise<void>}
  */
 async function saveGames(newGames, deleteId) {
   const isMerge = Array.isArray(newGames);
