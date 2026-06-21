@@ -1,4 +1,18 @@
-// new.js — New Game page controller
+/**
+ * new.js — New Game page controller
+ *
+ * Depends on: utils.js (isEmpty, isValidString, isFideId, normalizePlayer, toNumberOr, pickRating)
+ *
+ * Manages the "New Game" form: player autocomplete (FIDE + name search), rating heuristics,
+ * validation, duplicate detection, building game objects, and persisting them.
+ *
+ * Exposed globals:
+ *   fetchFidePlayer(id) → Promise<Object>
+ *   fetchPlayerSuggestions(query, signal) → Promise<Object[]|null>
+ *   addGame(event) → Promise<void>
+ */
+
+"use strict";
 
 /* ─── UI Selectors (Configurable) ────────────────────────────────────────── */
 
@@ -37,7 +51,7 @@ const UI = {
 
 const FIDE_BASE = "https://lichess.org/api/fide/player";
 
-/* ─── DOM Cache ──────────────────────────────────────────────────────────── */
+/* ─── DOM Cache ─────────────────────────────────────────────────────────── */
 
 // All element lookups happen exactly once at DOMContentLoaded and are stored
 // here. Every listener and helper reads from these maps rather than touching
@@ -47,6 +61,13 @@ let formEls = {}; // { result, time, tournament, round, date, gameLink, submit, 
 
 /* ─── API ────────────────────────────────────────────────────────────────── */
 
+/**
+ * Fetch a FIDE player by numeric FIDE ID from the configured API endpoint.
+ *
+ * @param {string|number} id - FIDE ID to fetch
+ * @returns {Promise<Object>} Normalized player object (see normalizePlayer)
+ * @throws {Error} When id invalid or API returns non-OK response
+ */
 async function fetchFidePlayer(id) {
   if (!id || isNaN(id)) throw new Error(`Invalid FIDE ID: ${id}`);
   const controller = new AbortController();
@@ -64,8 +85,14 @@ async function fetchFidePlayer(id) {
   }
 }
 
-// Accepts a signal so the caller can cancel in-flight requests when the query
-// changes. Returns null on abort — callers must check for null before rendering.
+/**
+ * Query the FIDE API for name-based player suggestions. Accepts an AbortSignal
+ * so the caller can cancel in-flight requests when the query changes.
+ *
+ * @param {string} query
+ * @param {AbortSignal} signal
+ * @returns {Promise<Object[]|null>} Array of normalized player objects or null on abort
+ */
 async function fetchPlayerSuggestions(query, signal) {
   try {
     const res = await fetch(
@@ -83,6 +110,13 @@ async function fetchPlayerSuggestions(query, signal) {
 
 /* ─── Rating Helpers ─────────────────────────────────────────────────────── */
 
+/**
+ * Selects the appropriate rating (standard/rapid/blitz) based on the time control.
+ *
+ * @param {{standard:number,rapid:number,blitz:number}} ratings
+ * @param {string} time
+ * @returns {number}
+ */
 function pickRating({ standard = 0, rapid = 0, blitz = 0 } = {}, time) {
   if (!time?.trim()) return standard;
   return (
@@ -94,6 +128,14 @@ function pickRating({ standard = 0, rapid = 0, blitz = 0 } = {}, time) {
 
 /* ─── API ────────────────────────────────────────────────────────────────── */
 
+/**
+ * Render autocomplete suggestions into the provided container element.
+ *
+ * @param {HTMLElement} container
+ * @param {string} query
+ * @param {Object[]} players
+ * @returns {void}
+ */
 function renderSuggestions(container, query, players) {
   if (isEmpty(players)) {
     container.replaceChildren();
@@ -120,6 +162,12 @@ function renderSuggestions(container, query, players) {
     .join("");
 }
 
+/**
+ * Initialize autocomplete behavior for a player input group identified by key.
+ *
+ * @param {{key:string}} options
+ * @returns {void}
+ */
 function setupAutocomplete({ key }) {
   // All elements come from the pre-built cache — no getElementById call
   // inside this function or any of its inner helpers.
@@ -226,9 +274,12 @@ function setupAutocomplete({ key }) {
 
 /* ─── Form State ─────────────────────────────────────────────────────────── */
 
-// A single DOM pass over PLAYER_ELS and formEls collects all player and game
-// fields at once. Raw (un-formatted) strings are returned so that
-// validateState can do its cheap checks before any formatting runs.
+/**
+ * Collect raw form state in one DOM pass. Returns an object with game fields
+ * and `players: { white, black }` containing rawName/rawTitle/rawRating.
+ *
+ * @returns {{result:string,time:string,tournament:string,round:number,date:string,gameLink:string,players:Object}}
+ */
 function getFormState() {
   const players = Object.fromEntries(
     UI.players.map(({ key }) => {
@@ -254,9 +305,12 @@ function getFormState() {
   };
 }
 
-// Validates cheap conditions (string checks) on raw state before any expensive
-// formatting (formatName, capitalize, abbreviateTitle) is ever called.
-// Returns an error string, or null if valid.
+/**
+ * Validate cheap conditions on raw form state. Returns an error message string when invalid, or null when valid.
+ *
+ * @param {Object} state
+ * @returns {string|null}
+ */
 function validateState(state) {
   if (state.result === "0") return "Please select a result!";
   if (!state.players.white.rawName) return "White player name cannot be empty!";
@@ -264,8 +318,12 @@ function validateState(state) {
   return null;
 }
 
-// Runs only after validateState passes — formatting effort is never wasted on
-// invalid submissions.
+/**
+ * Format player raw inputs into normalized player objects {name,title,rating}.
+ *
+ * @param {{white:Object,black:Object}} param0
+ * @returns {{white:Object,black:Object}}
+ */
 function formatPlayers({ white, black }) {
   const fmt = ({ rawName, rawTitle, rawRating }) => ({
     name: formatName(capitalize(rawName)),
@@ -277,6 +335,13 @@ function formatPlayers({ white, black }) {
 
 /* ─── Game Helpers ───────────────────────────────────────────────────────── */
 
+/**
+ * Build a canonical game object from formatted players and form fields.
+ *
+ * @param {{white:{name:string,title:string,rating:number},black:{name:string,title:string,rating:number}}} players
+ * @param {{result:string,time:string,tournament:string,round:number,date:string,gameLink:string}} opts
+ * @returns {Object}
+ */
 function buildGame(
   players,
   { result, time, tournament, round, date, gameLink },
@@ -298,8 +363,12 @@ function buildGame(
   };
 }
 
-// Blocks submission if either player already appears in the same round,
-// tournament, and date — not just when both players match together.
+/**
+ * Determine whether a game would conflict with existing entries (same player in same tournament/round/date).
+ *
+ * @param {{white:string,black:string,date:string,tournament:string,round:number}} param0
+ * @returns {boolean}
+ */
 function isDuplicate({ white, black, date, tournament, round }) {
   return window.games.some(
     (g) =>
@@ -310,6 +379,11 @@ function isDuplicate({ white, black, date, tournament, round }) {
   );
 }
 
+/**
+ * Alert the user that a game was added using a human-readable player label.
+ * @param {{whiteTitle:string,white:string,blackTitle:string,black:string}} param0
+ * @returns {void}
+ */
 function gameAddedAlert({ whiteTitle, white, blackTitle, black }) {
   alert(
     `${formatPlayerLabel(whiteTitle, white)} vs ${formatPlayerLabel(blackTitle, black)} — Game Added!`,
@@ -318,8 +392,13 @@ function gameAddedAlert({ whiteTitle, white, blackTitle, black }) {
 
 /* ─── Form Submission ────────────────────────────────────────────────────── */
 
-// Pipeline: collect → validate (cheap) → format (expensive) → build → dedupe
-//           → persist → reset UI.
+/**
+ * Form submit handler for adding a new game. Performs: collect → validate → format
+ * → build → dedupe → persist → reset UI. Shows form errors and handles UI loading state.
+ *
+ * @param {Event} event
+ * @returns {Promise<void>}
+ */
 async function addGame(event) {
   const form = event.target;
   event.preventDefault();
