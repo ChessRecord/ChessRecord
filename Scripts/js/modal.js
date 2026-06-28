@@ -31,7 +31,13 @@ const Modal = (() => {
     return el;
   })();
 
-  /** Remove both listeners, restore focus, and resolve the in-flight Promise. */
+  /**
+   * Remove both listeners, restore focus, and resolve the in-flight Promise.
+   *
+   * @param {Function} resolve - Promise resolve callback from open()
+   * @param {string|null} value - Resolution value (action id or null)
+   * @returns {void}
+   */
   function teardown(resolve, value) {
     settled = true;
     backdrop.removeEventListener("click", onClick);

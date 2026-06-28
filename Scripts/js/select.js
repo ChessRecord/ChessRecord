@@ -15,6 +15,13 @@
 (function () {
   document.querySelectorAll(".custom-select").forEach(initSelect);
 
+  /**
+   * Initialize a single custom-select wrapper: build the dropdown DOM,
+   * then wire up the toggle and option-click handlers.
+   *
+   * @param {HTMLElement} wrapper - The .custom-select container
+   * @returns {void}
+   */
   function initSelect(wrapper) {
     const select = wrapper.querySelector("select");
 
@@ -65,11 +72,24 @@
     });
   }
 
+  /**
+   * Close a single dropdown by hiding its items and deactivating the trigger.
+   *
+   * @param {HTMLElement} items - The .select-items container
+   * @param {HTMLElement} selected - The .select-selected trigger element
+   * @returns {void}
+   */
   function close(items, selected) {
     items.classList.add("select-hide");
     selected.classList.remove("select-arrow-active");
   }
 
+  /**
+   * Close every open dropdown on the page. Called on outside-click and
+   * before opening a new dropdown.
+   *
+   * @returns {void}
+   */
   function closeAll() {
     document.querySelectorAll(".custom-select").forEach((wrapper) => {
       close(
