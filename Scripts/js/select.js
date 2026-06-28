@@ -12,7 +12,7 @@
 
 "use strict";
 
-(function () {
+(() => {
   document.querySelectorAll(".custom-select").forEach(initSelect);
 
   /**
@@ -35,40 +35,42 @@
     wrapper.insertAdjacentHTML(
       "beforeend",
       `
-      <div class="select-selected">${select.options[select.selectedIndex].text}</div>
-      <div class="select-items select-hide">${optionsHtml}</div>
+     <div class="select-selected">${select.options[select.selectedIndex].text}</div>
+     <div class="select-items select-hide">${optionsHtml}</div>
     `,
     );
 
     const selected = wrapper.querySelector(".select-selected");
     const items = wrapper.querySelector(".select-items");
 
-    // ── Delegate option clicks to the container ──────────────────────────
+    /* ─── Event Delegation ────────────────────────────────────────────── */
+
     items.addEventListener("click", ({ target }) => {
-      const item = target.closest("[data-index]");
-      if (!item) return;
+     const item = target.closest("[data-index]");
+     if (!item) return;
 
-      const index = Number(item.dataset.index);
-      select.selectedIndex = index;
-      selected.textContent = select.options[index].text;
+     const index = Number(item.dataset.index);
+     select.selectedIndex = index;
+     selected.textContent = select.options[index].text;
 
-      items
-        .querySelector(".same-as-selected")
-        ?.classList.remove("same-as-selected");
-      item.classList.add("same-as-selected");
+     items
+       .querySelector(".same-as-selected")
+       ?.classList.remove("same-as-selected");
+     item.classList.add("same-as-selected");
 
-      close(items, selected);
+     close(items, selected);
     });
 
-    // ── Toggle this dropdown open/closed ─────────────────────────────────
+    /* ─── Toggle Dropdown ────────────────────────────────────────────── */
+
     selected.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const isOpen = !items.classList.contains("select-hide");
-      closeAll();
-      if (!isOpen) {
-        items.classList.remove("select-hide");
-        selected.classList.add("select-arrow-active");
-      }
+     e.stopPropagation();
+     const isOpen = !items.classList.contains("select-hide");
+     closeAll();
+     if (!isOpen) {
+       items.classList.remove("select-hide");
+       selected.classList.add("select-arrow-active");
+     }
     });
   }
 
@@ -92,12 +94,13 @@
    */
   function closeAll() {
     document.querySelectorAll(".custom-select").forEach((wrapper) => {
-      close(
-        wrapper.querySelector(".select-items"),
-        wrapper.querySelector(".select-selected"),
-      );
+     close(
+       wrapper.querySelector(".select-items"),
+       wrapper.querySelector(".select-selected"),
+     );
     });
   }
 
   document.addEventListener("click", closeAll);
 })();
+

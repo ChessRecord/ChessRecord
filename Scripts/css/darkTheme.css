@@ -5,26 +5,26 @@
 /* ─── Base Styles ───────────────────────────────── */
 
 body.dark-theme {
-    background-color: var(--black-primary);
+    background-color: var(--color-black-primary);
 
-    color: var(--white-e0);
+    color: var(--color-white-e0);
 }
 
 /* ─── Container Styles ──────────────────────────── */
 
 .dark-theme .container {
-    background-color: var(--black-primary);
+    background-color: var(--color-black-primary);
 }
 
 .dark-theme .container h1 {
-    color: var(--white-e0);
+    color: var(--color-white-e0);
 }
 
 /* ─── Game Entry Styles ─────────────────────────── */
 
 .dark-theme .game-entry {
-    background-color: var(--black-secondary);
-    border: var(--border-thin) var(--grey-3) solid;
+    background-color: var(--color-black-secondary);
+    border: var(--border-thin) var(--color-grey-3) solid;
 
     box-shadow:
         5px 5px 10px #1e1e1e,
@@ -32,46 +32,46 @@ body.dark-theme {
 }
 
 .dark-theme .game-entry:hover {
-    background-color: var(--black-primary);
+    background-color: var(--color-black-primary);
 }
 
 .dark-theme .game-round {
-    background-color: var(--white-e0);
+    background-color: var(--color-white-e0);
 
-    color: var(--black-primary);
+    color: var(--color-black-primary);
 }
 
 .dark-theme .game-meta {
-    color: var(--white-b0);
+    color: var(--color-white-b0);
 }
 
 .dark-theme .game-meta .game-meta-right {
-    color: var(--grey-8);
+    color: var(--color-grey-8);
 }
 
 .dark-theme .game-result {
-    color: var(--white-d);
+    color: var(--color-white-d);
 }
 
 .dark-theme .player-white span,
 .dark-theme .player-black span {
-    color: var(--white-d);
+    color: var(--color-white-d);
 }
 
 .dark-theme .player-rating {
-    color: var(--white-d);
+    color: var(--color-white-d);
 }
 
 /* ─── Meta Bar Styles ───────────────────────────── */
 
 .dark-theme .meta-bar {
-    background-color: var(--black-secondary);
-    border-top: 2px var(--grey-3) solid;
+    background-color: var(--color-black-secondary);
+    border-top: 2px var(--color-grey-3) solid;
 }
 
 .dark-theme .meta-bar #game-count,
 .dark-theme .meta-bar #tournament-count {
-    color: var(--white-e0);
+    color: var(--color-white-e0);
 }
 
 /* ─── Form & Input Styles ───────────────────────── */
@@ -80,16 +80,16 @@ body.dark-theme {
 .dark-theme textarea,
 .dark-theme select,
 .dark-theme button {
-    background-color: var(--black-primary);
+    background-color: var(--color-black-primary);
 
-    color: var(--white-e0);
-    border: var(--border-thin) var(--grey-4) solid;
+    color: var(--color-white-e0);
+    border: var(--border-thin) var(--color-grey-4) solid;
 }
 
 .dark-theme button {
-    background-color: var(--orange);
+    background-color: var(--color-orange);
 
-    color: var(--white-primary);
+    color: var(--color-white-primary);
     font-weight: 600;
 
     border: none;
@@ -98,45 +98,45 @@ body.dark-theme {
 }
 
 .dark-theme button.outline {
-    background-color: var(--black-secondary);
+    background-color: var(--color-black-secondary);
 
-    color: var(--white-e0);
+    color: var(--color-white-e0);
 
-    border: var(--border-thick) var(--grey-5) solid;
+    border: var(--border-thick) var(--color-grey-5) solid;
 }
 
 .dark-theme input:focus::placeholder {
-    color: var(--white-primary);
+    color: var(--color-white-primary);
 }
 
 /* ─── Component Overrides ───────────────────────── */
 
 .dark-theme,
 .dark-theme .custom-select {
-    --select-bg: var(--dark-bg, var(--black-primary));
-    --select-text-color: var(--dark-text, var(--grey-c));
-    --select-arrow-color: var(--grey-c);
-    --select-border-color: var(--grey-4);
-    --select-item-color: var(--grey-c);
+    --select-bg: var(--dark-bg, var(--color-black-primary));
+    --select-text-color: var(--dark-text, var(--color-grey-c));
+    --select-arrow-color: var(--color-grey-c);
+    --select-border-color: var(--color-grey-4);
+    --select-item-color: var(--color-grey-c);
     --select-hover-bg: rgba(255, 255, 255, 0.1);
-    --select-item-border-color: var(--grey-4);
+    --select-item-border-color: var(--color-grey-4);
 }
 
 .dark-theme .dropdown,
 .dark-theme .dropdown::before,
 .dark-theme .dropdown::after {
     background-color: var(--select-bg);
-    border: var(--border-thick) var(--grey-3) solid;
+    border: var(--border-thick) var(--color-grey-3) solid;
 }
 
 .dark-theme .load i {
-    color: var(--white-e0);
+    color: var(--color-white-e0);
 }
 
 .dark-theme .delete-game-btn {
-    background-color: var(--black-primary);
+    background-color: var(--color-black-primary);
 
-    color: var(--white-e0);
+    color: var(--color-white-e0);
 
     transition:
         background-color,
@@ -144,24 +144,24 @@ body.dark-theme {
 }
 
 .dark-theme .delete-game-btn:hover {
-    background-color: var(--white-e0);
+    background-color: var(--color-white-e0);
 
-    color: var(--black-primary);
+    color: var(--color-black-primary);
 }
 
 .dark-theme .tournament-header {
-    border-top: var(--white-e0-light) 2px solid;
-    border-bottom: var(--white-e0) 2px solid;
+    border-top: var(--color-white-e0-light) 2px solid;
+    border-bottom: var(--color-white-e0) 2px solid;
 
-    color: var(--white-e0);
+    color: var(--color-white-e0);
 }
 
 .dark-theme #searchSettings {
-    color: var(--white-e0);
+    color: var(--color-white-e0);
 }
 
 .dark-theme .redirect i {
-    color: var(--white-primary);
+    color: var(--color-white-primary);
 }
 
 .dark-theme [type="date"]::-webkit-calendar-picker-indicator {
@@ -198,8 +198,9 @@ body.dark-theme {
 }
 
 .dark-theme .confirmation {
-    background-color: var(--black-primary);
+    background-color: var(--color-black-primary);
 
-    color: var(--white-e0);
-    border: var(--border-thick) var(--grey-3) solid;
+    color: var(--color-white-e0);
+    border: var(--border-thick) var(--color-grey-3) solid;
 }
+

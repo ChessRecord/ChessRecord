@@ -51,7 +51,8 @@ const Modal = (() => {
   }
 
   // Declared here so teardown can reference them by name for removeEventListener.
-  let onClick, onKeydown;
+  let onClick;
+  let onKeydown;
 
   /**
    * Open a modal with arbitrary HTML content.

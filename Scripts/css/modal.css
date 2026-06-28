@@ -42,15 +42,15 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--medium);
+    gap: var(--spacing-medium);
 
     width: 30vw;
     height: fit-content;
-    padding: var(--normal);
-    border: var(--border-thin) var(--white-d) solid;
-    border-radius: var(--border);
+    padding: var(--spacing-normal);
+    border: var(--border-thin) var(--color-white-d) solid;
+    border-radius: var(--spacing-border);
 
-    background-color: var(--white-primary);
+    background-color: var(--color-white-primary);
 
     text-align: center;
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
@@ -59,13 +59,13 @@
 }
 
 .confirmation i.warning-big {
-    color: var(--orange);
+    color: var(--color-orange);
     font-size: 5rem;
 }
 
 .confirmation .options {
     display: flex;
-    gap: var(--small);
+    gap: var(--spacing-small);
 
     width: 100%;
 }
@@ -76,7 +76,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--medium);
+    gap: var(--spacing-medium);
 
     width: 100%;
 }
@@ -98,10 +98,11 @@
     from {
         opacity: 0;
         /* Start at center, but slightly lower for smoothness */
-        transform: translate(-50%, calc(-50% + var(--medium)));
+        transform: translate(-50%, calc(-50% + var(--spacing-medium)));
     }
     to {
         opacity: 1;
         transform: translate(-50%, -50%);
     }
 }
+

@@ -68,8 +68,8 @@ class ThemeManager {
     // Update button color
     if (this.themeToggleBtn) {
       this.themeToggleBtn.style.color = isDark
-        ? "var(--white-primary)"
-        : "var(--deep-blue)";
+        ? "var(--color-white-primary)"
+        : "var(--color-blue-deep)";
     }
   }
 
