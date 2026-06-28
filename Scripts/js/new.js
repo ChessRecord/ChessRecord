@@ -51,7 +51,6 @@ const UI = {
 
 const FIDE_BASE = "https://lichess.org/api/fide/player";
 const FIDE_API_TIMEOUT = 5000;
-const ERROR_CLEAR_DELAY = 1000;
 
 /* ─── DOM Cache ─────────────────────────────────────────────────────────── */
 
@@ -220,16 +219,7 @@ function setupAutocomplete({ key }) {
       applyPlayer(player);
     } catch (err) {
       if (input.value.trim() !== query) return; // stale
-      // Building the error suggestion atomically via innerHTML is faster than
-      // multiple createElement/appendChild cycles.
-      container.innerHTML = `
-        <div class="autocomplete-suggestion" style="pointer-events: none;">
-          <i>FIDE ID not found</i>
-        </div>`;
-      // Auto-clear after ERROR_CLEAR_DELAY, but only if this exact bad ID is still typed.
-      setTimeout(() => {
-        if (input.value.trim() === query) container.replaceChildren();
-      }, ERROR_CLEAR_DELAY);
+      alert(err.message || "FIDE ID not found");
     }
   }
 
@@ -396,7 +386,7 @@ function gameAddedAlert({ whiteTitle, white, blackTitle, black }) {
 
 /**
  * Form submit handler for adding a new game. Performs: collect → validate → format
- * → build → dedupe → persist → reset UI. Shows form errors and handles UI loading state.
+ * → build → dedupe → persist → reset UI. Shows alerts on error and handles UI loading state.
  *
  * @param {Event} event
  * @returns {Promise<void>}
@@ -404,7 +394,6 @@ function gameAddedAlert({ whiteTitle, white, blackTitle, black }) {
 async function addGame(event) {
   const form = event.target;
   event.preventDefault();
-  clearFormError(form);
 
   // Disable the submit button for the duration of the async pipeline so a
   // double-click cannot enqueue a second submission while the first is in flight.
@@ -417,7 +406,7 @@ async function addGame(event) {
 
     // 2. Validate — cheap string checks before any formatting
     const error = validateState(state);
-    if (error) return showFormError(form, error);
+    if (error) return alert(error);
 
     // 3. Format — expensive normalization runs only for valid submissions
     const players = formatPlayers(state.players);
@@ -425,10 +414,7 @@ async function addGame(event) {
     // 4. Build  5. Dedupe  6. Persist  7. Reset UI
     const game = normalizeGames([buildGame(players, state)])[0];
     if (isDuplicate(game))
-      return showFormError(
-        form,
-        "Game already exists or player conflict in this round!",
-      );
+      return alert("Game already exists or player conflict in this round!");
     window.games.push(game);
 
     // saveGames starts first (gets a head start on await dbReady) while
@@ -496,7 +482,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       if (titleEl) delete titleEl.dataset.autoFilled;
     });
-    clearFormError(gameForm);
   });
 
   // Single initialization pass combines autocomplete setup, rating ownership
