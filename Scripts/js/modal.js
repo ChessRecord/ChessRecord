@@ -1,4 +1,18 @@
-// modal.js
+/**
+ * modal.js — Promise-based modal / confirmation dialog
+ * Depends on: ui.js (showLoader)
+ *
+ * Single reusable backdrop element shared across every modal invocation.
+ * Supports arbitrary HTML content, a built-in confirmation dialog, and a
+ * loading-button flow where the caller drives async work before closing.
+ *
+ * Exposed globals:
+ *   Modal.open(html)       → Promise<string|null>
+ *   Modal.confirm(opts)    → Promise<string|null>
+ *   Modal.hide()           → void
+ */
+
+"use strict";
 
 const Modal = (() => {
   /** Flipped to false while a modal is open; guards against re-entrant open() calls. */

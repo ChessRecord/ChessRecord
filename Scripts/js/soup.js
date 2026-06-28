@@ -12,7 +12,7 @@
 
 "use strict";
 
-// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+/* ─── CONSTANTS ──────────────────────────────────────────────────────────────── */
 
 /**
  * Canonical JSON result → ChesSoup operator.
@@ -56,7 +56,7 @@ const RE_FULL_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** 8-digit compact date — YYYYMMDD */
 const RE_COMPACT_DATE = /^\d{8}$/;
 
-// ─── DATE HELPERS ─────────────────────────────────────────────────────────────
+/* ─── DATE HELPERS ───────────────────────────────────────────────────────────── */
 
 /**
  * Encodes a JSON date for a round header.
@@ -83,7 +83,7 @@ function decodeDate(token) {
   return token;
 }
 
-// ─── COMPRESS ─────────────────────────────────────────────────────────────────
+/* ─── COMPRESS ───────────────────────────────────────────────────────────────── */
 
 /**
  * Compresses an array of JSON game records into a ChesSoup string.
@@ -180,7 +180,7 @@ function _gameLine(g, idOf) {
   return `${wTitle}${wId}${wRating}${op}${bTitle}${bId}${bRating}${link}`;
 }
 
-// ─── DECOMPRESS ───────────────────────────────────────────────────────────────
+/* ─── DECOMPRESS ─────────────────────────────────────────────────────────────── */
 
 /**
  * Decompresses a ChesSoup string into an array of canonical JSON game records.
@@ -271,7 +271,7 @@ function decompress(soup) {
   return games;
 }
 
-// ─── BROWSER GLOBALS ──────────────────────────────────────────────────────────
+/* ─── BROWSER GLOBALS ────────────────────────────────────────────────────────── */
 
 window.toSoup = compress;
 window.fromSoup = decompress;

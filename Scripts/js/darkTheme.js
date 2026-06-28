@@ -1,3 +1,16 @@
+/**
+ * darkTheme.js — Dark theme toggle
+ * Depends on: utils.js (Storage)
+ *
+ * Creates a fixed-position toggle button that switches the <body> between
+ * light and dark themes. The user's preference is persisted in localStorage
+ * and restored on every page load.
+ *
+ * Exposed globals: none (auto-initializes on DOMContentLoaded)
+ */
+
+"use strict";
+
 class ThemeManager {
   constructor() {
     // Cache DOM reference
