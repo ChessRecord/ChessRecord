@@ -36,8 +36,10 @@ let els = {}; // { list, gameCount, tournamentCount }
 
 /**
  * Exports the current games collection to a ChesSoup (.chr) file.
- * Validates there is at least one game and normalizes the export payload.
+ * Filters invalid games, normalizes results, and triggers a download with timestamp.
+ * Shows user feedback alerts if export succeeds or fails.
  *
+ * @throws {Error} Logs error to console if file generation fails
  * @returns {void}
  */
 function exportJSON() {
@@ -71,9 +73,11 @@ function exportJSON() {
 
 /**
  * Asynchronously reads a File object as text.
+ * Wraps FileReader in a Promise for async/await usage.
  *
- * @param {File} file
- * @returns {Promise<string>}
+ * @param {File} file - File object to read
+ * @returns {Promise<string>} Resolves with file contents as string
+ * @rejects {ProgressEvent} Rejects if read fails
  */
 function readFileAsText(file) {
   return new Promise((resolve, reject) => {
