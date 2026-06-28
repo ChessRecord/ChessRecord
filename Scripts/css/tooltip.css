@@ -17,7 +17,7 @@
     opacity: 0;
 
     width: 120px;
-    padding: 5px var(--border);
+    padding: 5px var(--spacing-border);
     border-radius: 6px;
 
     background-color: #000000c7;
@@ -49,3 +49,4 @@
 .tooltip:not(:hover) .tooltiptext {
     visibility: hidden;
 }
+

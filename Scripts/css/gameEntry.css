@@ -6,14 +6,14 @@
 /* ─── List Container ────────────────────────────── */
 
 #gamesList {
-    margin-top: var(--normal);
+    margin-top: var(--spacing-normal);
 }
 
 /* ─── Game Entry Card ───────────────────────────── */
 
 .game-entry-link {
     display: block;
-    margin-bottom: var(--small);
+    margin-bottom: var(--spacing-small);
 
     text-decoration: none;
     color: inherit;
@@ -29,12 +29,12 @@
     display: flex;
     flex-direction: column;
 
-    margin-bottom: var(--small);
-    padding: var(--small) var(--normal);
-    border: var(--border-thin) var(--white-d) solid;
+    margin-bottom: var(--spacing-small);
+    padding: var(--spacing-small) var(--spacing-normal);
+    border: var(--border-thin) var(--color-white-d) solid;
     border-radius: 8px;
 
-    background-color: var(--white-primary);
+    background-color: var(--color-white-primary);
 
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
@@ -49,13 +49,13 @@
     justify-content: space-between;
 
     width: 100%;
-    margin-bottom: var(--small);
+    margin-bottom: var(--spacing-small);
 
-    color: var(--grey-4);
+    color: var(--color-grey-4);
 }
 
 .game-entry .game-meta .game-meta-right {
-    color: var(--grey-6);
+    color: var(--color-grey-6);
 }
 
 .game-entry .game-meta .timecontrol-category {
@@ -86,15 +86,15 @@
 .game-entry .player-black {
     display: flex;
     align-items: center;
-    gap: calc(var(--small) / 2);
+    gap: calc(var(--spacing-small) / 2);
 
     text-decoration: none;
-    color: var(--deep-blue);
+    color: var(--color-blue-deep);
     transition: color 0.3s ease;
 }
 
 .player-rating {
-    color: var(--text-100);
+    color: var(--color-text-primary);
     font-family: "Rubik", sans-serif;
     font-weight: 600;
 }
@@ -103,14 +103,14 @@
 
 .game-result {
     position: absolute;
-    bottom: var(--small);
+    bottom: var(--spacing-small);
     left: 0;
     right: 0;
 
     width: 50%;
     margin: auto;
 
-    color: var(--deep-blue);
+    color: var(--color-blue-deep);
     font-size: 1.1em;
     font-weight: bold;
     text-align: center;
@@ -130,29 +130,29 @@
     flex-direction: row;
     justify-content: space-between;
 
-    margin-bottom: var(--border);
-    padding: var(--border) var(--normal);
-    padding-left: var(--small) !important;
-    border-top: var(--deep-blue-light) 2px solid;
-    border-bottom: var(--deep-blue) 2px solid;
+    margin-bottom: var(--spacing-border);
+    padding: var(--spacing-border) var(--spacing-normal);
+    padding-left: var(--spacing-small) !important;
+    border-top: var(--color-blue-deep-light) 2px solid;
+    border-bottom: var(--color-blue-deep) 2px solid;
 
-    color: var(--deep-blue);
+    color: var(--color-blue-deep);
 
     transition: all 0.3s ease;
 }
 
 .tournament-section {
-    margin-bottom: var(--normal);
+    margin-bottom: var(--spacing-normal);
 }
 
 .game-round {
-    margin-right: var(--border);
+    margin-right: var(--spacing-border);
     padding: 4px 6px;
     border-radius: 100px;
 
-    background-color: var(--deep-blue);
+    background-color: var(--color-blue-deep);
 
-    color: var(--white-primary);
+    color: var(--color-white-primary);
     font-family: "Rubik", sans-serif;
     font-optical-sizing: auto;
     font-weight: 700;
@@ -179,18 +179,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--small);
+    gap: var(--spacing-small);
 
     width: 100%;
-    padding: calc(var(--small) / 1.5);
-    border-top: 2px var(--white-d) solid;
+    padding: calc(var(--spacing-small) / 1.5);
+    border-top: 2px var(--color-white-d) solid;
 
-    background: var(--white-primary);
+    background: var(--color-white-primary);
 }
 
 .meta-bar #game-count,
 .meta-bar #tournament-count {
-    color: var(--deep-blue);
+    color: var(--color-blue-deep);
     font-size: 0.8125rem;
     font-weight: 600;
 }
@@ -206,23 +206,23 @@
     display: flex;
     align-items: center;
     justify-content: start;
-    gap: var(--small);
+    gap: var(--spacing-small);
 
-    font-size: var(--medium);
+    font-size: var(--spacing-medium);
 
     cursor: pointer;
 }
 
 .load i {
-    color: var(--deep-blue);
+    color: var(--color-blue-deep);
 }
 
 /* ─── State & Modifier Classes ──────────────────── */
 
 .delete-game-btn {
     position: absolute;
-    top: var(--border);
-    right: var(--border);
+    top: var(--spacing-border);
+    right: var(--spacing-border);
     left: 100%;
     z-index: 0; /* implicit */
 
@@ -236,9 +236,9 @@
     border: none;
     border-radius: 50%;
 
-    background-color: var(--white-primary);
+    background-color: var(--color-white-primary);
 
-    color: var(--deep-blue);
+    color: var(--color-blue-deep);
     font-size: 1.25em;
 
     cursor: pointer;
@@ -257,7 +257,8 @@
 }
 
 .delete-game-btn:hover {
-    background-color: var(--deep-blue);
+    background-color: var(--color-blue-deep);
 
     color: #fff;
 }
+

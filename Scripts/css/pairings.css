@@ -10,17 +10,17 @@ table {
     min-width: max-content; /* Allow table to expand and be scrollable */
     border-collapse: separate;
     border-spacing: 0;
-    border: var(--border-thin) var(--white-d) solid; /* Outer border */
-    border-radius: var(--border);
+    border: var(--border-thin) var(--color-white-d) solid; /* Outer border */
+    border-radius: var(--spacing-border);
 }
 
 /* ─── Typography ────────────────────────────────── */
 
 #player-profile {
-    margin-bottom: var(--small);
-    margin-left: var(--small);
+    margin-bottom: var(--spacing-small);
+    margin-left: var(--spacing-small);
 
-    color: var(--deep-blue);
+    color: var(--color-blue-deep);
 }
 
 .player-federation {
@@ -38,8 +38,8 @@ table {
 .player-points {
     font-family: "Rubik", sans-serif;
     font-weight: 500;
-    background: var(--deep-blue);
-    color: var(--white-primary);
+    background: var(--color-blue-deep);
+    color: var(--color-white-primary);
     border-radius: 5px;
     padding: 4px 6px;
 }
@@ -47,20 +47,20 @@ table {
 /* ─── Component Styles ──────────────────────────── */
 
 #chess-resultsForm {
-    margin-bottom: var(--small);
+    margin-bottom: var(--spacing-small);
 }
 
 th,
 td {
-    padding: 6px var(--border);
-    border: 1px var(--white-d) solid;
+    padding: 6px var(--spacing-border);
+    border: 1px var(--color-white-d) solid;
 
     text-align: center;
     white-space: nowrap;
 }
 
 th {
-    background: var(--white-e0-95);
+    background: var(--color-white-e0-95);
 }
 
 tr:nth-child(even) td {
@@ -87,19 +87,19 @@ tbody tr:last-child td {
 }
 
 th:first-child {
-    border-top-left-radius: calc(var(--border) - 3px);
+    border-top-left-radius: calc(var(--spacing-border) - 3px);
 }
 
 th:last-child {
-    border-top-right-radius: calc(var(--border) - 3px);
+    border-top-right-radius: calc(var(--spacing-border) - 3px);
 }
 
 tr:last-child td:first-child {
-    border-bottom-left-radius: var(--border);
+    border-bottom-left-radius: var(--spacing-border);
 }
 
 tr:last-child td:last-child {
-    border-bottom-right-radius: var(--border);
+    border-bottom-right-radius: var(--spacing-border);
 }
 
 .result-cell {
@@ -131,7 +131,7 @@ tr:last-child td:last-child {
 
     width: 1em;
     height: 1em;
-    border: var(--border-thin) var(--grey-7) solid;
+    border: var(--border-thin) var(--color-grey-7) solid;
     border-radius: 0.15em;
 
     background: #222;
@@ -161,32 +161,32 @@ tr:last-child td:last-child {
 /* ─── Dark Theme Overrides ──────────────────────── */
 
 .dark-theme #player-profile {
-    color: var(--white-e0);
+    color: var(--color-white-e0);
 }
 
 .dark-theme .player-points {
-    background: var(--grey-4);
+    background: var(--color-grey-4);
 }
 
 .dark-theme table {
-    border: var(--border-thin) var(--grey-3) solid; /* Outer border */
+    border: var(--border-thin) var(--color-grey-3) solid; /* Outer border */
 }
 
 .dark-theme th,
 .dark-theme td {
-    border: 1px var(--grey-3) solid;
+    border: 1px var(--color-grey-3) solid;
 }
 
 .dark-theme th {
-    background: var(--grey-4);
+    background: var(--color-grey-4);
 }
 
 .dark-theme tr:nth-child(even) td {
-    background: var(--grey-3);
+    background: var(--color-grey-3);
 }
 
 .dark-theme #note {
-    color: var(--white-e0);
+    color: var(--color-white-e0);
 }
 
 /* ─── Media Queries ─────────────────────────────── */
@@ -200,3 +200,4 @@ tr:last-child td:last-child {
         display: none;
     }
 }
+

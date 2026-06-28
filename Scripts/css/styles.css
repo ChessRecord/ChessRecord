@@ -23,9 +23,9 @@ body {
 
     min-height: 100vh;
 
-    background-color: var(--white-primary);
+    background-color: var(--color-white-primary);
 
-    color: var(--text-100);
+    color: var(--color-text-primary);
     font-family: "Poppins", sans-serif;
 }
 
@@ -45,7 +45,7 @@ body {
 .inlineForm {
     display: flex;
     align-items: center;
-    gap: calc(var(--medium) / 2);
+    gap: calc(var(--spacing-medium) / 2);
 }
 
 .container {
@@ -54,7 +54,7 @@ body {
     width: 70%;
     padding: 50px;
 
-    background-color: var(--white-primary);
+    background-color: var(--color-white-primary);
 
     overflow: visible;
     animation: slideIn 0.3s ease-out;
@@ -65,7 +65,7 @@ body {
 .container h1 {
     margin-bottom: 35px;
 
-    color: var(--text-100);
+    color: var(--color-text-primary);
     font-family: "Google Sans Flex", sans-serif;
     font-size: 1.8rem;
     font-weight: 700;
@@ -81,10 +81,10 @@ body {
     padding: 0 4px;
     border-radius: 4px;
 
-    background-color: var(--red);
+    background-color: var(--color-red);
 
     color: white;
-    font-size: var(--small);
+    font-size: var(--spacing-small);
     font-weight: 600;
     text-transform: uppercase;
 }
@@ -93,7 +93,7 @@ body {
 
 form {
     display: grid;
-    gap: var(--medium);
+    gap: var(--spacing-medium);
 }
 
 input,
@@ -102,12 +102,12 @@ select,
 button {
     padding: 14px 18px;
 
-    background-color: var(--white-primary);
-    border: var(--border-thin) var(--white-d) solid;
-    border-radius: var(--border);
+    background-color: var(--color-white-primary);
+    border: var(--border-thin) var(--color-white-d) solid;
+    border-radius: var(--spacing-border);
 
     font-family: "Poppins", sans-serif;
-    font-size: var(--small);
+    font-size: var(--spacing-small);
 }
 
 input:focus,
@@ -118,7 +118,7 @@ select:focus {
 
 textarea:focus::placeholder,
 input:focus::placeholder {
-    color: var(--white-d);
+    color: var(--color-white-d);
 }
 
 textarea {
@@ -129,9 +129,9 @@ textarea {
 }
 
 button {
-    background-color: var(--orange);
+    background-color: var(--color-orange);
 
-    color: var(--white-primary);
+    color: var(--color-white-primary);
     font-weight: 600;
 
     border: none;
@@ -142,18 +142,18 @@ button[type="submit"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--medium);
+    gap: var(--spacing-medium);
 
-    height: calc(1.25 * (var(--small) + var(--normal)));
+    height: calc(1.25 * (var(--spacing-small) + var(--spacing-normal)));
 }
 
 button.outline {
     background-color: transparent;
 
-    color: var(--text-100);
+    color: var(--color-text-primary);
     font-weight: 600;
 
-    border: var(--border-thick) var(--white-d) solid;
+    border: var(--border-thick) var(--color-white-d) solid;
     cursor: pointer;
 }
 
@@ -190,10 +190,10 @@ button.outline {
 .loader {
     display: none;
 
-    width: var(--normal);
+    width: var(--spacing-normal);
     aspect-ratio: 1;
 
-    border: 5px var(--white-e0-95) solid;
+    border: 5px var(--color-white-e0-95) solid;
     border-right-color: transparent;
     border-radius: 50%;
 
@@ -211,15 +211,15 @@ button.outline {
 
 a.redirect {
     position: fixed;
-    bottom: var(--medium);
-    left: var(--medium);
+    bottom: var(--spacing-medium);
+    left: var(--spacing-medium);
     z-index: 1000;
 
     padding: 14px 18px;
 
     background-color: transparent;
 
-    color: var(--deep-blue);
+    color: var(--color-blue-deep);
     font-size: 24px;
 
     cursor: pointer;
@@ -230,9 +230,9 @@ a.redirect {
     align-items: center;
     justify-content: center;
 
-    padding: var(--small);
+    padding: var(--spacing-small);
 
-    font-size: var(--medium);
+    font-size: var(--spacing-medium);
 
     cursor: pointer;
 }
@@ -240,7 +240,7 @@ a.redirect {
 span.gap {
     display: inline-block;
 
-    width: var(--gap);
+    width: var(--spacing-gap);
 }
 .tilt {
     display: inline-block;
@@ -285,9 +285,10 @@ span.gap {
 
 @keyframes slideOutSmallAbsolute {
     from {
-        transform: translate(-50%, calc(-50% - calc(var(--medium) * 2)));
+        transform: translate(-50%, calc(-50% - calc(var(--spacing-medium) * 2)));
     }
     to {
-        transform: translate(-50%, calc(-50% + var(--medium)));
+        transform: translate(-50%, calc(-50% + var(--spacing-medium)));
     }
 }
+

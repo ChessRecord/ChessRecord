@@ -16,12 +16,12 @@
 .select-items {
     padding: 14px 18px;
 
-    background-color: var(--select-bg, var(--white-primary));
+    background-color: var(--select-bg, var(--color-white-primary));
 
-    color: var(--select-text-color, var(--grey-3));
+    color: var(--select-text-color, var(--color-grey-3));
     border: var(--border-thin) var(--select-border-color) solid;
-    border-radius: var(--border);
-    font-size: var(--small);
+    border-radius: var(--spacing-border);
+    font-size: var(--spacing-small);
 }
 
 .select-selected:after {
@@ -52,7 +52,7 @@
     left: 0;
     z-index: 99;
 
-    margin-top: var(--border);
+    margin-top: var(--spacing-border);
 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.17);
 }
@@ -61,8 +61,8 @@
 .dropdown-item {
     padding: 8px 16px;
 
-    color: var(--select-item-color, var(--grey-3));
-    border-radius: var(--small-border);
+    color: var(--select-item-color, var(--color-grey-3));
+    border-radius: var(--spacing-small-border);
 
     cursor: pointer;
     user-select: none;
@@ -96,11 +96,11 @@
 
     width: 200px;
     margin-top: 5px;
-    padding: var(--small) calc(var(--small) / 2);
-    border: var(--border-thin) var(--white-d) solid;
-    border-radius: var(--border);
+    padding: var(--spacing-small) calc(var(--spacing-small) / 2);
+    border: var(--border-thin) var(--color-white-d) solid;
+    border-radius: var(--spacing-border);
 
-    background-color: var(--white-primary);
+    background-color: var(--color-white-primary);
 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.17);
 
@@ -125,9 +125,9 @@
 }
 
 .dropdown-item {
-    gap: var(--small);
+    gap: var(--spacing-small);
 
-    font-size: var(--small);
+    font-size: var(--spacing-small);
 }
 
 .dropdown-item:hover {
@@ -150,13 +150,13 @@
     width: 100%;
     max-height: 200px;
     margin-top: 8px;
-    padding: var(--small-border);
+    padding: var(--spacing-small-border);
     border: var(--border-thin) var(--select-border-color) solid;
-    border-radius: var(--border);
+    border-radius: var(--spacing-border);
 
-    background-color: var(--select-bg, var(--white-primary));
+    background-color: var(--select-bg, var(--color-white-primary));
 
-    color: var(--select-text-color, var(--grey-3));
+    color: var(--select-text-color, var(--color-grey-3));
     overflow-y: auto;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     scrollbar-width: thin;
@@ -171,7 +171,7 @@
 }
 
 .autocomplete-suggestions::-webkit-scrollbar {
-    width: var(--small-border);
+    width: var(--spacing-small-border);
 }
 
 .autocomplete-suggestions::-webkit-scrollbar-track {
@@ -186,8 +186,8 @@
 .autocomplete-suggestion {
     padding: 8px 16px;
 
-    color: var(--select-item-color, var(--grey-3));
-    border-radius: var(--small-border);
+    color: var(--select-item-color, var(--color-grey-3));
+    border-radius: var(--spacing-small-border);
 
     cursor: pointer;
     user-select: none;
@@ -213,3 +213,4 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
     cursor: pointer;
 }
+
