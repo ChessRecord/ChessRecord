@@ -200,15 +200,6 @@ button.outline {
     animation: l2 1s infinite linear;
 }
 
-.form-error {
-    display: none;
-
-    margin: 0.25rem 0 0;
-
-    color: #c0392b;
-    font-size: 0.875rem;
-}
-
 a.redirect {
     position: fixed;
     bottom: var(--spacing-medium);
@@ -285,10 +276,12 @@ span.gap {
 
 @keyframes slideOutSmallAbsolute {
     from {
-        transform: translate(-50%, calc(-50% - calc(var(--spacing-medium) * 2)));
+        transform: translate(
+            -50%,
+            calc(-50% - calc(var(--spacing-medium) * 2))
+        );
     }
     to {
         transform: translate(-50%, calc(-50% + var(--spacing-medium)));
     }
 }
-

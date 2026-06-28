@@ -1,9 +1,9 @@
 /**
- * ui.js — Global UI behaviors (Dropdowns, loaders, form errors)
+ * ui.js — Global UI behaviors (Dropdowns, loaders)
  *
  * Depends on: utils.js (isValidString)
  *
- * Provides small helpers for UI feedback: loader toggles, form error rendering,
+ * Provides small helpers for UI feedback: loader toggles,
  * and a lightweight global initializer for dropdown controls.
  *
  * Exposed globals:
@@ -66,60 +66,6 @@ function hideLoader(target) {
   if (typeof el._oldLoaderValue !== "undefined") {
     el.innerHTML = el._oldLoaderValue;
     delete el._oldLoaderValue;
-  }
-}
-
-/* ─── Form Error Helpers ────────────────────────────────────────────────── */
-
-/**
- * Render a form-level error message inside the form. Creates the error node if missing.
- *
- * @param {HTMLElement|string} targetForm - Form element or selector string
- * @param {string} msg - Error message to display
- * @returns {void}
- */
-function showFormError(targetForm, msg) {
-  const form =
-    typeof targetForm === "string"
-      ? document.querySelector(targetForm)
-      : targetForm;
-  if (!form) return;
-
-  let errorEl = form.querySelector(".form-error");
-  if (!errorEl) {
-    errorEl = document.createElement("p");
-    errorEl.className = "form-error";
-    errorEl.setAttribute("role", "alert");
-    // Standard position: before the submit button
-    const submitBtn = form.querySelector('button[type="submit"]');
-    if (submitBtn) {
-      submitBtn.insertAdjacentElement("beforebegin", errorEl);
-    } else {
-      form.appendChild(errorEl);
-    }
-  }
-
-  errorEl.textContent = msg;
-  errorEl.style.display = "block";
-}
-
-/**
- * Clear any form-level error message previously rendered by showFormError.
- *
- * @param {HTMLElement|string} targetForm - Form element or selector string
- * @returns {void}
- */
-function clearFormError(targetForm) {
-  const form =
-    typeof targetForm === "string"
-      ? document.querySelector(targetForm)
-      : targetForm;
-  if (!form) return;
-
-  const errorEl = form.querySelector(".form-error");
-  if (errorEl) {
-    errorEl.textContent = "";
-    errorEl.style.display = "none";
   }
 }
 
