@@ -12,6 +12,10 @@
 "use strict";
 
 class ThemeManager {
+  /**
+   * Create a ThemeManager instance. Caches a reference to the toggle button
+   * element and sets up the DOMContentLoaded handler to initialize the UI.
+   */
   constructor() {
     // Cache DOM reference
     this.themeToggleBtn = null;
@@ -24,6 +28,12 @@ class ThemeManager {
     });
   }
 
+  /**
+   * Toggle between light and dark themes, persist the choice, and update
+   * the toggle button color.
+   *
+   * @returns {void}
+   */
   toggleTheme() {
     const body = document.body;
     const isDark = body.classList.toggle("dark-theme");
@@ -35,6 +45,11 @@ class ThemeManager {
     this.updateThemeAppearance(isDark);
   }
 
+  /**
+   * Read the stored theme preference and apply it to the document.
+   *
+   * @returns {void}
+   */
   loadThemePreference() {
     const isDark = this.storage.get() === true;
     if (isDark) document.body.classList.add("dark-theme");
@@ -43,6 +58,12 @@ class ThemeManager {
     this.updateThemeAppearance(isDark);
   }
 
+  /**
+   * Update the toggle button color to match the active theme.
+   *
+   * @param {boolean} isDark - Whether the dark theme is active
+   * @returns {void}
+   */
   updateThemeAppearance(isDark) {
     // Update button color
     if (this.themeToggleBtn) {
@@ -52,6 +73,12 @@ class ThemeManager {
     }
   }
 
+  /**
+   * Create the fixed-position theme toggle button, style it, bind its
+   * click handler, and append it to the document body.
+   *
+   * @returns {void}
+   */
   createThemeToggleButton() {
     this.themeToggleBtn = document.createElement("button");
     this.themeToggleBtn.id = "theme-toggle-btn";
