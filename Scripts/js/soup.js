@@ -10,7 +10,7 @@
  *   fromSoup(soup) → Object[]   decompress ChesSoup → JSON array
  */
 
-'use strict';
+"use strict";
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 
@@ -20,18 +20,18 @@
  * so only the four canonical values are needed here.
  */
 const RESULT_TO_OP = Object.freeze({
-  '1-0':     '>',
-  '0-1':     '<',
-  '1/2-1/2': '=',
-  '*':       '*',
+  "1-0": ">",
+  "0-1": "<",
+  "1/2-1/2": "=",
+  "*": "*",
 });
 
 /** ChesSoup operator → canonical JSON result */
 const OP_TO_RESULT = Object.freeze({
-  '>': '1-0',
-  '<': '0-1',
-  '=': '1/2-1/2',
-  '*': '*',
+  ">": "1-0",
+  "<": "0-1",
+  "=": "1/2-1/2",
+  "*": "*",
 });
 
 /**
@@ -65,8 +65,8 @@ const RE_COMPACT_DATE = /^\d{8}$/;
  *   ""            →  ""
  */
 function encodeDate(date) {
-  if (!date) return '';
-  return RE_FULL_DATE.test(date) ? date.replace(/-/g, '') : date;
+  if (!date) return "";
+  return RE_FULL_DATE.test(date) ? date.replace(/-/g, "") : date;
 }
 
 /**
@@ -76,7 +76,7 @@ function encodeDate(date) {
  *   ""            →  ""
  */
 function decodeDate(token) {
-  if (!token) return '';
+  if (!token) return "";
   if (RE_COMPACT_DATE.test(token)) {
     return `${token.slice(0, 4)}-${token.slice(4, 6)}-${token.slice(6, 8)}`;
   }
@@ -92,14 +92,14 @@ function decodeDate(token) {
  */
 function compress(games) {
   // isEmpty() from utils.js — handles null, undefined, and empty arrays
-  if (isEmpty(games)) return '§\n';
+  if (isEmpty(games)) return "§\n";
 
   // ── Pass 1: Build global player registry (order of first appearance) ──
-  const idOf   = new Map(); // name → id
-  const nameOf = [];        // id   → name
+  const idOf = new Map(); // name → id
+  const nameOf = []; // id   → name
 
   const getOrAdd = (raw) => {
-    const name = raw || 'Unknown';
+    const name = raw || "Unknown";
     if (!idOf.has(name)) {
       idOf.set(name, nameOf.length);
       nameOf.push(name);
@@ -115,7 +115,7 @@ function compress(games) {
   // ── Pass 2: Group games by tournament (order of first appearance) ──
   const byTournament = new Map();
   for (const g of games) {
-    const t = g.tournament || 'Unknown';
+    const t = g.tournament || "Unknown";
     if (!byTournament.has(t)) byTournament.set(t, []);
     byTournament.get(t).push(g);
   }
@@ -124,12 +124,12 @@ function compress(games) {
   const out = [];
 
   // Registry block
-  out.push('§');
+  out.push("§");
   for (let i = 0; i < nameOf.length; i++) out.push(`${i}:"${nameOf[i]}"`);
 
   // Tournament blocks
   for (const [tournament, tGames] of byTournament) {
-    out.push('');
+    out.push("");
     out.push(`@"${tournament}"`);
 
     let prevRoundKey = null;
@@ -137,10 +137,10 @@ function compress(games) {
     for (const g of tGames) {
       const board = g.board != null ? g.board : null;
       // NUL delimiter — safe because none of these fields can contain it
-      const roundKey = `${g.round ?? 1}\0${board}\0${g.time ?? ''}\0${g.date ?? ''}`;
+      const roundKey = `${g.round ?? 1}\0${board}\0${g.time ?? ""}\0${g.date ?? ""}`;
 
       if (roundKey !== prevRoundKey) {
-        out.push('');
+        out.push("");
         out.push(_roundHeader(g));
         prevRoundKey = roundKey;
       }
@@ -149,15 +149,15 @@ function compress(games) {
     }
   }
 
-  return out.join('\n') + '\n';
+  return out.join("\n") + "\n";
 }
 
 /** @returns {string}  e.g. '#3.2 "90+30" 20250426' */
 function _roundHeader(g) {
   const round = g.round ?? 1;
   const board = g.board != null ? g.board : null;
-  const tc    = g.time  ?? '';
-  const date  = encodeDate(g.date ?? '');
+  const tc = g.time ?? "";
+  const date = encodeDate(g.date ?? "");
 
   const roundPart = board !== null ? `#${round}.${board}` : `#${round}`;
   return date ? `${roundPart} "${tc}" ${date}` : `${roundPart} "${tc}"`;
@@ -165,17 +165,17 @@ function _roundHeader(g) {
 
 /** @returns {string}  e.g. '[AIM]2(1750)<0(1515)~"https://..."' */
 function _gameLine(g, idOf) {
-  const wId = idOf.get(g.white || 'Unknown');
-  const bId = idOf.get(g.black || 'Unknown');
+  const wId = idOf.get(g.white || "Unknown");
+  const bId = idOf.get(g.black || "Unknown");
 
-  const wTitle  = g.whiteTitle  ? `[${g.whiteTitle}]`  : '';
-  const bTitle  = g.blackTitle  ? `[${g.blackTitle}]`  : '';
-  const wRating = g.whiteRating > 0 ? `(${g.whiteRating})` : '';
-  const bRating = g.blackRating > 0 ? `(${g.blackRating})` : '';
-  const link    = g.gameLink ? `~"${g.gameLink}"` : '';
+  const wTitle = g.whiteTitle ? `[${g.whiteTitle}]` : "";
+  const bTitle = g.blackTitle ? `[${g.blackTitle}]` : "";
+  const wRating = g.whiteRating > 0 ? `(${g.whiteRating})` : "";
+  const bRating = g.blackRating > 0 ? `(${g.blackRating})` : "";
+  const link = g.gameLink ? `~"${g.gameLink}"` : "";
 
   // normalizeResult() from utils.js handles ½-½, 1/2-1/2, "", * uniformly
-  const op = RESULT_TO_OP[normalizeResult(g.result)] ?? '*';
+  const op = RESULT_TO_OP[normalizeResult(g.result)] ?? "*";
 
   return `${wTitle}${wId}${wRating}${op}${bTitle}${bId}${bRating}${link}`;
 }
@@ -192,28 +192,34 @@ function decompress(soup) {
   // isValidString() from utils.js — rejects null, undefined, and ""
   if (!isValidString(soup)) return [];
 
-  const lines   = soup.split(/\r?\n/);
+  const lines = soup.split(/\r?\n/);
   const players = []; // id → name
-  const games   = [];
+  const games = [];
 
   let inRegistry = false;
-  let tournament = 'Unknown';
-  let round      = 1;
-  let board      = null;
-  let tc         = '';
-  let date       = '';
+  let tournament = "Unknown";
+  let round = 1;
+  let board = null;
+  let tc = "";
+  let date = "";
 
   for (let i = 0, len = lines.length; i < len; i++) {
     const line = lines[i].trim();
     if (!line) continue;
 
     // Registry sentinel
-    if (line === '§') { inRegistry = true; continue; }
+    if (line === "§") {
+      inRegistry = true;
+      continue;
+    }
 
     // Registry entries
     if (inRegistry) {
       const m = line.match(RE_REGISTRY_ENTRY);
-      if (m) { players[+m[1]] = m[2]; continue; }
+      if (m) {
+        players[+m[1]] = m[2];
+        continue;
+      }
       inRegistry = false; // end of registry — fall through
     }
 
@@ -231,8 +237,8 @@ function decompress(soup) {
         // toNumberOr() from utils.js — safe string-to-number with explicit fallback
         round = toNumberOr(m[1], 1);
         board = toNumberOr(m[2], null); // undefined capture → null
-        tc    = m[3];
-        date  = decodeDate(m[4].trim());
+        tc = m[3];
+        date = decodeDate(m[4].trim());
       }
       continue;
     }
@@ -244,19 +250,19 @@ function decompress(soup) {
     const [, wTitle, wIdStr, wRatStr, op, bTitle, bIdStr, bRatStr, link] = m;
 
     const record = {
-      white:       players[+wIdStr]      ?? 'Unknown',
-      whiteRating: toNumberOr(wRatStr, 0),  // undefined when unrated → 0
-      whiteTitle:  wTitle || '',
-      black:       players[+bIdStr]      ?? 'Unknown',
-      blackRating: toNumberOr(bRatStr, 0),  // undefined when unrated → 0
-      blackTitle:  bTitle || '',
-      result:      OP_TO_RESULT[op] ?? '*',
+      white: players[+wIdStr] ?? "Unknown",
+      whiteRating: toNumberOr(wRatStr, 0), // undefined when unrated → 0
+      whiteTitle: wTitle || "",
+      black: players[+bIdStr] ?? "Unknown",
+      blackRating: toNumberOr(bRatStr, 0), // undefined when unrated → 0
+      blackTitle: bTitle || "",
+      result: OP_TO_RESULT[op] ?? "*",
       tournament,
       round,
       ...(board !== null && { board }), // omit when null (matches source JSON)
-      time:        tc,
+      time: tc,
       date,
-      gameLink:    link || '',
+      gameLink: link || "",
     };
 
     games.push(record);
@@ -267,5 +273,5 @@ function decompress(soup) {
 
 // ─── BROWSER GLOBALS ──────────────────────────────────────────────────────────
 
-window.toSoup   = compress;
+window.toSoup = compress;
 window.fromSoup = decompress;
