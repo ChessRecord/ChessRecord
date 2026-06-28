@@ -9,11 +9,11 @@
  * persistence (Dexie + localStorage mirror).
  *
  * Exposed globals:
- *   Storage
- *   toUnicodeVariant(str, variant, flags)
- *   normalizeGames(games)
- *   loadGames(target) → 1 Promise<Array>
- *   saveGames(newGames, deleteId) → 1 Promise<void>
+ *   Storage                                  localStorage/sessionStorage wrapper
+ *   toUnicodeVariant(str, variant, flags)    → string   convert ASCII to Unicode variant
+ *   normalizeGames(games)                    → Object[]  coerce raw games to canonical shape
+ *   loadGames(target)                       → Promise<Array>  read from IDB/localStorage
+ *   saveGames(newGames, deleteId)           → Promise<void>   write to IDB/localStorage
  */
 
 "use strict";

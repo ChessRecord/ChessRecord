@@ -1,3 +1,17 @@
+/**
+ * select.js — Custom dropdown select component
+ * Depends on: None
+ *
+ * Replaces every <select> inside a .custom-select wrapper with a styled,
+ * accessible dropdown built from the original <option> elements. Uses event
+ * delegation so a single listener handles every option click, and a global
+ * outside-click handler closes any open dropdown.
+ *
+ * Exposed globals: none (auto-initializes on parse)
+ */
+
+"use strict";
+
 (function () {
   document.querySelectorAll(".custom-select").forEach(initSelect);
 
