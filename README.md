@@ -14,7 +14,7 @@ Welcome to **ChessRecord**, the ultimate web application for tracking, storing, 
 
 ## 🌟 Overview
 
-**ChessRecord** is a powerful, intuitive web application built with **JavaScript, CSS, and HTML**. Designed to make it easy for you to document and organize your chess games, providing a convenient way to store and retrieve them whenever needed.
+**ChessRecord** is a powerful, intuitive web application built with Vanilla **JavaScript, CSS, and HTML**. Designed to make it easy for you to document and organize your chess games, providing a convenient way to store and retrieve them whenever needed.
 
 ## ✨ Features
 
@@ -51,6 +51,7 @@ Contributions are welcome! Here's how you can help:
 6. **Create a Pull Request**.
 
 ## 📜 License
+
 This website is licensed under a **custom All Rights Reserved license**.  
 You may **view and use** the site for personal, non-commercial purposes, but  
 **modifications, redistributions, forks, or rehosting are strictly prohibited**.  
