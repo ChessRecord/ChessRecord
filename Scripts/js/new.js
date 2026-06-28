@@ -50,6 +50,8 @@ const UI = {
 /* ─── Constants ──────────────────────────────────────────────────────────── */
 
 const FIDE_BASE = "https://lichess.org/api/fide/player";
+const FIDE_API_TIMEOUT = 5000;
+const ERROR_CLEAR_DELAY = 1000;
 
 /* ─── DOM Cache ─────────────────────────────────────────────────────────── */
 
@@ -71,7 +73,7 @@ let formEls = {}; // { result, time, tournament, round, date, gameLink, submit, 
 async function fetchFidePlayer(id) {
   if (!id || isNaN(id)) throw new Error(`Invalid FIDE ID: ${id}`);
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 5000);
+  const timeout = setTimeout(() => controller.abort(), FIDE_API_TIMEOUT);
   try {
     const res = await fetch(`${FIDE_BASE}/${id}`, {
       signal: controller.signal,
@@ -224,10 +226,10 @@ function setupAutocomplete({ key }) {
         <div class="autocomplete-suggestion" style="pointer-events: none;">
           <i>FIDE ID not found</i>
         </div>`;
-      // Auto-clear after 1000 ms, but only if this exact bad ID is still typed.
+      // Auto-clear after ERROR_CLEAR_DELAY, but only if this exact bad ID is still typed.
       setTimeout(() => {
         if (input.value.trim() === query) container.replaceChildren();
-      }, 1000);
+      }, ERROR_CLEAR_DELAY);
     }
   }
 
