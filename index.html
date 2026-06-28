@@ -36,13 +36,16 @@
                         placeholder="  Search by player or event name"
                     />
                 </div>
-                <div class="options">
-                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                <div class="options" aria-label="Options menu">
+                    <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
                 </div>
                 <div class="dropdown">
                     <a
                         onclick="document.getElementById('fileInput').click()"
                         class="dropdown-item"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Import games from file"
                     >
                         <div class="load">
                             <i class="fa-solid fa-folder-open"></i>
@@ -59,7 +62,7 @@
                             multiple
                         />
                     </a>
-                    <a onclick="exportJSON()" class="dropdown-item">
+                    <a onclick="exportJSON()" class="dropdown-item" role="button" tabindex="0" aria-label="Export games to file">
                         <div class="load">
                             <i class="fa-solid fa-floppy-disk"></i>
                             <span style="font-size: var(--spacing-small)"
