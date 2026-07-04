@@ -216,6 +216,21 @@ a.redirect {
     cursor: pointer;
 }
 
+#theme-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+
+    background-color: transparent;
+
+    color: var(--color-blue-deep);
+    font-size: 24px;
+
+    border: none;
+    cursor: pointer;
+}
+
 .options {
     display: flex;
     align-items: center;

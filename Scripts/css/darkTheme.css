@@ -1,6 +1,3 @@
-/* ─── Imports ───────────────────────────────────── */
-
-@import url("root.css");
 
 /* ─── Base Styles ───────────────────────────────── */
 
@@ -161,6 +158,10 @@ body.dark-theme {
 }
 
 .dark-theme .redirect i {
+    color: var(--color-white-primary);
+}
+
+.dark-theme #theme-toggle-btn {
     color: var(--color-white-primary);
 }
 

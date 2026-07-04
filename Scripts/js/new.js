@@ -127,7 +127,7 @@ function pickRating({ standard = 0, rapid = 0, blitz = 0 } = {}, time) {
   );
 }
 
-/* ─── API ────────────────────────────────────────────────────────────────── */
+/* ─── Autocomplete ───────────────────────────────────────────────────────── */
 
 /**
  * Render autocomplete suggestions into the provided container element.

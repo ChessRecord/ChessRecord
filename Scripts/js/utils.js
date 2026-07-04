@@ -219,9 +219,6 @@ const formatPlayerLabel = (title, name) => {
 
 /* ─── Storage ────────────────────────────────────────────────────────────── */
 
-// Factory producing a uniform get/set/remove interface over any Web Storage
-// backend. Defined once — no duplication between localStorage and
-// sessionStorage. `name` is used solely for the console warning on set failure.
 /**
  * Factory producing a uniform get/set/remove interface over any Web Storage
  * backend. Defined once — no duplication between localStorage and
@@ -577,7 +574,7 @@ function sortGames(games) {
   const tournamentMaxDates = new Map();
   for (const g of games) {
     const d = g.date ? Date.parse(g.date) : 0;
-    const currentMax = tournamentMaxDates.get(g.tournament) || 0;
+    const currentMax = tournamentMaxDates.get(g.tournament || "Unknown") || 0;
     if (!isNaN(d) && d > currentMax) {
       tournamentMaxDates.set(g.tournament || "Unknown", d);
     }
