@@ -36,12 +36,14 @@ table {
 }
 
 .player-points {
+    padding: 4px 6px;
+    border-radius: 5px;
+
+    background: var(--color-blue-deep);
+
+    color: var(--color-white-primary);
     font-family: "Rubik", sans-serif;
     font-weight: 500;
-    background: var(--color-blue-deep);
-    color: var(--color-white-primary);
-    border-radius: 5px;
-    padding: 4px 6px;
 }
 
 /* ─── Component Styles ──────────────────────────── */
