@@ -53,7 +53,29 @@
 
     margin-top: var(--spacing-border);
 
+    visibility: hidden;
+    opacity: 0;
+
+    pointer-events: none;
+    translate: 0 -10px;
+    transition:
+        opacity 0.2s ease,
+        translate 0.2s ease,
+        visibility 0s linear 0.2s;
+
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.17);
+}
+
+.select-items.select-show {
+    visibility: visible;
+    opacity: 1;
+
+    pointer-events: auto;
+    translate: 0 0;
+    transition:
+        opacity 0.2s ease,
+        translate 0.2s ease,
+        visibility 0s linear 0s;
 }
 
 /* Dropdown options */
@@ -77,10 +99,6 @@
 .dropdown-item:hover {
     background-color: var(--select-hover-bg, rgba(0, 0, 0, 0.1));
     color: var(--select-hover-color, inherit);
-}
-
-.select-hide {
-    display: none;
 }
 
 /* ─── Dropdown Menu ──────────────────────────────── */
