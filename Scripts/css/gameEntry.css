@@ -43,7 +43,9 @@
     transform: translateY(-3px);
 }
 
-.game-entry .game-meta {
+/* ─── Game Meta ─────────────────────────────────── */
+
+.game-meta {
     display: flex;
     justify-content: space-between;
 
@@ -53,11 +55,11 @@
     color: var(--color-grey-4);
 }
 
-.game-entry .game-meta .game-meta-right {
+.game-meta .game-meta-right {
     color: var(--color-grey-6);
 }
 
-.game-entry .game-meta .timecontrol-category {
+.game-meta .timecontrol-category {
     font-family: "Poppins", sans-serif;
 }
 
@@ -72,17 +74,15 @@
 }
 
 .player-white {
-    clear: both;
     text-align: left;
 }
 
 .player-black {
-    clear: both;
     text-align: right;
 }
 
-.game-entry .player-white,
-.game-entry .player-black {
+.player-white,
+.player-black {
     display: flex;
     align-items: center;
     gap: calc(var(--spacing-small) / 2);
@@ -126,12 +126,11 @@
 .tournament-header {
     display: flex;
     align-items: center;
-    flex-direction: row;
     justify-content: space-between;
 
     margin-bottom: var(--spacing-border);
-    padding: var(--spacing-border) var(--spacing-normal);
-    padding-left: var(--spacing-small) !important;
+    padding-block: var(--spacing-border);
+    padding-inline: var(--spacing-small) var(--spacing-normal);
     border-top: var(--color-blue-deep-light) 2px solid;
     border-bottom: var(--color-blue-deep) 2px solid;
 
@@ -225,7 +224,9 @@
     left: 100%;
     z-index: 0; /* implicit */
 
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     visibility: hidden;
     opacity: 0;
 
@@ -260,4 +261,3 @@
 
     color: #fff;
 }
-
