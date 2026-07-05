@@ -2,19 +2,15 @@
 
 .blur {
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0;
     z-index: 999;
-
-    width: 100vw;
-    height: 100vh;
 
     background-color: rgba(0, 0, 0, 0.5);
 
-    backdrop-filter: blur(5px);
     opacity: 0;
     pointer-events: none;
     user-select: none;
+    backdrop-filter: blur(5px);
     transition: opacity 0.3s ease;
 }
 
@@ -23,11 +19,6 @@
 .blur.visible {
     opacity: 1;
     pointer-events: auto;
-}
-
-.blur.hidden {
-    opacity: 0;
-    pointer-events: none;
 }
 
 /* ─── Component Styles ──────────────────────────── */
@@ -71,14 +62,12 @@
 }
 
 .confirmation .options button {
-    flex-grow: 1;
-
     display: flex;
+    flex-grow: 1;
+    width: 100%;
     align-items: center;
     justify-content: center;
     gap: var(--spacing-medium);
-
-    width: 100%;
 }
 
 .confirmation .cancel {
@@ -97,7 +86,6 @@
 @keyframes slideInAbsolute {
     from {
         opacity: 0;
-        /* Start at center, but slightly lower for smoothness */
         transform: translate(-50%, calc(-50% + var(--spacing-medium)));
     }
     to {
@@ -105,4 +93,3 @@
         transform: translate(-50%, -50%);
     }
 }
-

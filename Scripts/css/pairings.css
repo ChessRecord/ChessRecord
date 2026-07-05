@@ -7,10 +7,10 @@ div.table {
 
 table {
     width: 100%;
-    min-width: max-content; /* Allow table to expand and be scrollable */
+    min-width: max-content; /* allow horizontal scroll on narrow screens */
     border-collapse: separate;
     border-spacing: 0;
-    border: var(--border-thin) var(--color-white-d) solid; /* Outer border */
+    border: var(--border-thin) var(--color-white-d) solid;
     border-radius: var(--spacing-border);
 }
 
@@ -69,7 +69,7 @@ tr:nth-child(even) td {
     background: #fcfcfc;
 }
 
-/* Remove border from outermost cells so table border is visible */
+/* Strip redundant outer-edge borders so the table's own border shows cleanly */
 th:first-child,
 td:first-child {
     border-left: none;
@@ -88,6 +88,7 @@ tbody tr:last-child td {
     border-bottom: none;
 }
 
+/* Corner radii to match the table's rounded border */
 th:first-child {
     border-top-left-radius: calc(var(--spacing-border) - 3px);
 }
@@ -106,8 +107,8 @@ tr:last-child td:last-child {
 
 .result-cell {
     display: flex;
-    justify-content: space-around;
     align-items: center;
+    justify-content: space-around;
 
     font-size: 1.1em;
     text-align: center;
@@ -121,26 +122,13 @@ tr:last-child td:last-child {
 #note {
     margin-top: 12px;
 
-    color: #444;
+    color: var(--color-grey-4);
     font-size: 0.95em;
     text-align: center;
 }
 
-.box-black::before {
-    content: "";
-    display: inline-block;
-    vertical-align: middle;
-
-    width: 1em;
-    height: 1em;
-    border: var(--border-thin) var(--color-grey-7) solid;
-    border-radius: 0.15em;
-
-    background: #222;
-
-    box-shadow: 0 0 0 1px #333 inset;
-}
-
+/* Chess colour indicator squares */
+.box-black::before,
 .box-white::before {
     content: "";
     display: inline-block;
@@ -148,8 +136,19 @@ tr:last-child td:last-child {
 
     width: 1em;
     height: 1em;
-    border: var(--border-thin) #bbb solid;
     border-radius: 0.15em;
+}
+
+.box-black::before {
+    border: var(--border-thin) var(--color-grey-7) solid;
+
+    background: #222;
+
+    box-shadow: 0 0 0 1px #333 inset;
+}
+
+.box-white::before {
+    border: var(--border-thin) #bbb solid;
 
     background: #fff;
 
@@ -171,7 +170,7 @@ tr:last-child td:last-child {
 }
 
 .dark-theme table {
-    border: var(--border-thin) var(--color-grey-3) solid; /* Outer border */
+    border: var(--border-thin) var(--color-grey-3) solid;
 }
 
 .dark-theme th,
@@ -202,4 +201,3 @@ tr:last-child td:last-child {
         display: none;
     }
 }
-

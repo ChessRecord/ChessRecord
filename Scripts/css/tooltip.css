@@ -2,7 +2,6 @@
 
 .tooltip {
     position: relative;
-
     display: inline-block;
 }
 
@@ -20,13 +19,14 @@
     padding: 5px var(--spacing-border);
     border-radius: 6px;
 
-    background-color: #000000c7;
+    background-color: rgba(0, 0, 0, 0.78);
 
     color: #fff;
     font-size: 0.85rem;
     text-align: center;
 }
 
+/* Arrow pointing left toward the tooltip anchor */
 .tooltip .tooltiptext::after {
     content: "";
     position: absolute;
@@ -34,9 +34,8 @@
     right: 100%;
 
     margin-top: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent #000000c7 transparent transparent;
+    border: 5px solid transparent;
+    border-right-color: rgba(0, 0, 0, 0.78);
 }
 
 /* ─── State & Modifier Classes ──────────────────── */
@@ -45,8 +44,3 @@
     visibility: visible;
     opacity: 1;
 }
-
-.tooltip:not(:hover) .tooltiptext {
-    visibility: hidden;
-}
-
