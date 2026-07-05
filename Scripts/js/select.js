@@ -36,7 +36,7 @@
       "beforeend",
       `
      <div class="select-selected">${select.options[select.selectedIndex].text}</div>
-     <div class="select-items select-hide">${optionsHtml}</div>
+     <div class="select-items">${optionsHtml}</div>
     `,
     );
 
@@ -65,10 +65,10 @@
 
     selected.addEventListener("click", (e) => {
       e.stopPropagation();
-      const isOpen = !items.classList.contains("select-hide");
+      const isOpen = items.classList.contains("select-show");
       closeAll();
       if (!isOpen) {
-        items.classList.remove("select-hide");
+        items.classList.add("select-show");
         selected.classList.add("select-arrow-active");
       }
     });
@@ -82,7 +82,7 @@
    * @returns {void}
    */
   function close(items, selected) {
-    items.classList.add("select-hide");
+    items.classList.remove("select-show");
     selected.classList.remove("select-arrow-active");
   }
 
