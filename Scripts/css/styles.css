@@ -29,24 +29,7 @@ body {
     font-family: "Poppins", sans-serif;
 }
 
-.fontawesome {
-    font-family: "Poppins", "FontAwesome", sans-serif;
-    user-select: none;
-}
-
 /* ─── Layout Primitives ─────────────────────────── */
-
-.flex {
-    flex-grow: 1;
-
-    width: 100%;
-}
-
-.inlineForm {
-    display: flex;
-    align-items: center;
-    gap: calc(var(--spacing-medium) / 2);
-}
 
 .container {
     position: relative;
@@ -56,8 +39,23 @@ body {
 
     background-color: var(--color-white-primary);
 
-    overflow: visible;
     animation: slideIn 0.3s ease-out;
+}
+
+.flex {
+    flex-grow: 1;
+    width: 100%;
+}
+
+.inlineForm {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing-medium) / 2);
+}
+
+.fontawesome {
+    font-family: "Poppins", "FontAwesome", sans-serif;
+    user-select: none;
 }
 
 /* ─── Typography ────────────────────────────────── */
@@ -89,7 +87,17 @@ body {
     text-transform: uppercase;
 }
 
-/* ─── Component Styles ──────────────────────────── */
+.tilt {
+    display: inline-block;
+    transform: skewX(-10deg);
+}
+
+.gap {
+    display: inline-block;
+    width: var(--spacing-gap);
+}
+
+/* ─── Form Elements ─────────────────────────────── */
 
 form {
     display: grid;
@@ -101,10 +109,10 @@ textarea,
 select,
 button {
     padding: 14px 18px;
-
-    background-color: var(--color-white-primary);
     border: var(--border-thin) var(--color-white-d) solid;
     border-radius: var(--spacing-border);
+
+    background-color: var(--color-white-primary);
 
     font-family: "Poppins", sans-serif;
     font-size: var(--spacing-small);
@@ -116,25 +124,25 @@ select:focus {
     outline: none;
 }
 
-textarea:focus::placeholder,
-input:focus::placeholder {
+input:focus::placeholder,
+textarea:focus::placeholder {
     color: var(--color-white-d);
 }
 
 textarea {
     width: 100%;
     min-height: 60vh;
-
     resize: vertical;
 }
 
 button {
+    border: none;
+
     background-color: var(--color-orange);
 
     color: var(--color-white-primary);
     font-weight: 600;
 
-    border: none;
     cursor: pointer;
 }
 
@@ -148,20 +156,17 @@ button[type="submit"] {
 }
 
 button.outline {
+    border: var(--border-thick) var(--color-white-d) solid;
+
     background-color: transparent;
 
     color: var(--color-text-primary);
     font-weight: 600;
 
-    border: var(--border-thick) var(--color-white-d) solid;
     cursor: pointer;
 }
 
-#searchURL {
-    width: fit-content !important; /* specificity-override */
-
-    border-radius: 100px;
-}
+/* ─── Form Input Variants ───────────────────────── */
 
 .titleInput,
 .ratingInput {
@@ -180,12 +185,18 @@ button.outline {
     width: 115px;
 }
 
+/* These inputs are narrower than the flex-grow default */
 #round,
 #time {
-    flex: 0 0 105px !important; /* specificity-override */
-
-    width: 105px !important; /* specificity-override */
+    flex: 0 0 105px;
 }
+
+#searchURL {
+    width: fit-content;
+    border-radius: 100px;
+}
+
+/* ─── UI Components ─────────────────────────────── */
 
 .loader {
     display: none;
@@ -197,7 +208,7 @@ button.outline {
     border-right-color: transparent;
     border-radius: 50%;
 
-    animation: l2 1s infinite linear;
+    animation: spin 1s infinite linear;
 }
 
 a.redirect {
@@ -218,16 +229,17 @@ a.redirect {
 
 #theme-toggle-btn {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: var(--spacing-medium);
+    right: var(--spacing-medium);
     z-index: 1000;
+
+    border: none;
 
     background-color: transparent;
 
     color: var(--color-blue-deep);
     font-size: 24px;
 
-    border: none;
     cursor: pointer;
 }
 
@@ -243,18 +255,13 @@ a.redirect {
     cursor: pointer;
 }
 
-span.gap {
-    display: inline-block;
-
-    width: var(--spacing-gap);
-}
-.tilt {
-    display: inline-block;
-
-    transform: skewX(-10deg);
-}
-
 /* ─── Keyframes ─────────────────────────────────── */
+
+@keyframes spin {
+    to {
+        transform: rotate(1turn);
+    }
+}
 
 @keyframes slideIn {
     from {
@@ -281,7 +288,7 @@ span.gap {
 @keyframes slideOutSmall {
     from {
         opacity: 1;
-        transform: translateY(0px);
+        transform: translateY(0);
     }
     to {
         opacity: 0;

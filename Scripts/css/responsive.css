@@ -1,6 +1,6 @@
 /* ─── Media Queries ─────────────────────────────── */
 
-/* 1. Large screens (up to 1250px) */
+/* 1. Game card stacks vertically (≤ 1250px) */
 @media screen and (max-width: 1250px) {
     .game-players {
         flex-direction: column;
@@ -10,7 +10,6 @@
     .player-white,
     .player-black {
         margin-top: var(--spacing-border);
-
         text-align: center;
     }
 
@@ -31,7 +30,6 @@
     }
 
     .game-meta {
-        display: flex;
         align-items: center !important; /* specificity-override */
         justify-content: center !important; /* specificity-override */
         gap: var(--spacing-small);
@@ -44,21 +42,21 @@
     }
 }
 
-/* 2. Confirmation modal width (up to 1150px) */
+/* 2. Confirmation modal: narrower (≤ 1150px) */
 @media screen and (max-width: 1150px) {
     .confirmation {
         width: 60vw;
     }
 }
 
-/* 3. Confirmation modal width (up to 950px) */
+/* 3. Confirmation modal: narrow (≤ 950px) */
 @media screen and (max-width: 950px) {
     .confirmation {
         width: 90vw;
     }
 }
 
-/* 4. Container and form elements (up to 875px) */
+/* 4. Container and form elements (≤ 875px) */
 @media screen and (max-width: 875px) {
     .container {
         width: 100%;
@@ -84,7 +82,7 @@
     }
 }
 
-/* 5. Player details and game details (up to 600px) */
+/* 5. Player details and game meta (≤ 600px) */
 @media screen and (max-width: 600px) {
     .game-players {
         width: 100%;
@@ -93,14 +91,14 @@
     .player-white,
     .player-black {
         width: 100%;
-
-        text-align: left !important; /* specificity-override */
+        text-align: left;
     }
 
     .game-meta {
         gap: 0;
     }
 
+    /* Hide verbose labels to reduce clutter on small screens */
     .game-tournament strong,
     .game-meta .timecontrol-category,
     .game-meta .round-label {
@@ -108,10 +106,9 @@
     }
 }
 
-/* 6. Heading font size (up to 515px) */
+/* 6. Heading font size (≤ 515px) */
 @media screen and (max-width: 515px) {
     .container h1 {
         font-size: 6vw;
     }
 }
-
