@@ -55,6 +55,10 @@ body {
     user-select: none;
 }
 
+.hidden {
+    display: none !important;
+}
+
 /* ─── Typography ────────────────────────────────── */
 
 .container h1 {

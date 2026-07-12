@@ -412,13 +412,15 @@ const PAIRINGS_COLUMNS = [
     header: "Result",
     isPresent: () => true,
     render: (round) => {
+      if (!round.result) return `<td class="result-cell hidden"></td>`;
+
       const colorSpan =
         round.playerColor === "Black"
           ? '<span class="box-black"></span>'
           : round.playerColor === "White"
             ? '<span class="box-white"></span>'
             : "";
-      return `<td class="result-cell">${colorSpan}${round.result ? `<span>${round.result}</span>` : ""}</td>`;
+      return `<td class="result-cell">${colorSpan}<span>${round.result}</span></td>`;
     },
   },
 ];
@@ -560,7 +562,8 @@ async function showPairingsTableFromInput() {
       cachedPlayerData.rating !== playerData.rating ||
       cachedPlayerData.rtgchg !== playerData.rtgchg ||
       cachedPlayerData.points !== playerData.points ||
-      cachedRounds[cachedRounds.length - 1]?.result !== rounds[rounds.length - 1]?.result;
+      cachedRounds[cachedRounds.length - 1]?.result !==
+        rounds[rounds.length - 1]?.result;
 
     if (hasChanged) {
       renderPairingsTable(rounds, playerData, url);
