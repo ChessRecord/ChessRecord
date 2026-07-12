@@ -32,17 +32,17 @@ const Modal = (() => {
   })();
 
   /** Restore focus and clear the prevFocus reference. */
-  function _resetFocus() {
+  function resetFocus() {
     prevFocus?.focus();
     prevFocus = null;
   }
 
   /** Reset backdrop to hidden state. */
-  function _cleanup() {
+  function cleanup() {
     backdrop.classList.replace("visible", "hidden");
     backdrop.setAttribute("aria-hidden", "true");
     backdrop.innerHTML = "";
-    _resetFocus();
+    resetFocus();
   }
 
   /**
@@ -56,7 +56,7 @@ const Modal = (() => {
     settled = true;
     backdrop.removeEventListener("click", onClick);
     document.removeEventListener("keydown", onKeydown);
-    _cleanup();
+    cleanup();
     resolve(value);
   }
 
@@ -190,7 +190,7 @@ const Modal = (() => {
    */
   function hide() {
     settled = true;
-    _cleanup();
+    cleanup();
   }
 
   return { open, confirm, hide };
