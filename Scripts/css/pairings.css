@@ -1,5 +1,14 @@
 /* ─── Layout Primitives ─────────────────────────── */
 
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.container-wide {
+    width: 90%;
+}
+
 div.table {
     display: block;
     width: 100%;
@@ -157,37 +166,6 @@ tr:last-child td:last-child {
 
 .tooltiptext {
     transform: translate(12.5%, -25%);
-}
-
-/* ─── Dark Theme Overrides ──────────────────────── */
-
-.dark-theme #player-profile {
-    color: var(--color-white-e0);
-}
-
-.dark-theme .player-points {
-    background: var(--color-grey-4);
-}
-
-.dark-theme table {
-    border: var(--border-thin) var(--color-grey-3) solid;
-}
-
-.dark-theme th,
-.dark-theme td {
-    border: 1px var(--color-grey-3) solid;
-}
-
-.dark-theme th {
-    background: var(--color-grey-4);
-}
-
-.dark-theme tr:nth-child(even) td {
-    background: var(--color-grey-3);
-}
-
-.dark-theme #note {
-    color: var(--color-white-e0);
 }
 
 /* ─── Media Queries ─────────────────────────────── */

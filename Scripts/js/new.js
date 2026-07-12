@@ -307,6 +307,7 @@ function validateState(state) {
   if (state.result === "0") return "Please select a result!";
   if (!state.players.white.rawName) return "White player name cannot be empty!";
   if (!state.players.black.rawName) return "Black player name cannot be empty!";
+  if (!state.gameLink) return "Please enter a game link!";
   return null;
 }
 
@@ -395,19 +396,19 @@ async function addGame(event) {
   const form = event.target;
   event.preventDefault();
 
+  // 1. Collect — one DOM pass, raw values
+  const state = getFormState();
+
+  // 2. Validate — cheap string checks before any formatting or UI changes
+  const error = validateState(state);
+  if (error) return alert(error);
+
   // Disable the submit button for the duration of the async pipeline so a
   // double-click cannot enqueue a second submission while the first is in flight.
   formEls.submit.disabled = true;
   showLoader(`#${UI.form.submit} span`);
 
   try {
-    // 1. Collect — one DOM pass, raw values
-    const state = getFormState();
-
-    // 2. Validate — cheap string checks before any formatting
-    const error = validateState(state);
-    if (error) return alert(error);
-
     // 3. Format — expensive normalization runs only for valid submissions
     const players = formatPlayers(state.players);
 
@@ -417,15 +418,10 @@ async function addGame(event) {
       return alert("Game already exists or player conflict in this round!");
     window.games.push(game);
 
-    // saveGames starts first (gets a head start on await dbReady) while
-    // displayGames runs synchronously to completion — identical outcome to
-    // sequential execution but saveGames begins its async work immediately.
-    await Promise.all([saveGames(), form.reset()]);
+    await saveGames();
+    form.reset();
 
-    // Yield one full paint cycle before alerting. Without this, alert() fires
-    // before the browser has painted the updated DOM — the user sees the old
-    // page behind the dialog and perceives the games as "not yet loaded" when
-    // they dismiss it.
+    // Yield one full paint cycle before alerting.
     await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
     gameAddedAlert(game);
   } finally {

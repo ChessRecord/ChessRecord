@@ -99,7 +99,6 @@
     }
 
     /* Hide verbose labels to reduce clutter on small screens */
-    .game-tournament strong,
     .game-meta .timecontrol-category,
     .game-meta .round-label {
         display: none;

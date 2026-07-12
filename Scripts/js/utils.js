@@ -50,21 +50,10 @@ const toNumberOr = (value, fallback = 0) => {
 
 const signum = (v) => {
   const n = +v;
-  return isNaN(n) ? "NaN" : (n > 0 ? "+" : "") + (n || 0);
+  return isNaN(n) ? "0" : (n > 0 ? "+" : "") + (n || 0);
 };
 
-const generateUniqueID = () => {
-  try {
-    return crypto.randomUUID();
-  } catch {
-    // Fallback for non-secure contexts (http) or older browsers
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-      const r = (Math.random() * 16) | 0;
-      const v = c === "x" ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
-  }
-};
+const generateUniqueID = () => crypto.randomUUID();
 
 /* ─── String Formatting ─────────────────────────────────────────────────── */
 
@@ -84,12 +73,12 @@ function formatName(name) {
   return `${first.trim()} ${last.trim()}`.trim();
 }
 
-function highlightMatch(query, result) {
-  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return result.replace(
-    new RegExp(`(${escaped})`, "gi"),
-    "<strong>$1</strong>",
-  );
+function highlightMatch(query, result, regex) {
+  if (!regex) {
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    regex = new RegExp(`(${escaped})`, "gi");
+  }
+  return result.replace(regex, "<strong>$1</strong>");
 }
 
 /* ─── Unicode Variant Helpers ───────────────────────────────────────────── */
@@ -212,7 +201,7 @@ function toUnicodeVariant(str, variant, flags) {
 
 const formatPlayerLabel = (title, name) => {
   const t = title?.trim();
-  return t ? `${toUnicodeVariant(t, "bold sans", "sans")} ${name}` : name;
+  return t ? `${toUnicodeVariant(t, "bold sans")} ${name}` : name;
 };
 
 /* ─── Browser Utilities ─────────────────────────────────────────────────── */
@@ -498,11 +487,10 @@ const getTagRegex = (() => {
  */
 function pgnToJson(pgn) {
   if (!isValidString(pgn)) return [];
-  const games = pgn.split(/\n\n(?=\[Event)/).filter(Boolean);
+  const games = pgn.split(/\r?\n\r?\n(?=\[Event)/).filter(Boolean);
   return games.map((game, idx) => {
     const getTag = (tag) => game.match(getTagRegex(tag))?.[1] ?? "";
     const resultStr = getTag("Result").trim();
-    const normalizedResult = resultStr === "1/2-1/2" ? "½-½" : resultStr;
     const roundParts = getTag("Round").split(".");
     return {
       white: getTag("White").trim() || "Unknown",
@@ -511,7 +499,7 @@ function pgnToJson(pgn) {
       black: getTag("Black").trim() || "Unknown",
       blackRating: Math.max(0, toNumberOr(getTag("BlackElo"), 0)),
       blackTitle: getTag("BlackTitle").trim() || "",
-      result: normalizedResult,
+      result: resultStr,
       tournament:
         (getTag("StudyName") || getTag("Event")).trim().split(":").pop() ||
         "Unknown",
@@ -573,10 +561,11 @@ function sortGames(games) {
   // directly avoids repeated New Date() / getTime() calls during the sort loop.
   const tournamentMaxDates = new Map();
   for (const g of games) {
+    const t = g.tournament || "Unknown";
     const d = g.date ? Date.parse(g.date) : 0;
-    const currentMax = tournamentMaxDates.get(g.tournament || "Unknown") || 0;
+    const currentMax = tournamentMaxDates.get(t) || 0;
     if (!isNaN(d) && d > currentMax) {
-      tournamentMaxDates.set(g.tournament || "Unknown", d);
+      tournamentMaxDates.set(t, d);
     }
   }
 
@@ -622,7 +611,7 @@ function normalizeGames(games) {
     result: (game.result || "*").trim(),
     tournament: (game.tournament || "Unknown").trim(),
     round: Math.max(1, toNumberOr(game.round, 1)),
-    board: toNumberOr(game.board, null) || null,
+    board: toNumberOr(game.board, null) || null, // Board 0 intentionally treated as null (no board 0 in chess)
     time: (game.time || "").trim(),
     date: (game.date || "").replace(/\./g, "-").trim(),
     gameLink: (game.gameLink || "").trim(),
