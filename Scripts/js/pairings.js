@@ -78,16 +78,9 @@ function buildOpponentProfileUrl(baseUrl, startNo) {
   const snr = Number(startNo);
   if (!isValidString(baseUrl) || !hasValue(startNo) || isNaN(snr) || snr <= 0)
     return "";
-  try {
-    const parsed = new URL(baseUrl);
-    parsed.searchParams.set("snr", String(snr));
-    return parsed.toString();
-  } catch {
-    const encoded = encodeURIComponent(String(snr));
-    if (baseUrl.includes("snr="))
-      return baseUrl.replace(/([?&]snr=)[^&]*/, "$1" + encoded);
-    return baseUrl + (baseUrl.includes("?") ? "&" : "?") + "snr=" + encoded;
-  }
+  const parsed = new URL(baseUrl);
+  parsed.searchParams.set("snr", String(snr));
+  return parsed.toString();
 }
 
 /**
@@ -294,7 +287,7 @@ async function fetchOpponentRank(profileUrl, signal) {
  * @returns {Promise<{playerInfo:Object,rating:number,rtgchg:number,rounds:Object[]}>}
  */
 async function getChessResults(url, signal) {
-  if (!url.includes("chess-results.com"))
+  if (!new URL(url).hostname.endsWith("chess-results.com"))
     throw new Error("Please enter a valid Chess-Results URL.");
 
   const { playerInfo, pairings } = await scrapeChessResults(url, signal);
@@ -558,16 +551,18 @@ async function showPairingsTableFromInput() {
     );
     const playerData = buildPlayerData(playerInfo, rating, rtgchg, url);
 
-    const liveRoundsJSON = JSON.stringify(rounds);
-    const livePlayerDataJSON = JSON.stringify(playerData);
+    const cachedRounds = RoundsStorage.get();
+    const cachedPlayerData = PlayerDataStorage.get();
+    const hasChanged =
+      !cachedRounds ||
+      !cachedPlayerData ||
+      cachedRounds.length !== rounds.length ||
+      cachedPlayerData.rating !== playerData.rating ||
+      cachedPlayerData.rtgchg !== playerData.rtgchg ||
+      cachedPlayerData.points !== playerData.points ||
+      cachedRounds[cachedRounds.length - 1]?.result !== rounds[rounds.length - 1]?.result;
 
-    const cachedRoundsJSON = JSON.stringify(RoundsStorage.get());
-    const cachedPlayerDataJSON = JSON.stringify(PlayerDataStorage.get());
-
-    if (
-      liveRoundsJSON !== cachedRoundsJSON ||
-      livePlayerDataJSON !== cachedPlayerDataJSON
-    ) {
+    if (hasChanged) {
       renderPairingsTable(rounds, playerData, url);
       RoundsStorage.set(rounds);
       PlayerDataStorage.set(playerData);
@@ -584,7 +579,7 @@ async function showPairingsTableFromInput() {
 
 /* ─── Initialization ─────────────────────────────────────────────────────── */
 
-$(function () {
+document.addEventListener("DOMContentLoaded", function () {
   // Resolve every element once and store in the module-level cache.
   // From this point forward, no function needs to build a #-prefixed selector.
   els = {

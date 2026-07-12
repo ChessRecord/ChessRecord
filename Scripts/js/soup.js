@@ -273,5 +273,5 @@ function decompress(soup) {
 
 /* ─── BROWSER GLOBALS ────────────────────────────────────────────────────────── */
 
-window.toSoup = compress;
-window.fromSoup = decompress;
+const toSoup = compress;
+const fromSoup = decompress;

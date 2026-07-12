@@ -31,6 +31,20 @@ const Modal = (() => {
     return el;
   })();
 
+  /** Restore focus and clear the prevFocus reference. */
+  function _resetFocus() {
+    prevFocus?.focus();
+    prevFocus = null;
+  }
+
+  /** Reset backdrop to hidden state. */
+  function _cleanup() {
+    backdrop.classList.replace("visible", "hidden");
+    backdrop.setAttribute("aria-hidden", "true");
+    backdrop.innerHTML = "";
+    _resetFocus();
+  }
+
   /**
    * Remove both listeners, restore focus, and resolve the in-flight Promise.
    *
@@ -42,11 +56,7 @@ const Modal = (() => {
     settled = true;
     backdrop.removeEventListener("click", onClick);
     document.removeEventListener("keydown", onKeydown);
-    backdrop.classList.replace("visible", "hidden");
-    backdrop.setAttribute("aria-hidden", "true");
-    backdrop.innerHTML = "";
-    prevFocus?.focus();
-    prevFocus = null;
+    _cleanup();
     resolve(value);
   }
 
@@ -180,11 +190,7 @@ const Modal = (() => {
    */
   function hide() {
     settled = true;
-    backdrop.classList.replace("visible", "hidden");
-    backdrop.setAttribute("aria-hidden", "true");
-    backdrop.innerHTML = "";
-    prevFocus?.focus();
-    prevFocus = null;
+    _cleanup();
   }
 
   return { open, confirm, hide };

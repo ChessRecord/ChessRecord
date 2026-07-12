@@ -1,9 +1,6 @@
 /* ─── Imports ───────────────────────────────────── */
 
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap");
-@import url("tooltip.css");
-@import url("root.css");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Google+Sans+Flex:opsz,wght@6..144,1..1000&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
 
 /* ─── Reset / Base Styles ───────────────────────── */
 
@@ -271,39 +268,5 @@ a.redirect {
     to {
         opacity: 1;
         transform: translateY(0);
-    }
-}
-
-@keyframes slideInSmall {
-    from {
-        opacity: 0;
-        transform: translateY(3px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideOutSmall {
-    from {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateY(3px);
-    }
-}
-
-@keyframes slideOutSmallAbsolute {
-    from {
-        transform: translate(
-            -50%,
-            calc(-50% - calc(var(--spacing-medium) * 2))
-        );
-    }
-    to {
-        transform: translate(-50%, calc(-50% + var(--spacing-medium)));
     }
 }

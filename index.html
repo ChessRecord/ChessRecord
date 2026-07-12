@@ -17,6 +17,8 @@
             crossorigin="anonymous"
             referrerpolicy="no-referrer"
         />
+        <link rel="stylesheet" href="Scripts/css/root.css" />
+        <link rel="stylesheet" href="Scripts/css/tooltip.css" />
         <link rel="stylesheet" href="Scripts/css/styles.css" />
         <link rel="stylesheet" href="Scripts/css/select.css" />
         <link rel="stylesheet" href="Scripts/css/gameEntry.css" />
@@ -40,16 +42,14 @@
                     <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
                 </div>
                 <div class="dropdown">
-                    <a
-                        onclick="document.getElementById('fileInput').click()"
+                    <button
+                        id="importBtn"
                         class="dropdown-item"
-                        role="button"
-                        tabindex="0"
                         aria-label="Import games from file"
                     >
                         <div class="load">
                             <i class="fa-solid fa-folder-open"></i>
-                            <span style="font-size: var(--spacing-small)"
+                            <span class="dropdown-label"
                                 >Import Games</span
                             >
                         </div>
@@ -58,18 +58,17 @@
                             id="fileInput"
                             accept=".json,.pgn,.chr"
                             style="display: none"
-                            onchange="importJSON(event)"
                             multiple
                         />
-                    </a>
-                    <a onclick="exportJSON()" class="dropdown-item" role="button" tabindex="0" aria-label="Export games to file">
+                    </button>
+                    <button id="exportBtn" class="dropdown-item" aria-label="Export games to file">
                         <div class="load">
                             <i class="fa-solid fa-floppy-disk"></i>
-                            <span style="font-size: var(--spacing-small)"
+                            <span class="dropdown-label"
                                 >Export Games</span
                             >
                         </div>
-                    </a>
+                    </button>
                 </div>
             </div>
             <div id="gamesList"></div>
@@ -79,7 +78,7 @@
             <div id="tournament-count"></div>
         </div>
         <!-- Global Utilities & UI -->
-        <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+        <script src="https://unpkg.com/dexie@4.0.10/dist/dexie.js"></script>
         <script src="Scripts/js/utils.js"></script>
         <script src="Scripts/js/ui.js"></script>
         <script src="Scripts/js/modal.js"></script>

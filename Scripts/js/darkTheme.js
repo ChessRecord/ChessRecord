@@ -11,65 +11,25 @@
 
 "use strict";
 
-class ThemeManager {
-  /**
-   * Create a ThemeManager instance. Caches a reference to the toggle button
-   * element and sets up the DOMContentLoaded handler to initialize the UI.
-   */
-  constructor() {
-    // Cache DOM reference
-    this.themeToggleBtn = null;
-    this.storage = Storage.proxy("darkTheme");
+(() => {
+  const storage = Storage.proxy("darkTheme");
 
-    // Initialize when DOM is ready
-    document.addEventListener("DOMContentLoaded", () => {
-      this.createThemeToggleButton();
-      this.loadThemePreference();
-    });
+  function toggleTheme() {
+    const isDark = document.body.classList.toggle("dark-theme");
+    storage.set(isDark);
   }
 
-  /**
-   * Toggle between light and dark themes and persist the choice.
-   *
-   * @returns {void}
-   */
-  toggleTheme() {
-    const body = document.body;
-    const isDark = body.classList.toggle("dark-theme");
-
-    // Store preference
-    this.storage.set(isDark);
+  function loadThemePreference() {
+    if (storage.get() === true) document.body.classList.add("dark-theme");
   }
 
-  /**
-   * Read the stored theme preference and apply it to the document.
-   *
-   * @returns {void}
-   */
-  loadThemePreference() {
-    const isDark = this.storage.get() === true;
-    if (isDark) document.body.classList.add("dark-theme");
-  }
+  document.addEventListener("DOMContentLoaded", () => {
+    loadThemePreference();
 
-
-  /**
-   * Create the theme toggle button, bind its click handler, and append
-   * it to the document body.
-   *
-   * @returns {void}
-   */
-  createThemeToggleButton() {
-    this.themeToggleBtn = document.createElement("button");
-    this.themeToggleBtn.id = "theme-toggle-btn";
-    this.themeToggleBtn.innerHTML =
-      '<i class="fa-solid fa-circle-half-stroke"></i>';
-
-
-    // Bind this context to event handler
-    this.themeToggleBtn.addEventListener("click", () => this.toggleTheme());
-    document.body.appendChild(this.themeToggleBtn);
-  }
-}
-
-// Initialize theme manager
-const themeManager = new ThemeManager();
+    const btn = document.createElement("button");
+    btn.id = "theme-toggle-btn";
+    btn.innerHTML = '<i class="fa-solid fa-circle-half-stroke"></i>';
+    btn.addEventListener("click", toggleTheme);
+    document.body.appendChild(btn);
+  });
+})();

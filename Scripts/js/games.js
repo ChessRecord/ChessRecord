@@ -1,7 +1,7 @@
 /**
  * games.js — Index page controller
  *
- * Depends on: utils.js (isEmpty, isValidObject, normalizeResult, toSoup, download, Storage, loadGames, saveGames)
+ * Depends on: utils.js (isEmpty, isValidObject, normalizeResult, download, Storage, loadGames, saveGames), soup.js (toSoup, fromSoup)
  *
  * Controls the home/index page: rendering the games list, handling imports/exports,
  * search, and deletion. Uses batched rendering to keep the UI responsive for large datasets.
@@ -230,16 +230,13 @@ async function importJSON(event) {
  *
  * @returns {void}
  */
-function countGames() {
+function countGames(tournamentCount) {
   if (!els.gameCount || !els.tournamentCount) return;
   const n = window.games.length;
-  const tournaments = new Set();
-  for (const { tournament } of window.games)
-    tournaments.add(tournament || "Unknown");
-  const t = tournaments.size;
   els.gameCount.innerHTML = n
     ? `${n} ${n === 1 ? "Game" : "Games"}`
     : "No Games";
+  const t = tournamentCount ?? 0;
   els.tournamentCount.innerHTML = t
     ? `${t} ${t === 1 ? "Event" : "Events"}`
     : "";
@@ -352,7 +349,6 @@ const RENDER_BATCH_SIZE = 100;
 function displayGames(searchTerm = els.search?.value || "") {
   if (!els.list) return;
 
-  countGames();
 
   // Cancel any in-progress background render before starting a new one —
   // prevents a stale batch from appending to a list that has already been
@@ -381,14 +377,23 @@ function displayGames(searchTerm = els.search?.value || "") {
     group.push(game);
   }
 
+  countGames(gamesByTournament.size);
+
   // Flatten once so renderBatch can consume it with a plain index.
   const tournamentEntries = [...gamesByTournament];
   let nextIndex = 0;
 
+  // Pre-compile search regex once for the entire render pass (O-4)
+  let searchRegex = null;
+  if (normalizedSearchTerm) {
+    const escaped = normalizedSearchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    searchRegex = new RegExp(`(${escaped})`, "gi");
+  }
+
   // Appends up to RENDER_BATCH_SIZE games worth of sections, then schedules
   // itself again if more remain.
   const renderBatch = () => {
-    let html = "";
+    const parts = [];
     let gameCount = 0;
 
     while (
@@ -397,17 +402,16 @@ function displayGames(searchTerm = els.search?.value || "") {
     ) {
       const [tournament, tournamentGames] = tournamentEntries[nextIndex++];
       const tournamentLabel = normalizedSearchTerm
-        ? highlightMatch(normalizedSearchTerm, tournament)
+        ? highlightMatch(normalizedSearchTerm, tournament, searchRegex)
         : tournament;
-      html += `<div class="tournament-section"><div class="tournament-header"><h3>${tournamentLabel}</h3><h3 class="dot">●</h3></div>`;
-      for (const game of tournamentGames) html += gameEntry(game);
-      html += `</div>`;
+      parts.push(`<div class="tournament-section"><div class="tournament-header"><h3>${tournamentLabel}</h3><h3 class="dot">●</h3></div>`);
+      for (const game of tournamentGames) parts.push(gameEntry(game));
+      parts.push(`</div>`);
       gameCount += tournamentGames.length;
     }
 
-    // insertAdjacentHTML appends without touching already-painted nodes,
-    // unlike a full innerHTML replace.
-    els.list.insertAdjacentHTML("beforeend", html);
+    els.list.insertAdjacentHTML("beforeend", parts.join(""));
+    refreshTitle();
 
     if (nextIndex < tournamentEntries.length) {
       displayGames._pendingTimer = setTimeout(renderBatch, 0);
@@ -422,7 +426,6 @@ function displayGames(searchTerm = els.search?.value || "") {
   els.list.innerHTML = "";
   renderBatch();
 
-  refreshTitle();
 }
 displayGames._pendingTimer = null;
 

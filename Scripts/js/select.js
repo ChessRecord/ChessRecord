@@ -7,26 +7,23 @@
  * delegation so a single listener handles every option click, and a global
  * outside-click handler closes any open dropdown.
  *
- * Exposed globals: none (auto-initializes on parse)
+ * Exposed globals: none (auto-initializes on DOMContentLoaded)
  */
 
 "use strict";
 
 (() => {
-  document.querySelectorAll(".custom-select").forEach(initSelect);
+  /** Cached NodeList of all .custom-select wrappers (fixed at init time). */
+  let allSelects;
 
-  /**
-   * Initialize a single custom-select wrapper: build the dropdown DOM,
-   * then wire up the toggle and option-click handlers.
-   *
-   * @param {HTMLElement} wrapper - The .custom-select container
-   * @returns {void}
-   */
+  document.addEventListener("DOMContentLoaded", () => {
+    allSelects = document.querySelectorAll(".custom-select");
+    allSelects.forEach(initSelect);
+  });
+
   function initSelect(wrapper) {
     const select = wrapper.querySelector("select");
 
-    // Building the dropdown structure atomically via innerHTML is faster than
-    // multiple createElement/appendChild cycles.
     const optionsHtml = Array.from(select.options)
       .slice(1)
       .map((opt, i) => `<div data-index="${i + 1}">${opt.text}</div>`)
@@ -42,8 +39,6 @@
 
     const selected = wrapper.querySelector(".select-selected");
     const items = wrapper.querySelector(".select-items");
-
-    /* ─── Event Delegation ────────────────────────────────────────────── */
 
     items.addEventListener("click", ({ target }) => {
       const item = target.closest("[data-index]");
@@ -61,8 +56,6 @@
       close(items, selected);
     });
 
-    /* ─── Toggle Dropdown ────────────────────────────────────────────── */
-
     selected.addEventListener("click", (e) => {
       e.stopPropagation();
       const isOpen = items.classList.contains("select-show");
@@ -74,26 +67,14 @@
     });
   }
 
-  /**
-   * Close a single dropdown by hiding its items and deactivating the trigger.
-   *
-   * @param {HTMLElement} items - The .select-items container
-   * @param {HTMLElement} selected - The .select-selected trigger element
-   * @returns {void}
-   */
   function close(items, selected) {
     items.classList.remove("select-show");
     selected.classList.remove("select-arrow-active");
   }
 
-  /**
-   * Close every open dropdown on the page. Called on outside-click and
-   * before opening a new dropdown.
-   *
-   * @returns {void}
-   */
   function closeAll() {
-    document.querySelectorAll(".custom-select").forEach((wrapper) => {
+    if (!allSelects) return;
+    allSelects.forEach((wrapper) => {
       close(
         wrapper.querySelector(".select-items"),
         wrapper.querySelector(".select-selected"),
@@ -103,4 +84,3 @@
 
   document.addEventListener("click", closeAll);
 })();
-

@@ -203,11 +203,38 @@ body.dark-theme {
     color: var(--color-white-e0);
 }
 
-/* ─── Miscellaneous ─────────────────────────────── */
+/* ─── Pairings Table ────────────────────────────── */
 
-.dark-theme #searchSettings {
+.dark-theme #player-profile {
     color: var(--color-white-e0);
 }
+
+.dark-theme .player-points {
+    background: var(--color-grey-4);
+}
+
+.dark-theme table {
+    border: var(--border-thin) var(--color-grey-3) solid;
+}
+
+.dark-theme th,
+.dark-theme td {
+    border: 1px var(--color-grey-3) solid;
+}
+
+.dark-theme th {
+    background: var(--color-grey-4);
+}
+
+.dark-theme tr:nth-child(even) td {
+    background: var(--color-grey-3);
+}
+
+.dark-theme #note {
+    color: var(--color-white-e0);
+}
+
+/* ─── Miscellaneous ─────────────────────────────── */
 
 .dark-theme .redirect i {
     color: var(--color-white-primary);
