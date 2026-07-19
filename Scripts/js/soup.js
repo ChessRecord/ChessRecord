@@ -141,11 +141,11 @@ function compress(games) {
 
       if (roundKey !== prevRoundKey) {
         out.push("");
-        out.push(_roundHeader(g));
+        out.push(roundHeader(g));
         prevRoundKey = roundKey;
       }
 
-      out.push(_gameLine(g, idOf));
+      out.push(gameLine(g, idOf));
     }
   }
 
@@ -153,7 +153,7 @@ function compress(games) {
 }
 
 /** @returns {string}  e.g. '#3.2 "90+30" 20250426' */
-function _roundHeader(g) {
+function roundHeader(g) {
   const round = g.round ?? 1;
   const board = g.board != null ? g.board : null;
   const tc = g.time ?? "";
@@ -164,7 +164,7 @@ function _roundHeader(g) {
 }
 
 /** @returns {string}  e.g. '[AIM]2(1750)<0(1515)~"https://..."' */
-function _gameLine(g, idOf) {
+function gameLine(g, idOf) {
   const wId = idOf.get(g.white || "Unknown");
   const bId = idOf.get(g.black || "Unknown");
 
