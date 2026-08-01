@@ -7,7 +7,10 @@
  * and a lightweight global initializer for dropdown controls.
  *
  * Exposed globals:
- *   initGlobalUI() → void
+ *   initGlobalUI()          → void
+ *   refreshTitle()          → void
+ *   showLoader(target, msg) → void
+ *   hideLoader(target)      → void
  */
 
 "use strict";

@@ -1,7 +1,7 @@
 /**
  * new.js — New Game page controller
  *
- * Depends on: utils.js (isEmpty, isValidString, isFideId, normalizePlayer, toNumberOr, pickRating)
+ * Depends on: utils.js (isEmpty, isValidString, isFideId, normalizePlayer, toNumberOr)
  *
  * Manages the "New Game" form: player autocomplete (FIDE + name search), rating heuristics,
  * validation, duplicate detection, building game objects, and persisting them.
