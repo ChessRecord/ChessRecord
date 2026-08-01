@@ -18,7 +18,7 @@
 /* ─── UI Selectors (Configurable) ────────────────────────────────────────── */
 
 const UI = {
-  form: "chess-resultsForm",
+  form: "pairingsForm",
   input: "url-input",
   submit: "searchURL",
   table: "pairings-table",

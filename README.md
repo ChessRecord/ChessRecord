@@ -32,23 +32,13 @@ Welcome to **ChessRecord**, the ultimate web application for tracking, storing, 
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how you can help:
+Suggestions and improvements are welcome via Pull Requests! Please note that this
+project is released under a **custom All Rights Reserved license** — accepted
+contributions become part of the project under that license.
 
-1. **Fork the repository**.
-2. **Create a new branch**:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-3. **Implement your changes**.
-4. **Commit your changes**:
-   ```bash
-   git commit -m "Add your message here"
-   ```
-5. **Push to your branch**:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-6. **Create a Pull Request**.
+1. **Open an issue** describing your suggestion or bug fix.
+2. **Submit a Pull Request** with your proposed changes.
+3. Accepted PRs will be merged at the maintainer's discretion.
 
 ## 📜 License
 

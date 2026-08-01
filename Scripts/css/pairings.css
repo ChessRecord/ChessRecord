@@ -57,7 +57,7 @@ table {
 
 /* ─── Component Styles ──────────────────────────── */
 
-#chess-resultsForm {
+#pairingsForm {
     margin-bottom: var(--spacing-small);
 }
 
@@ -164,7 +164,7 @@ tr:last-child td:last-child {
     box-shadow: 0 0 0 1px #eee inset;
 }
 
-.tooltiptext {
+#pairings-table .tooltiptext {
     transform: translate(12.5%, -25%);
 }
 
