@@ -155,6 +155,8 @@
 /* ─── Components ────────────────────────────────── */
 
 #search {
+    position: relative;
+
     display: flex;
     align-items: center;
     flex-direction: row;
@@ -164,6 +166,40 @@
 
 #searchInput {
     width: 100%;
+    /* Keep the placeholder/text clear of the shortcut hint */
+    padding-right: 50px;
+}
+
+/* Keyboard-shortcut hint ("/") shown at the right edge of the search box */
+.search-hint {
+    position: absolute;
+    top: 50%;
+    right: var(--spacing-small);
+
+    min-width: 24px;
+    padding: 1px 8px;
+    border: var(--border-thin) var(--color-white-d) solid;
+    border-radius: var(--spacing-small-border);
+
+    background-color: var(--color-white-f1);
+
+    color: var(--color-grey-7);
+    font-family: "Poppins", sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: center;
+
+    pointer-events: none;
+    user-select: none;
+    transform: translateY(-50%);
+    transition: opacity 0.15s ease;
+}
+
+/* Hide the hint while typing/focused or when the box already has text */
+#searchInput:focus ~ .search-hint,
+#searchInput:not(:placeholder-shown) ~ .search-hint {
+    opacity: 0;
 }
 
 .meta-bar {
