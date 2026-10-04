@@ -429,6 +429,46 @@ function displayGames(searchTerm = els.search?.value || "") {
 }
 displayGames._pendingTimer = null;
 
+/* ─── Search Shortcut ────────────────────────────────────────────────────── */
+
+/**
+ * Press "/" anywhere on the page to jump to the search box (Escape leaves it).
+ *
+ * Ignored while typing in another field, while a modal is open, when a
+ * modifier key is held, or during IME composition.
+ *
+ * @returns {void}
+ */
+function initSearchShortcut() {
+  const search = els.search;
+  if (!search) return;
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey || e.isComposing) {
+      return;
+    }
+
+    const target = e.target;
+    const isTyping =
+      target instanceof HTMLElement &&
+      (target.isContentEditable ||
+        target.matches("input, textarea, select"));
+    if (isTyping) return;
+
+    // A modal is showing — don't pull focus out from behind it.
+    if (document.getElementById("blur")?.classList.contains("visible")) return;
+
+    e.preventDefault(); // keep "/" out of the field and off Firefox quick-find
+    document.querySelector(".dropdown")?.classList.remove("show");
+    search.focus();
+    search.select();
+  });
+
+  search.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") search.blur();
+  });
+}
+
 /* ─── Initialization ─────────────────────────────────────────────────────── */
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -448,6 +488,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   els.search?.addEventListener("input", (e) => {
     displayGames(e.target.value);
   });
+
+  initSearchShortcut();
 
   // Single delegated listener covers all delete buttons regardless of how many
   // times the list is re-rendered — no per-entry listeners to attach or leak.

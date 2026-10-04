@@ -111,3 +111,14 @@
         font-size: 6vw;
     }
 }
+
+/* 7. Touch devices have no "/" key — hide the search shortcut hint */
+@media (hover: none) and (pointer: coarse) {
+    .search-hint {
+        display: none;
+    }
+
+    #searchInput {
+        padding-right: 18px;
+    }
+}
