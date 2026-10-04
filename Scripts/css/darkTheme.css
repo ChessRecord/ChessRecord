@@ -159,8 +159,6 @@ body.dark-theme {
 .dark-theme .search-hint {
     border-color: var(--color-grey-5);
 
-    background-color: var(--color-black-secondary);
-
     color: var(--color-grey-8);
 }
 
