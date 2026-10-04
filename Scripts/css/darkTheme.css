@@ -156,6 +156,21 @@ body.dark-theme {
     color: var(--color-white-e0);
 }
 
+/* Beat the generic `.dark-theme button` rule so menu items stay flat */
+.dark-theme .dropdown .dropdown-item {
+    border: none;
+
+    background-color: transparent;
+
+    color: var(--select-item-color);
+}
+
+.dark-theme .dropdown .dropdown-item:hover {
+    background-color: var(--select-hover-bg);
+
+    color: var(--color-white-e0);
+}
+
 /* ─── Calendar Picker Indicator ─────────────────── */
 
 .dark-theme [type="date"]::-webkit-calendar-picker-indicator {
