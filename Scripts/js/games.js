@@ -429,6 +429,41 @@ function displayGames(searchTerm = els.search?.value || "") {
 }
 displayGames._pendingTimer = null;
 
+/* ─── Options Menu Actions ───────────────────────────────────────────────── */
+
+/**
+ * Wire the Import / Export entries of the options dropdown.
+ *
+ * - Import opens the hidden file picker; the chosen files go to importJSON().
+ * - Export calls exportJSON().
+ * The menu closes after either entry is used.
+ *
+ * @returns {void}
+ */
+function initMenuActions() {
+  const importBtn = document.getElementById("importBtn");
+  const exportBtn = document.getElementById("exportBtn");
+  const fileInput = document.getElementById("fileInput");
+  const dropdown = document.querySelector(".dropdown");
+
+  const closeMenu = () => dropdown?.classList.remove("show");
+
+  importBtn?.addEventListener("click", (e) => {
+    // fileInput lives inside the button, so its own click bubbles back here —
+    // ignore it, otherwise we'd re-trigger the picker.
+    if (e.target === fileInput) return;
+    closeMenu();
+    fileInput?.click();
+  });
+
+  fileInput?.addEventListener("change", importJSON);
+
+  exportBtn?.addEventListener("click", () => {
+    closeMenu();
+    exportJSON();
+  });
+}
+
 /* ─── Search Shortcut ────────────────────────────────────────────────────── */
 
 /**
@@ -489,6 +524,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     displayGames(e.target.value);
   });
 
+  initMenuActions();
   initSearchShortcut();
 
   // Single delegated listener covers all delete buttons regardless of how many
