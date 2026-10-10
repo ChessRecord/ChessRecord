@@ -1,0 +1,61 @@
+/* Player-name suggestion list under the name inputs. */
+
+.autocomplete-container {
+    position: relative;
+
+    display: inline-block;
+    width: 100%;
+}
+
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    z-index: 99;
+
+    width: 100%;
+    max-height: 200px;
+    margin-top: 8px;
+    padding: var(--spacing-small-border);
+    border: var(--border-thin) var(--select-border-color) solid;
+    border-radius: var(--spacing-border);
+
+    background-color: var(--select-bg, var(--color-white-primary));
+
+    color: var(--select-text-color, var(--color-grey-3));
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    scrollbar-width: thin;
+    scrollbar-color: var(--select-border-color) transparent;
+}
+
+.autocomplete-suggestions:empty {
+    display: none;
+}
+
+.autocomplete-suggestions::-webkit-scrollbar {
+    width: var(--spacing-small-border);
+}
+
+.autocomplete-suggestions::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.autocomplete-suggestions::-webkit-scrollbar-thumb {
+    background-color: var(--select-border-color);
+    border-radius: 3px;
+}
+
+.autocomplete-suggestion {
+    padding: 8px 16px;
+    border-radius: var(--spacing-small-border);
+
+    color: var(--select-item-color, var(--color-grey-3));
+
+    cursor: pointer;
+    user-select: none;
+}
+
+.autocomplete-suggestion:hover {
+    background-color: var(--select-hover-bg, rgba(0, 0, 0, 0.1));
+    color: var(--select-hover-color, inherit);
+}

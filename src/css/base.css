@@ -1,0 +1,101 @@
+/* Document defaults: reset, page background, form controls, buttons and small utilities. */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+
+    min-height: 100vh;
+
+    background-color: var(--color-white-primary);
+
+    color: var(--color-text-primary);
+    font-family: "Poppins", sans-serif;
+}
+
+.icon-font {
+    font-family: "Poppins", "FontAwesome", sans-serif;
+    user-select: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+form {
+    display: grid;
+    gap: var(--spacing-medium);
+}
+
+input,
+textarea,
+select,
+button {
+    padding: 14px 18px;
+    border: var(--border-thin) var(--color-white-d) solid;
+    border-radius: var(--spacing-border);
+
+    background-color: var(--color-white-primary);
+
+    font-family: "Poppins", sans-serif;
+    font-size: var(--spacing-small);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+    color: var(--color-white-d);
+}
+
+button {
+    border: none;
+
+    background-color: var(--color-orange);
+
+    color: var(--color-white-primary);
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+button[type="submit"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-medium);
+
+    height: calc(1.25 * (var(--spacing-small) + var(--spacing-normal)));
+}
+
+button.outline {
+    border: var(--border-thick) var(--color-white-d) solid;
+
+    background-color: transparent;
+
+    color: var(--color-text-primary);
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+@media screen and (max-width: 875px) {
+    input,
+    select,
+    button {
+        width: 100%;
+    }
+}

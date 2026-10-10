@@ -1,0 +1,38 @@
+/* New-game page: compact title/rating inputs, round/time sizing and the date picker icon. */
+
+.title-input,
+.rating-input {
+    text-align: center;
+}
+
+.title-input {
+    flex: 0 0 80px;
+
+    width: 80px;
+}
+
+.rating-input {
+    flex: 0 0 115px;
+
+    width: 115px;
+}
+
+#round,
+#time {
+    flex: 0 0 105px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    content: "";
+    right: 18px;
+
+    width: 16px;
+    height: 16px;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23495057' viewBox='0 0 448 512'%3E%3Cpath d='M96 32l0 32L48 64C21.5 64 0 85.5 0 112l0 48 448 0 0-48c0-26.5-21.5-48-48-48l-48 0 0-32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 32L160 64l0-32c0-17.7-14.3-32-32-32S96 14.3 96 32zM448 192L0 192 0 464c0 26.5 21.5 48 48 48l352 0c26.5 0 48-21.5 48-48l0-272z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+
+    cursor: pointer;
+}

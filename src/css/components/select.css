@@ -1,0 +1,106 @@
+/* Custom select dropdown. The list-item rules are shared with the options dropdown (.dropdown-item). */
+
+.custom-select {
+    /* Component-scoped colours. Deliberately NOT on :root: the autocomplete list and the
+       options dropdown read these through var() fallbacks, and only the dark theme
+       defines them page-wide (see theme-dark.css). */
+    --select-bg: var(--color-white-primary);
+    --select-text-color: var(--color-grey-3);
+    --select-border-color: rgba(0, 0, 0, 0.1);
+    --select-hover-bg: rgba(0, 0, 0, 0.05);
+
+    position: relative;
+}
+
+.custom-select select {
+    display: none;
+}
+
+.select-selected,
+.select-items {
+    padding: 14px 18px;
+    border: var(--border-thin) var(--select-border-color) solid;
+    border-radius: var(--spacing-border);
+
+    background-color: var(--select-bg, var(--color-white-primary));
+
+    color: var(--select-text-color, var(--color-grey-3));
+    font-size: var(--spacing-small);
+}
+
+.select-selected::after {
+    content: "";
+    position: absolute;
+    top: calc(50% - 8px);
+    right: 18px;
+
+    width: 16px;
+    height: 16px;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23495057' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+
+    cursor: pointer;
+}
+
+.select-selected.select-arrow-active::after {
+    transform: rotate(180deg);
+}
+
+.select-items {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    z-index: 99;
+
+    margin-top: var(--spacing-border);
+
+    visibility: hidden;
+    opacity: 0;
+
+    pointer-events: none;
+    translate: 0 -10px;
+    transition:
+        opacity 0.2s ease,
+        translate 0.2s ease,
+        visibility 0s linear 0.2s;
+
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.17);
+}
+
+.select-items.select-show {
+    visibility: visible;
+    opacity: 1;
+
+    pointer-events: auto;
+    translate: 0 0;
+    transition:
+        opacity 0.2s ease,
+        translate 0.2s ease,
+        visibility 0s linear 0s;
+}
+
+.select-items div,
+.dropdown-item {
+    padding: 8px 16px;
+    border-radius: var(--spacing-small-border);
+
+    color: var(--select-item-color, var(--color-grey-3));
+
+    cursor: pointer;
+    user-select: none;
+}
+
+.select-items div:last-child {
+    border-bottom: none;
+}
+
+.select-items div:hover,
+.same-as-selected,
+.dropdown-item:hover {
+    background-color: var(--select-hover-bg, rgba(0, 0, 0, 0.1));
+    color: var(--select-hover-color, inherit);
+}

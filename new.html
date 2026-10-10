@@ -2,14 +2,19 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta
-            name="description"
-            content="ChessRecord - Log and Store Your Chess Games"
-        />
+        <meta name="description" content="ChessRecord - Log and Store Your Chess Games" />
         <meta name="keywords" content="chess, games, tracker, FIDE, ratings" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>ChessRecord | New Game</title>
-        <link rel="icon" type="image/x-icon" href="Scripts/knight.png" />
+        <link rel="icon" type="image/x-icon" href="assets/knight.png" />
+
+        <!-- Third-party assets -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&amp;family=Google+Sans+Flex:opsz,wght@6..144,1..1000&amp;family=Rubik:ital,wght@0,300..900;1,300..900&amp;display=swap"
+        />
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
@@ -17,90 +22,83 @@
             crossorigin="anonymous"
             referrerpolicy="no-referrer"
         />
-        <link rel="stylesheet" href="Scripts/css/root.css" />
-        <link rel="stylesheet" href="Scripts/css/styles.css" />
-        <link rel="stylesheet" href="Scripts/css/select.css" />
-        <link rel="stylesheet" href="Scripts/css/modal.css" />
-        <link rel="stylesheet" href="Scripts/css/responsive.css" />
-        <link rel="stylesheet" href="Scripts/css/darkTheme.css" />
+
+        <!-- Application styles. ORDER MATTERS (later files override earlier ones):
+             tokens → base → layout → components → features → modal → dark theme. -->
+        <link rel="stylesheet" href="src/css/tokens.css" />
+        <link rel="stylesheet" href="src/css/base.css" />
+        <link rel="stylesheet" href="src/css/layout.css" />
+        <link rel="stylesheet" href="src/css/components/loader.css" />
+        <link rel="stylesheet" href="src/css/components/player-title.css" />
+        <link rel="stylesheet" href="src/css/components/theme-toggle.css" />
+        <link rel="stylesheet" href="src/css/components/select.css" />
+        <link rel="stylesheet" href="src/css/components/autocomplete.css" />
+        <link rel="stylesheet" href="src/css/features/new-game.css" />
+        <link rel="stylesheet" href="src/css/theme-dark.css" />
+
+        <!-- Bare module specifiers used by the scripts. -->
+        <script type="importmap">
+            { "imports": { "dexie": "https://unpkg.com/dexie@4.0.10/dist/modern/dexie.min.mjs" } }
+        </script>
     </head>
     <body>
         <div class="container">
             <h1>New Game</h1>
-            <form id="gameForm" onsubmit="return false;">
-                <div class="inlineForm">
-                    <input
-                        type="text"
-                        id="whiteTitle"
-                        class="titleInput"
-                        placeholder="Title"
-                    />
+            <form id="game-form">
+                <div class="inline-form">
+                    <input type="text" id="white-title" class="title-input" placeholder="Title" />
                     <div class="autocomplete-container">
                         <input
                             type="text"
-                            id="playerWhite"
+                            id="white-player"
                             class="flex"
                             placeholder="White Player Name or FIDE ID"
                             autocomplete="off"
                             required
                         />
-                        <div
-                            id="whiteSuggestions"
-                            class="autocomplete-suggestions"
-                        ></div>
+                        <div id="white-suggestions" class="autocomplete-suggestions"></div>
                     </div>
                     <input
                         type="number"
                         min="0"
                         max="9999"
-                        id="whiteRating"
-                        class="flex ratingInput"
+                        id="white-rating"
+                        class="flex rating-input"
                         placeholder="Rating"
                     />
                 </div>
-                <div class="inlineForm">
-                    <input
-                        type="text"
-                        id="blackTitle"
-                        class="titleInput"
-                        placeholder="Title"
-                    />
+                <div class="inline-form">
+                    <input type="text" id="black-title" class="title-input" placeholder="Title" />
                     <div class="autocomplete-container">
                         <input
                             type="text"
-                            id="playerBlack"
+                            id="black-player"
                             class="flex"
                             placeholder="Black Player Name or FIDE ID"
                             autocomplete="off"
                             required
                         />
-                        <div
-                            id="blackSuggestions"
-                            class="autocomplete-suggestions"
-                        ></div>
+                        <div id="black-suggestions" class="autocomplete-suggestions"></div>
                     </div>
                     <input
                         type="number"
                         min="0"
                         max="9999"
-                        id="blackRating"
-                        class="flex ratingInput"
+                        id="black-rating"
+                        class="flex rating-input"
                         placeholder="Rating"
                     />
                 </div>
                 <div class="custom-select">
-                    <select
-                        id="result"
-                        required
-                        title="Please select the game result"
-                    >
+                    <!-- The option values are stored as the game's result, so keep their spelling. -->
+                    <select id="result" required title="Please select the game result">
                         <option value="0">Result</option>
                         <option value="1 - 0">1 - 0</option>
                         <option value="0 - 1">0 - 1</option>
                         <option value="½ - ½">½ - ½</option>
                     </select>
                 </div>
-                <div class="inlineForm">
+                <div class="inline-form">
                     <input
                         type="text"
                         id="tournament"
@@ -127,38 +125,22 @@
                         title="Please enter the time control"
                     />
                 </div>
-                <input
-                    type="date"
-                    id="date"
-                    required
-                    title="Please enter the date of the game"
-                />
+                <input type="date" id="date" required title="Please enter the date of the game" />
                 <input
                     type="url"
-                    id="gameLink"
+                    id="game-link"
                     placeholder="Game Link"
                     title="Please enter the game link"
                     required
                     spellcheck="false"
                 />
-                <button type="submit" id="addGame">
+                <button type="submit" id="add-game-btn">
                     <span>Add Game</span>
                     <div class="loader"></div>
                 </button>
             </form>
         </div>
-        <!-- Global Utilities & UI -->
-        <script src="https://unpkg.com/dexie@4.0.10/dist/dexie.js"></script>
-        <script src="Scripts/js/utils.js"></script>
-        <script src="Scripts/js/ui.js"></script>
-        <script src="Scripts/js/modal.js"></script>
-        <script src="Scripts/js/darkTheme.js"></script>
 
-        <!-- Feature Logic -->
-        <script src="Scripts/js/select.js"></script>
-
-        <!-- Page Controller -->
-        <script src="Scripts/js/new.js"></script>
+        <script type="module" src="src/js/pages/new-game.js"></script>
     </body>
 </html>
-

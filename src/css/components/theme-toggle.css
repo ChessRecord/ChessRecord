@@ -1,0 +1,25 @@
+/* Floating light/dark toggle button. */
+
+#theme-toggle-btn {
+    position: fixed;
+    bottom: var(--spacing-medium);
+    right: var(--spacing-medium);
+    z-index: 1000;
+
+    border: none;
+
+    background-color: transparent;
+
+    color: var(--color-blue-deep);
+    font-size: 24px;
+
+    cursor: pointer;
+}
+
+@media screen and (max-width: 1250px) {
+    #theme-toggle-btn {
+        right: 0 !important; /* specificity-override */
+
+        max-width: fit-content;
+    }
+}
