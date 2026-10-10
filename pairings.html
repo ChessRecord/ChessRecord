@@ -2,14 +2,19 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta
-            name="description"
-            content="ChessRecord - Log and Store Your Chess Games"
-        />
+        <meta name="description" content="ChessRecord - Log and Store Your Chess Games" />
         <meta name="keywords" content="chess, games, tracker, FIDE, ratings" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>ChessRecord | Pairings</title>
-        <link rel="icon" type="image/x-icon" href="Scripts/knight.png" />
+        <link rel="icon" type="image/x-icon" href="assets/knight.png" />
+
+        <!-- Third-party assets -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&amp;family=Google+Sans+Flex:opsz,wght@6..144,1..1000&amp;family=Rubik:ital,wght@0,300..900;1,300..900&amp;display=swap"
+        />
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
@@ -17,21 +22,24 @@
             crossorigin="anonymous"
             referrerpolicy="no-referrer"
         />
-        <link rel="stylesheet" href="Scripts/css/root.css" />
-        <link rel="stylesheet" href="Scripts/css/tooltip.css" />
-        <link rel="stylesheet" href="Scripts/css/styles.css" />
-        <link rel="stylesheet" href="Scripts/css/select.css" />
-        <link rel="stylesheet" href="Scripts/css/pairings.css" />
-        <link rel="stylesheet" href="Scripts/css/modal.css" />
-        <link rel="stylesheet" href="Scripts/css/responsive.css" />
-        <link rel="stylesheet" href="Scripts/css/darkTheme.css" />
 
+        <!-- Application styles. ORDER MATTERS (later files override earlier ones):
+             tokens → base → layout → components → features → modal → dark theme. -->
+        <link rel="stylesheet" href="src/css/tokens.css" />
+        <link rel="stylesheet" href="src/css/base.css" />
+        <link rel="stylesheet" href="src/css/layout.css" />
+        <link rel="stylesheet" href="src/css/components/tooltip.css" />
+        <link rel="stylesheet" href="src/css/components/loader.css" />
+        <link rel="stylesheet" href="src/css/components/player-title.css" />
+        <link rel="stylesheet" href="src/css/components/theme-toggle.css" />
+        <link rel="stylesheet" href="src/css/features/pairings.css" />
+        <link rel="stylesheet" href="src/css/theme-dark.css" />
     </head>
     <body>
         <div class="container container-wide">
             <h1>ChessRecord Pairings</h1>
-            <form id="pairingsForm" onsubmit="return false;">
-                <span class="inlineForm">
+            <form id="pairings-form">
+                <span class="inline-form">
                     <input
                         type="url"
                         id="url-input"
@@ -41,10 +49,9 @@
                         required
                         spellcheck="false"
                     />
-                    <button type="submit" id="searchURL">
-                        <span class="fontawesome" style="white-space: nowrap"
-                            ></span
-                        >
+                    <button type="submit" id="search-url-btn">
+                        <!-- U+F002: Font Awesome "magnifying glass", rendered by the .icon-font font stack -->
+                        <span class="icon-font" style="white-space: nowrap">&#xf002;</span>
                         <div class="loader"></div>
                     </button>
                 </span>
@@ -54,21 +61,6 @@
             <div id="note"></div>
         </div>
 
-        <!-- jQuery -->
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-        <!-- Global Utilities & UI -->
-        <script src="https://unpkg.com/dexie@4.0.10/dist/dexie.js"></script>
-        <script src="Scripts/js/utils.js"></script>
-        <script src="Scripts/js/ui.js"></script>
-        <script src="Scripts/js/modal.js"></script>
-        <script src="Scripts/js/darkTheme.js"></script>
-
-        <!-- Feature Logic -->
-        <script src="Scripts/js/select.js"></script>
-
-        <!-- Page Controller -->
-        <script src="Scripts/js/pairings.js"></script>
+        <script type="module" src="src/js/pages/pairings.js"></script>
     </body>
 </html>
-

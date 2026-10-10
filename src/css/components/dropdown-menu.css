@@ -1,0 +1,109 @@
+/* Options menu: the ⋮ trigger and the dropdown it opens. Item styling comes from select.css. */
+
+.menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: var(--spacing-small);
+
+    font-size: var(--spacing-medium);
+
+    cursor: pointer;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 100;
+
+    display: flex;
+    flex-direction: column;
+    visibility: hidden;
+    opacity: 0;
+
+    min-width: 200px;
+    margin-top: 5px;
+    padding: var(--spacing-small) calc(var(--spacing-small) / 2);
+    border: var(--border-thin) var(--color-white-d) solid;
+    border-radius: var(--spacing-border);
+
+    background-color: var(--color-white-primary);
+
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.17);
+
+    pointer-events: none;
+    translate: 0 -10px;
+    transition:
+        opacity 0.2s ease,
+        translate 0.2s ease,
+        visibility 0s linear 0.2s;
+}
+
+.dropdown.show {
+    visibility: visible;
+    opacity: 1;
+
+    pointer-events: auto;
+    translate: 0 0;
+    transition:
+        opacity 0.2s ease,
+        translate 0.2s ease,
+        visibility 0s linear 0s;
+}
+
+.dropdown .dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--spacing-small);
+
+    width: 100%;
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--spacing-small-border);
+
+    /* Override the global orange `button` styling */
+    background-color: transparent;
+
+    color: var(--select-item-color, var(--color-grey-3));
+    font-size: var(--spacing-small);
+    font-weight: 500;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.dropdown .dropdown-item:hover {
+    background-color: var(--select-hover-bg, rgba(0, 0, 0, 0.1));
+    color: var(--select-hover-color, inherit);
+}
+
+.dropdown .menu-item-content {
+    gap: var(--spacing-small);
+
+    font-size: var(--spacing-small);
+}
+
+.dropdown .menu-item-content i {
+    flex-shrink: 0;
+    width: 1.25em;
+
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.menu-item-content {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: var(--spacing-small);
+
+    font-size: var(--spacing-medium);
+
+    cursor: pointer;
+}
+
+.menu-item-content i {
+    color: var(--color-blue-deep);
+}

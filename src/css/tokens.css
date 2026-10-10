@@ -1,0 +1,42 @@
+/* Design tokens: the colour palette, spacing scale and border widths shared by every page. */
+
+:root {
+    /* ─── Colors ─────────────────────────────────── */
+    --color-white-primary: #faf9f5;
+    --color-white-e0: #e0e0e0;
+    --color-white-e0-95: #e0e0e095;
+    --color-white-e0-light: #e0e0e060;
+    --color-white-b0: #b0b0b0;
+    --color-white-d: #ddd;
+
+    --color-black-primary: #2c2c2c;
+    --color-black-secondary: #2a2a2a;
+
+    --color-grey-3: #333;
+    --color-grey-4: #444;
+    --color-grey-5: #555;
+    --color-grey-6: #666;
+    --color-grey-7: #777;
+    --color-grey-8: #888;
+    --color-grey-c: #ccc;
+
+    --color-blue-deep: #2c3e50;
+    --color-blue-deep-light: #2c3e5060;
+
+    --color-red: #7c2929;
+    --color-orange: #ce643d;
+
+    --color-text-primary: hsl(49 19.6% 13.3%);
+
+    /* ─── Spacing ─────────────────────────────────── */
+    --spacing-small-border: 6px;
+    --spacing-border: 10px;
+    --spacing-small: 15px;
+    --spacing-medium: 20px;
+    --spacing-normal: 25px;
+    --spacing-gap: 0.5rem;
+
+    /* ─── Border ──────────────────────────────────── */
+    --border-thin: 1.5px;
+    --border-thick: 2px;
+}

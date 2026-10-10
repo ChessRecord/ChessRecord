@@ -1,0 +1,220 @@
+/* One game in the list: header row, players, result and the delete button. */
+
+.game-entry-link {
+    display: block;
+    margin-bottom: var(--spacing-small);
+
+    text-decoration: none;
+    color: inherit;
+}
+
+.game-entry-link:hover {
+    text-decoration: none;
+}
+
+.game-entry {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    margin-bottom: var(--spacing-small);
+    padding: var(--spacing-small) var(--spacing-normal);
+    border: var(--border-thin) var(--color-white-d) solid;
+    border-radius: 8px;
+
+    background-color: var(--color-white-primary);
+
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.game-entry:hover {
+    transform: translateY(-3px);
+}
+
+.game-meta {
+    display: flex;
+    justify-content: space-between;
+
+    width: 100%;
+    margin-bottom: var(--spacing-small);
+
+    color: var(--color-grey-4);
+}
+
+.game-meta .game-meta-right {
+    color: var(--color-grey-6);
+}
+
+.game-meta .timecontrol-category {
+    font-family: "Poppins", sans-serif;
+}
+
+.game-players {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+}
+
+.player-white {
+    text-align: left;
+}
+
+.player-black {
+    text-align: right;
+}
+
+.player-white,
+.player-black {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing-small) / 2);
+
+    text-decoration: none;
+    color: var(--color-blue-deep);
+    transition: color 0.3s ease;
+}
+
+.player-rating {
+    color: var(--color-text-primary);
+    font-family: "Rubik", sans-serif;
+    font-weight: 600;
+}
+
+.game-result {
+    position: absolute;
+    bottom: var(--spacing-small);
+    left: 0;
+    right: 0;
+
+    width: 50%;
+    margin: auto;
+
+    color: var(--color-blue-deep);
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.game-time {
+    font-family: "Rubik", sans-serif;
+    font-weight: 600;
+}
+
+.game-round {
+    margin-right: var(--spacing-border);
+    padding: 4px 6px;
+    border-radius: 100px;
+
+    background-color: var(--color-blue-deep);
+
+    color: var(--color-white-primary);
+    font-family: "Rubik", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+}
+
+.delete-game-btn {
+    position: absolute;
+    top: var(--spacing-border);
+    right: var(--spacing-border);
+    left: 100%;
+    z-index: 0; /* implicit */
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    opacity: 0;
+
+    width: 40px;
+    height: 40px;
+    padding: 5px;
+    border: none;
+    border-radius: 50%;
+
+    background-color: var(--color-white-primary);
+
+    color: var(--color-blue-deep);
+    font-size: 1.25em;
+
+    cursor: pointer;
+    transform: translate(-45%, 37.5%);
+    transition:
+        background-color,
+        color,
+        transform 0.1s;
+}
+
+.game-entry:hover .delete-game-btn {
+    visibility: visible;
+    opacity: 1;
+
+    transform: translate(-50%, 37.5%);
+}
+
+.delete-game-btn:hover {
+    background-color: var(--color-blue-deep);
+
+    color: #fff;
+}
+
+@media screen and (max-width: 1250px) {
+    .game-players {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .player-white,
+    .player-black {
+        margin-top: var(--spacing-border);
+        text-align: center;
+    }
+
+    .game-result {
+        position: absolute;
+        right: 10%;
+        left: auto;
+
+        max-width: fit-content;
+
+        transform: translate(0, -75%) !important; /* specificity-override */
+    }
+
+    .game-meta {
+        align-items: center !important; /* specificity-override */
+        justify-content: center !important; /* specificity-override */
+        gap: var(--spacing-small);
+
+        margin-bottom: 5px !important; /* specificity-override */
+    }
+
+    .game-meta-right {
+        justify-content: center;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .game-players {
+        width: 100%;
+    }
+
+    .player-white,
+    .player-black {
+        width: 100%;
+        text-align: left;
+    }
+
+    .game-meta {
+        gap: 0;
+    }
+
+    .game-meta .timecontrol-category,
+    .game-meta .round-label {
+        display: none;
+    }
+}

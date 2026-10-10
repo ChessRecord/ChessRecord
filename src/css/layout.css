@@ -1,0 +1,73 @@
+/* Page container, inline form row and layout utilities. */
+
+.container {
+    position: relative;
+
+    width: 70%;
+    padding: 50px;
+
+    background-color: var(--color-white-primary);
+
+    animation: slideIn 0.3s ease-out;
+}
+
+.flex {
+    flex-grow: 1;
+    width: 100%;
+}
+
+.inline-form {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing-medium) / 2);
+}
+
+.container h1 {
+    margin-bottom: 35px;
+
+    color: var(--color-text-primary);
+    font-family: "Google Sans Flex", sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-align: center;
+
+    pointer-events: none;
+    user-select: none;
+}
+
+.gap {
+    display: inline-block;
+    width: var(--spacing-gap);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container-wide {
+    width: 90%;
+}
+
+@media screen and (max-width: 875px) {
+    .container {
+        width: 100%;
+        padding: 35px;
+    }
+
+    .inline-form {
+        gap: var(--spacing-border);
+    }
+}
+
+@media screen and (max-width: 515px) {
+    .container h1 {
+        font-size: 6vw;
+    }
+}

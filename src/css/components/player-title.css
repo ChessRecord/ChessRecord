@@ -1,0 +1,15 @@
+/* Red chess-title badge (GM, IM, …) shown next to a player's name. */
+
+.player-title {
+    display: inline-block;
+
+    padding: 0 4px;
+    border-radius: 4px;
+
+    background-color: var(--color-red);
+
+    color: white;
+    font-size: var(--spacing-small);
+    font-weight: 600;
+    text-transform: uppercase;
+}
