@@ -11,13 +11,16 @@ import { downloadFile } from "../../lib/download.js";
 import { isEmpty } from "../../lib/values.js";
 import { confirmDialog, hideModal } from "../../ui/modal.js";
 
-/** Export filenames use the date the page was opened. */
-const todayStamp = new Date().toISOString().split("T")[0];
+/** "YYYY-MM-DD" in the user's own time zone (not UTC, which can be yesterday or tomorrow). */
+function dateStamp(date) {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
 
 /* ─── Export ─────────────────────────────────────────────────────────────── */
 
 /**
- * Download all games as `chessrecord-YYYY-MM-DD.chr`.
+ * Download all games as `chessrecord-YYYY-MM-DD.chr`, dated the day of the export.
  * @param {import("../../domain/game.js").Game[]} games
  */
 export function exportGames(games) {
@@ -33,7 +36,7 @@ export function exportGames(games) {
     }
     downloadFile(
       serializeChesSoup(records),
-      `chessrecord-${todayStamp}.chr`,
+      `chessrecord-${dateStamp(new Date())}.chr`,
       "application/octet-stream",
     );
   } catch (error) {

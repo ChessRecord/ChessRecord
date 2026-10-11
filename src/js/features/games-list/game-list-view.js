@@ -5,6 +5,7 @@
  * first batch is painted synchronously and the rest follow in later timer ticks.
  */
 
+import { escapeHtml } from "../../lib/html.js";
 import { createHighlighter } from "../../lib/text.js";
 import { renderGameEntry } from "./game-entry-view.js";
 
@@ -16,7 +17,7 @@ const pluralize = (count, singular, plural) => `${count} ${count === 1 ? singula
 /**
  * @param {Object} options
  * @param {HTMLElement} options.list              Container for the tournament sections
- * @param {HTMLElement} options.gameCountEl       Receives "12 Games" / "No Games"
+ * @param {HTMLElement} options.gameCountEl       Receives "12 Games" / "No Games" (matching games)
  * @param {HTMLElement} options.tournamentCountEl Receives "3 Events" (or nothing)
  * @param {() => import("../../domain/game.js").Game[]} options.getGames Current games, sorted
  */
@@ -24,10 +25,10 @@ export function createGameListView({ list, gameCountEl, tournamentCountEl, getGa
   /** Timer of the next pending batch, so a newer render can cancel a stale one. */
   let pendingTimer = null;
 
-  /** The game total is NOT filtered by the search; the event count is. */
-  function updateCounts(totalGames, eventCount) {
-    gameCountEl.innerHTML = totalGames ? pluralize(totalGames, "Game", "Games") : "No Games";
-    tournamentCountEl.innerHTML = eventCount ? pluralize(eventCount, "Event", "Events") : "";
+  /** Both counts describe what the list currently shows, so they follow the search. */
+  function updateCounts(gameCount, eventCount) {
+    gameCountEl.textContent = gameCount ? pluralize(gameCount, "Game", "Games") : "No Games";
+    tournamentCountEl.textContent = eventCount ? pluralize(eventCount, "Event", "Events") : "";
   }
 
   /**
@@ -62,7 +63,7 @@ export function createGameListView({ list, gameCountEl, tournamentCountEl, getGa
       group.push(game);
     }
 
-    updateCounts(games.length, gamesByTournament.size);
+    updateCounts(matches.length, gamesByTournament.size);
 
     const sections = [...gamesByTournament];
     const highlight = query ? createHighlighter(query) : null;
@@ -74,7 +75,7 @@ export function createGameListView({ list, gameCountEl, tournamentCountEl, getGa
 
       while (nextIndex < sections.length && rendered < RENDER_BATCH_SIZE) {
         const [tournament, tournamentGames] = sections[nextIndex++];
-        const label = highlight ? highlight(tournament) : tournament;
+        const label = highlight ? highlight(tournament) : escapeHtml(tournament);
         html.push(
           `<div class="tournament-section"><div class="tournament-header"><h3>${label}</h3><h3 class="dot">●</h3></div>`,
         );

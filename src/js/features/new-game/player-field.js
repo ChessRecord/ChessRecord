@@ -13,6 +13,7 @@
  */
 
 import { isFideId } from "../../domain/player.js";
+import { escapeHtml } from "../../lib/html.js";
 import { createHighlighter } from "../../lib/text.js";
 import { isEmpty } from "../../lib/values.js";
 import { fetchFidePlayer, fetchPlayerSuggestions } from "./fide-api.js";
@@ -25,7 +26,11 @@ import { pickRating } from "./rating-picker.js";
  */
 const storedRating = (value) => Number(String(value));
 
-/** Suggestion list markup. Each item carries its player in `data-*` attributes. */
+/**
+ * Suggestion list markup. Each item carries its player in `data-*` attributes, so every value
+ * is escaped: a name containing `"` would otherwise end the attribute early. The ratings go
+ * through `String()` first so a missing one still reads back as "null" (see `storedRating`).
+ */
 function renderSuggestions(container, query, players) {
   if (isEmpty(players)) {
     container.replaceChildren();
@@ -34,14 +39,14 @@ function renderSuggestions(container, query, players) {
   const highlight = createHighlighter(query);
   container.innerHTML = players
     .map((p) => {
-      const titleTag = p.title ? `<span class="player-title">${p.title}</span> ` : "";
+      const titleTag = p.title ? `<span class="player-title">${escapeHtml(p.title)}</span> ` : "";
       return `
       <div class="autocomplete-suggestion"
-           data-name="${p.name}"
-           data-title="${p.title || ""}"
-           data-standard="${p.standard}"
-           data-rapid="${p.rapid}"
-           data-blitz="${p.blitz}">
+           data-name="${escapeHtml(p.name)}"
+           data-title="${escapeHtml(p.title || "")}"
+           data-standard="${escapeHtml(String(p.standard))}"
+           data-rapid="${escapeHtml(String(p.rapid))}"
+           data-blitz="${escapeHtml(String(p.blitz))}">
         ${titleTag}${highlight(p.name)}
       </div>`;
     })

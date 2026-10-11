@@ -5,7 +5,7 @@
 
 import { toNumberOr, isEmpty } from "../../lib/values.js";
 import { parseHtml, parsePairings, parsePlayerInfo } from "./chess-results-parser.js";
-import { formatRatingDelta, normalisePoints } from "./format.js";
+import { formatRatingDelta } from "./format.js";
 
 /** chess-results.com sends no CORS headers, so pages are fetched through this relay. */
 const PROXY_URL = "https://proxy.chessrecord.workers.dev/";
@@ -23,7 +23,11 @@ async function fetchPage(url, signal) {
   return res.text();
 }
 
-/** Fetch one opponent's profile page and return their Rank ("" if unknown or on any failure). */
+/**
+ * Fetch one opponent's profile page and return their Rank ("" if unknown or on any failure).
+ * Failures are swallowed on purpose (a missing rank is not worth failing the page for), which
+ * includes an abort: the caller checks the signal itself once all lookups have settled.
+ */
 async function fetchOpponentRank(profileUrl, signal) {
   try {
     const rank = parsePlayerInfo(parseHtml(await fetchPage(profileUrl, signal)))["Rank"];
@@ -36,6 +40,9 @@ async function fetchOpponentRank(profileUrl, signal) {
 /**
  * Fetch a player's page and enrich every round with the opponent's current rank and the
  * projected rating change for a win, draw and loss.
+ *
+ * Rejects with an `AbortError` when `signal` is aborted, including while the opponents'
+ * ranks are being looked up.
  *
  * @param {string} url Chess-Results player URL
  * @param {AbortSignal} [signal]
@@ -69,9 +76,11 @@ export async function getChessResults(url, signal) {
     }),
   );
 
+  // An aborted search must not come back as a result with empty ranks.
+  signal?.throwIfAborted();
+
   const rounds = pairings.map((pairing) => ({
     ...pairing,
-    opponentPoints: normalisePoints(pairing.opponentPoints),
     opponentRank: pairing.opponentProfileUrl
       ? (rankByUrl.get(pairing.opponentProfileUrl) ?? "")
       : "",

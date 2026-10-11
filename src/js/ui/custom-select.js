@@ -1,7 +1,8 @@
 /**
  * Replaces each native <select> inside a `.custom-select` wrapper with a styled
  * dropdown built from its <option>s. The <select> stays in the DOM (hidden) as the
- * source of truth, so the form still reads its value normally.
+ * source of truth, so the form still reads its value normally; the dropdown only ever
+ * shows what the <select> currently has selected (see `sync` below).
  *
  * The first option is treated as the placeholder: it is shown while selected but is
  * not offered in the list.
@@ -31,34 +32,42 @@ export function initCustomSelects(root = document) {
 
   wrappers.forEach((wrapper) => {
     const select = wrapper.querySelector("select");
+    const doc = wrapper.ownerDocument;
 
-    const optionsHtml = Array.from(select.options)
-      .slice(1)
-      .map((option, i) => `<div data-index="${i + 1}">${option.text}</div>`)
-      .join("");
+    const selected = doc.createElement("div");
+    selected.className = "select-selected";
 
-    wrapper.insertAdjacentHTML(
-      "beforeend",
-      `
-     <div class="select-selected">${select.options[select.selectedIndex].text}</div>
-     <div class="select-items">${optionsHtml}</div>
-    `,
+    const items = doc.createElement("div");
+    items.className = "select-items";
+    items.append(
+      ...Array.from(select.options)
+        .slice(1)
+        .map((option, i) => {
+          const item = doc.createElement("div");
+          item.dataset.index = String(i + 1);
+          item.textContent = option.text;
+          return item;
+        }),
     );
 
-    const selected = wrapper.querySelector(".select-selected");
-    const items = wrapper.querySelector(".select-items");
+    wrapper.append(selected, items);
+
+    /** Show what the <select> has selected right now. */
+    const sync = () => {
+      const index = select.selectedIndex;
+      selected.textContent = select.options[index]?.text ?? "";
+      for (const item of items.children) {
+        item.classList.toggle("same-as-selected", Number(item.dataset.index) === index);
+      }
+    };
+    sync();
 
     items.addEventListener("click", ({ target }) => {
       const item = target.closest("[data-index]");
       if (!item) return;
 
-      const index = Number(item.dataset.index);
-      select.selectedIndex = index;
-      selected.textContent = select.options[index].text;
-
-      items.querySelector(".same-as-selected")?.classList.remove("same-as-selected");
-      item.classList.add("same-as-selected");
-
+      select.selectedIndex = Number(item.dataset.index);
+      sync();
       setOpen(items, selected, false);
     });
 
@@ -68,6 +77,13 @@ export function initCustomSelects(root = document) {
       closeAll();
       if (!wasOpen) setOpen(items, selected, true);
     });
+
+    // A form reset changes the <select> behind this widget's back, and the "reset" event
+    // fires BEFORE the controls are reset, so the select still holds the old value at that
+    // moment. Look again once the reset has actually happened. Reading the live select
+    // (rather than predicting what a reset will leave) also does the right thing when
+    // another listener cancels the reset.
+    select.form?.addEventListener("reset", () => setTimeout(sync, 0));
   });
 
   document.addEventListener("click", closeAll);

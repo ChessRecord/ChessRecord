@@ -19,7 +19,7 @@ import { localEntry } from "./web-storage.js";
 const MIRROR_KEY = "chessGames";
 
 /**
- * @param {Object} [deps] Injectable for tests
+ * @param {Object} [deps] Replaceable dependencies; the defaults are the real IndexedDB and localStorage
  * @param {() => Promise<import("./games-db.js").GamesDb>} [deps.openDb]
  * @param {{ get: Function, set: Function, remove: Function }} [deps.mirror]
  */
@@ -131,7 +131,9 @@ export function createGameStore({ openDb = openGamesDb, mirror = localEntry(MIRR
 
     /** Append many games, writing only the new records. */
     merge(newGames) {
-      games.push(...newGames);
+      // Not `push(...newGames)`: spreading puts every game on the call stack as an argument,
+      // which throws a RangeError somewhere above ~100k games.
+      for (const game of newGames) games.push(game);
       return persist({ delta: newGames });
     },
 

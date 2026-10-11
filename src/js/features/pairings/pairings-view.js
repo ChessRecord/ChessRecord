@@ -1,17 +1,26 @@
 /**
  * Rendering of the player header and the pairings table.
- * Values are interpolated into HTML without escaping, exactly as before.
+ *
+ * Everything shown here was scraped from a web page, so every value is HTML-escaped on its
+ * way into the markup, and links are only emitted for http(s) URLs.
  */
 
+import { escapeHtml, isSafeUrl } from "../../lib/html.js";
 import { formatSigned } from "../../lib/text.js";
 import { hasValue } from "../../lib/values.js";
 import { normalisePoints } from "./format.js";
+
+/**
+ * Chess-Results points as HTML ("1,5" → "1½"). `normalisePoints` produces an HTML entity,
+ * so the raw text is escaped first and converted second.
+ */
+const pointsHtml = (raw) => normalisePoints(escapeHtml(raw));
 
 /** A column shown only when its field has a value in at least one round. */
 const simpleColumn = (header, key) => ({
   header,
   isPresent: (round) => hasValue(round[key]),
-  render: (round) => `<td>${round[key]}</td>`,
+  render: (round) => `<td>${escapeHtml(round[key])}</td>`,
 });
 
 const COLUMNS = [
@@ -22,14 +31,14 @@ const COLUMNS = [
   {
     header: "Name",
     isPresent: (round) => hasValue(round.opponentName),
-    render: (round) => `<td>
-      <span class="player-title">${round.opponentTitle || ""}</span>
-      ${
-        round.opponentProfileUrl
-          ? `<a href="${round.opponentProfileUrl}" target="_blank">${round.opponentName}</a>`
-          : round.opponentName
-      }
-    </td>`,
+    render: (round) => {
+      const name = escapeHtml(round.opponentName);
+      const hasLink = round.opponentProfileUrl && isSafeUrl(round.opponentProfileUrl);
+      return `<td>
+      <span class="player-title">${escapeHtml(round.opponentTitle || "")}</span>
+      ${hasLink ? `<a href="${escapeHtml(round.opponentProfileUrl)}" target="_blank">${name}</a>` : name}
+    </td>`;
+    },
   },
   {
     header: "Rating",
@@ -37,8 +46,8 @@ const COLUMNS = [
     render: (round) =>
       `<td>${
         round.opponentRating
-          ? `<span class="tooltip" style="height:100%;width:100%;">${round.opponentRating}
-               <span class="tooltiptext">Win: ${round.win}<br>Draw: ${round.draw}<br>Loss: ${round.loss}</span>
+          ? `<span class="tooltip" style="height:100%;width:100%;">${escapeHtml(round.opponentRating)}
+               <span class="tooltiptext">Win: ${escapeHtml(round.win)}<br>Draw: ${escapeHtml(round.draw)}<br>Loss: ${escapeHtml(round.loss)}</span>
              </span>`
           : "0"
       }</td>`,
@@ -46,10 +55,14 @@ const COLUMNS = [
   {
     header: "Federation",
     isPresent: (round) => !!round.opponentFederation?.trim(),
-    render: (round) => `<td>${round.opponentFederation}</td>`,
+    render: (round) => `<td>${escapeHtml(round.opponentFederation)}</td>`,
   },
   simpleColumn("Club/City", "opponentClub"),
-  simpleColumn("Points", "opponentPoints"),
+  {
+    header: "Points",
+    isPresent: (round) => hasValue(round.opponentPoints),
+    render: (round) => `<td>${pointsHtml(round.opponentPoints)}</td>`,
+  },
   {
     header: "Result",
     isPresent: () => true,
@@ -62,7 +75,7 @@ const COLUMNS = [
           : round.playerColor === "White"
             ? '<span class="box-white"></span>'
             : "";
-      return `<td class="result-cell">${colorSpan}<span>${round.result}</span></td>`;
+      return `<td class="result-cell">${colorSpan}<span>${escapeHtml(round.result)}</span></td>`;
     },
   },
 ];
@@ -86,16 +99,17 @@ export function createPairingsView({ profile, table, note }) {
         ? `<span class="player-rtgchg">(${formatSigned(rtgchg)})</span>`
         : "";
     const pointsStr = points
-      ? `<span class="gap"></span><span class="player-points">${normalisePoints(points)}${totalRounds ? ` / ${totalRounds}` : ""}</span>`
+      ? `<span class="gap"></span><span class="player-points">${pointsHtml(points)}${totalRounds ? ` / ${escapeHtml(totalRounds)}` : ""}</span>`
       : "";
+    const strongName = `<strong>${escapeHtml(name)}</strong>`;
 
     profile.innerHTML = [
-      rank ? `<span class="player-rank">#${rank}</span> ` : "",
-      federation ? `<span class="player-federation">${federation}</span> ` : "",
-      title ? `<span class="player-title">${title}</span> ` : "",
-      url
-        ? `<a href="${url}" id="player-profile-link" target="_blank"><strong>${name}</strong></a>`
-        : `<strong>${name}</strong>`,
+      rank ? `<span class="player-rank">#${escapeHtml(rank)}</span> ` : "",
+      federation ? `<span class="player-federation">${escapeHtml(federation)}</span> ` : "",
+      title ? `<span class="player-title">${escapeHtml(title)}</span> ` : "",
+      url && isSafeUrl(url)
+        ? `<a href="${escapeHtml(url)}" id="player-profile-link" target="_blank">${strongName}</a>`
+        : strongName,
       Number.isFinite(rating)
         ? ` <span class="player-rating">${newRating} ${changeStr}</span>`
         : "",

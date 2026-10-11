@@ -19,18 +19,19 @@ const savedRounds = sessionEntry("pairingsRounds");
 const savedPlayerData = sessionEntry("pairingsPlayerData");
 
 /**
- * Has the fresh data changed enough to redraw? Only the number of rounds, the player's
- * rating, rating change, points and the LAST round's result are compared.
+ * Has the fresh data changed at all since the cached copy was drawn?
+ *
+ * The two are compared as whole values, so everything the page shows counts (any round's
+ * result, an opponent's rank or rating, the points, the player, the URL …) and a field added
+ * later cannot be forgotten here. The cache went through JSON in sessionStorage, so the
+ * comparison goes through JSON as well. A false "changed" only costs a redraw; a false
+ * "unchanged" would leave stale data on screen.
  */
 export function hasPairingsChanged(cachedRounds, cachedPlayerData, rounds, playerData) {
   return (
     !cachedRounds ||
     !cachedPlayerData ||
-    cachedRounds.length !== rounds.length ||
-    cachedPlayerData.rating !== playerData.rating ||
-    cachedPlayerData.rtgchg !== playerData.rtgchg ||
-    cachedPlayerData.points !== playerData.points ||
-    cachedRounds[cachedRounds.length - 1]?.result !== rounds[rounds.length - 1]?.result
+    JSON.stringify([cachedRounds, cachedPlayerData]) !== JSON.stringify([rounds, playerData])
   );
 }
 
@@ -44,12 +45,13 @@ export function initPairingsPage() {
     note: requireElement("#note"),
   });
 
-  /** Aborts the request of the previous search when a new one starts. */
+  /** The newest search. Starting another one aborts it, and only it may touch the loader. */
   let currentRequest = null;
 
   /**
    * Search for the URL in the input (or the saved one when it is empty) and update the
-   * table if the data changed. The loader is always dismissed afterwards.
+   * table if the data changed. The loader stays up until the NEWEST search has finished;
+   * a search that was superseded neither draws anything nor hides the loader.
    */
   async function showPairingsFromInput() {
     let url = input.value.trim();
@@ -59,13 +61,14 @@ export function initPairingsPage() {
     }
     if (!url) return;
 
-    showLoader(searchButton);
     currentRequest?.abort();
-    currentRequest = new AbortController();
-    const { signal } = currentRequest;
+    const request = new AbortController();
+    currentRequest = request;
+    showLoader(searchButton);
 
     try {
-      const { playerInfo, rating, rtgchg, rounds } = await getChessResults(url, signal);
+      const { playerInfo, rating, rtgchg, rounds } = await getChessResults(url, request.signal);
+      if (request.signal.aborted) return; // superseded while the answer was on its way
       const playerData = buildPlayerData(playerInfo, rating, rtgchg, url);
 
       if (hasPairingsChanged(savedRounds.get(), savedPlayerData.get(), rounds, playerData)) {
@@ -75,11 +78,16 @@ export function initPairingsPage() {
       }
       savedUrl.set(url);
     } catch (error) {
-      if (error.name === "AbortError") return;
+      // A superseded search fails with an abort, or with whatever it hit before the abort
+      // reached it; either way the user has moved on and must not see its error.
+      if (request.signal.aborted || error.name === "AbortError") return;
       alert(error.message || "No Pairings found for this URL.");
       console.error(error);
     } finally {
-      hideLoader(searchButton);
+      if (currentRequest === request) {
+        currentRequest = null;
+        hideLoader(searchButton);
+      }
     }
   }
 

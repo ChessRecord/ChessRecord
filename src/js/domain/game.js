@@ -106,8 +106,9 @@ export function sortGames(games) {
 
 /**
  * Would `candidate` clash with an existing game in the same tournament, round and date?
- * A clash is the same White player OR the same Black player (a player cannot play twice
- * in a round); it does not catch a player appearing with the opposite colour.
+ * A clash is any player of the candidate already playing in that round, on either side of
+ * the board: a player cannot play twice in a round, so White against an existing Black
+ * (or the reverse) counts just like the same colour again.
  *
  * @param {Game[]} games
  * @param {Pick<Game, "white" | "black" | "date" | "tournament" | "round">} candidate
@@ -115,9 +116,9 @@ export function sortGames(games) {
 export function isDuplicateGame(games, { white, black, date, tournament, round }) {
   return games.some(
     (g) =>
-      (g.white === white || g.black === black) &&
       g.date === date &&
       g.tournament === tournament &&
-      g.round === round,
+      g.round === round &&
+      (g.white === white || g.white === black || g.black === white || g.black === black),
   );
 }

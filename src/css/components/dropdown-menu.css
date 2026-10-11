@@ -1,12 +1,18 @@
 /* Options menu: the ⋮ trigger and the dropdown it opens. Item styling comes from select.css. */
 
-.menu-toggle {
+/* A <button>, so it has to undo the global orange `button` styling (and the full-width rule
+   on small screens). `.filters .menu-toggle` outranks the dark theme's `.dark-theme button`. */
+.filters .menu-toggle {
     display: flex;
     align-items: center;
     justify-content: center;
 
+    width: auto;
     padding: var(--spacing-small);
 
+    background-color: transparent;
+
+    color: inherit;
     font-size: var(--spacing-medium);
 
     cursor: pointer;

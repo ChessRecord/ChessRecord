@@ -1,5 +1,6 @@
 /** String helpers with no dependencies. */
 
+import { escapeHtml } from "./html.js";
 import { isNonEmptyString } from "./values.js";
 
 /** Capitalise every whitespace-delimited word ("o'BRIEN jr" → "O'brien Jr"). */
@@ -14,14 +15,26 @@ export const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 /**
  * Build a function that wraps every case-insensitive occurrence of `query` in
  * `<strong>`. The RegExp is compiled once, so reuse the returned function when
- * highlighting many strings. Returns HTML: callers insert it with innerHTML.
+ * highlighting many strings.
+ *
+ * The text is matched as given and every piece of it is HTML-escaped, so the result is safe
+ * to insert with innerHTML even when the text contains markup. (Escaping first and matching
+ * afterwards would let a query such as "amp" match inside an `&amp;` entity.)
  *
  * @param {string} query Non-empty text to look for (an empty query would match everywhere).
- * @returns {(text: string) => string}
+ * @returns {(text: string) => string} Returns HTML
  */
 export function createHighlighter(query) {
-  const pattern = new RegExp(`(${escapeRegExp(query)})`, "gi");
-  return (text) => text.replace(pattern, "<strong>$1</strong>");
+  const pattern = new RegExp(escapeRegExp(query), "gi");
+  return (text) => {
+    let html = "";
+    let end = 0;
+    for (const match of text.matchAll(pattern)) {
+      html += `${escapeHtml(text.slice(end, match.index))}<strong>${escapeHtml(match[0])}</strong>`;
+      end = match.index + match[0].length;
+    }
+    return html + escapeHtml(text.slice(end));
+  };
 }
 
 /** "+5", "-3", "0" for a number; "0" for anything non-numeric. */

@@ -1,6 +1,6 @@
-/* Dark theme: every colour override, scoped under .dark-theme. Load last. */
+/* Dark theme: every colour override, scoped under .dark-theme (a class on <html>). Load last. */
 
-body.dark-theme {
+.dark-theme body {
     background-color: var(--color-black-primary);
     color: var(--color-white-e0);
 }

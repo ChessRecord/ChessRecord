@@ -6,7 +6,11 @@
         <meta name="keywords" content="chess, games, tracker, FIDE, ratings" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>ChessRecord | New Game</title>
-        <link rel="icon" type="image/x-icon" href="assets/knight.png" />
+        <link rel="icon" type="image/png" href="assets/knight.png" />
+
+        <!-- Sets the saved theme before the first paint. Deliberately a blocking classic
+             script, not a module: modules are deferred and the page would flash light first. -->
+        <script src="src/js/ui/theme-init.js"></script>
 
         <!-- Third-party assets -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />
