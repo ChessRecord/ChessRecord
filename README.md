@@ -45,7 +45,7 @@ src/css/                              Stylesheets (see "CSS" below)
 src/js/
   pages/                              Entry points: create the store, wire features together, nothing else
   features/
-    games-list/                       Home page: searchable list, delete, import/export, "/" shortcut
+    games-list/                       Home page: searchable list, delete, import/export, keyboard shortcuts ("/", Ctrl+E, Ctrl+I)
     new-game/                         New Game form: FIDE lookup, name suggestions, validation, saving
     pairings/                         Chess-Results page: fetching, parsing, table rendering
   ui/                                 Widgets shared between pages: modal, loader, dropdown, custom select, theme toggle

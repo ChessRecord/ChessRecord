@@ -45,20 +45,30 @@ export function initGamesList({ store, menu }) {
 
   search.addEventListener("input", (event) => view.render(event.target.value));
 
+  const triggerImport = () => {
+    menu.close();
+    fileInput.click();
+  };
+  const triggerExport = () => {
+    menu.close();
+    exportGames(store.games);
+  };
+
   importButton.addEventListener("click", (event) => {
     // The file input sits inside this button, so its own click bubbles back here;
     // ignore it or the picker would open twice.
     if (event.target === fileInput) return;
-    menu.close();
-    fileInput.click();
+    triggerImport();
   });
   fileInput.addEventListener("change", (event) => handleImportEvent(event, { store, refresh }));
-  exportButton.addEventListener("click", () => {
-    menu.close();
-    exportGames(store.games);
-  });
+  exportButton.addEventListener("click", () => triggerExport());
 
-  initSearchShortcut({ search, menu });
+  initSearchShortcut({
+    search,
+    menu,
+    onExport: triggerExport,
+    onImport: triggerImport,
+  });
 
   // One delegated listener covers every delete button, however often the list is re-rendered.
   list.addEventListener("click", (event) => {
