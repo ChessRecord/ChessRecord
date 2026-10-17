@@ -9,6 +9,7 @@
 import { getTimeControlCategory } from "../../domain/time-control.js";
 import { formatResult } from "../../domain/result.js";
 import { escapeHtml, isSafeUrl } from "../../lib/html.js";
+import { formatDate } from "../../lib/text.js";
 
 const TIME_CONTROL_ICONS = Object.freeze({
   Bullet: '<i class="fa-solid fa-bolt-lightning"></i> ',
@@ -33,7 +34,9 @@ function renderMetaRight(game, category) {
       : `${time}<span class="timecontrol-category"> • ${category}</span>`
     : "";
   const timeIcon = TIME_CONTROL_ICONS[category] || TIME_CONTROL_ICONS.Unknown;
-  const dateHtml = game.date ? `<strong class="game-date">${escapeHtml(game.date)}</strong>` : "";
+  const dateHtml = game.date
+    ? `<strong class="game-date">${escapeHtml(formatDate(game.date))}</strong>`
+    : "";
 
   if (!timeDisplay) return dateHtml;
   const timeHtml = `<span class="game-time">${timeIcon} ${timeDisplay}</span>`;

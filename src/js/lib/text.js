@@ -43,6 +43,13 @@ export function formatSigned(value) {
   return Number.isNaN(n) ? "0" : (n > 0 ? "+" : "") + (n || 0);
 }
 
+/** Formats a date string from "YYYY-MM-DD" to "DD MM YYYY" for display. */
+export function formatDate(date) {
+  if (!isNonEmptyString(date)) return "";
+  const [year, month, day] = date.split("-");
+  return day && month && year ? `${day} ${month} ${year}` : date;
+}
+
 // Mathematical Sans-Serif Bold block (U+1D5D4 "𝗔" …, digits from U+1D7EC "𝟬").
 const BOLD_SANS_LETTERS = 0x1d5d4;
 const BOLD_SANS_DIGITS = 0x1d7ec;
