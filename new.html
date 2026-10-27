@@ -35,7 +35,6 @@
         <link rel="stylesheet" href="src/css/components/loader.css" />
         <link rel="stylesheet" href="src/css/components/player-title.css" />
         <link rel="stylesheet" href="src/css/components/theme-toggle.css" />
-        <link rel="stylesheet" href="src/css/components/select.css" />
         <link rel="stylesheet" href="src/css/components/autocomplete.css" />
         <link rel="stylesheet" href="src/css/features/new-game.css" />
         <link rel="stylesheet" href="src/css/theme-dark.css" />
@@ -93,14 +92,27 @@
                         placeholder="Rating"
                     />
                 </div>
-                <div class="custom-select">
-                    <!-- The option values are stored as the game's result, so keep their spelling. -->
-                    <select id="result" required title="Please select the game result">
-                        <option value="0">Result</option>
-                        <option value="1 - 0">1 - 0</option>
-                        <option value="0 - 1">0 - 1</option>
-                        <option value="½ - ½">½ - ½</option>
-                    </select>
+                <!-- The radio values are stored as the game's result, so keep their spelling.
+                     Deliberately not `required`: a missing result is reported by the form script
+                     (same message as before), not by the browser's own bubble. -->
+                <div
+                    id="result-picker"
+                    class="result-picker"
+                    role="radiogroup"
+                    aria-label="Game result"
+                >
+                    <label class="result-option">
+                        <input type="radio" name="result" value="0 - 1" class="result-input" />
+                        0 - 1
+                    </label>
+                    <label class="result-option">
+                        <input type="radio" name="result" value="½ - ½" class="result-input" />
+                        ½ - ½
+                    </label>
+                    <label class="result-option">
+                        <input type="radio" name="result" value="1 - 0" class="result-input" />
+                        1 - 0
+                    </label>
                 </div>
                 <div class="inline-form">
                     <input

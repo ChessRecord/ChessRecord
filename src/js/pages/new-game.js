@@ -7,7 +7,6 @@ import { initNewGameForm } from "../features/new-game/new-game-form.js";
 import { printBanner } from "../lib/banner.js";
 import { requireElement } from "../lib/dom.js";
 import { createGameStore } from "../storage/game-store.js";
-import { initCustomSelects } from "../ui/custom-select.js";
 import { initThemeToggle } from "../ui/theme-toggle.js";
 
 async function main() {
@@ -18,7 +17,6 @@ async function main() {
   requireElement("#game-form").addEventListener("submit", (event) => event.preventDefault());
 
   initThemeToggle();
-  initCustomSelects();
 
   // Duplicate detection needs the saved games, so wire the form up once they are loaded.
   const store = createGameStore();

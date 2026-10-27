@@ -118,8 +118,7 @@
     color: var(--color-white-e0);
 }
 
-.dark-theme,
-.dark-theme .custom-select {
+.dark-theme {
     --select-bg: var(--color-black-primary);
     --select-text-color: var(--color-grey-c);
     --select-border-color: var(--color-grey-4);
@@ -175,21 +174,20 @@
     cursor: pointer;
 }
 
-.dark-theme .select-selected::after {
-    content: "";
-    position: absolute;
-    top: calc(50% - 8px);
-    right: 18px;
+.dark-theme .result-picker {
+    border-color: var(--color-grey-4);
 
-    width: 16px;
-    height: 16px;
+    background-color: var(--color-black-primary);
+}
 
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23e0e0e0' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
+.dark-theme .result-option:hover {
+    background-color: var(--color-grey-3);
+}
 
-    cursor: pointer;
+.dark-theme .result-option::before {
+    border-color: var(--color-white-e0);
+
+    background-color: var(--color-grey-4);
 }
 
 .dark-theme .modal {

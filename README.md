@@ -48,7 +48,7 @@ src/js/
     games-list/                       Home page: searchable list, delete, import/export, keyboard shortcuts ("/", Ctrl+E, Ctrl+I)
     new-game/                         New Game form: FIDE lookup, name suggestions, validation, saving
     pairings/                         Chess-Results page: fetching, parsing, table rendering
-  ui/                                 Widgets shared between pages: modal, loader, dropdown, custom select, theme toggle
+  ui/                                 Widgets shared between pages: modal, loader, dropdown, theme toggle
   storage/                            game-store (the one owner of the games), IndexedDB adapter, localStorage helpers
   formats/                            ChesSoup (.chr), PGN and the file-extension dispatcher
   domain/                             Pure chess/game rules: normalising games, sorting, results, time controls, Elo, players

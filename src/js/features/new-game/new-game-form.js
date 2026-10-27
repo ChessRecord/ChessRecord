@@ -20,6 +20,12 @@ const sideElements = (side) => ({
 });
 
 /**
+ * The chosen result, or "" while nothing is chosen. Read from the radios at the moment it is
+ * needed: they are the only copy of the choice, so there is nothing to keep in step.
+ */
+const readResult = (picker) => picker.querySelector('input[name="result"]:checked')?.value ?? "";
+
+/**
  * @param {Object} deps
  * @param {ReturnType<typeof import("../../storage/game-store.js").createGameStore>} deps.store
  *        A store whose games are already loaded (needed for duplicate detection)
@@ -27,8 +33,8 @@ const sideElements = (side) => ({
 export function initNewGameForm({ store }) {
   const form = requireElement("#game-form");
   const submitButton = requireElement("#add-game-btn");
+  const resultPicker = requireElement("#result-picker");
   const inputs = {
-    result: requireElement("#result"),
     time: requireElement("#time"),
     tournament: requireElement("#tournament"),
     round: requireElement("#round"),
@@ -52,7 +58,7 @@ export function initNewGameForm({ store }) {
       rawRating: ratingInput.value,
     });
     return {
-      result: inputs.result.value,
+      result: readResult(resultPicker),
       time: inputs.time.value || "",
       tournament: inputs.tournament.value,
       round: Math.max(1, toNumberOr(inputs.round.value, 1)),

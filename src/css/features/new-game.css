@@ -1,4 +1,5 @@
-/* New-game page: compact title/rating inputs, round/time sizing and the date picker icon. */
+/* New-game page: compact title/rating inputs, round/time sizing, the result picker and the date
+   picker icon. Depends on: tokens.css. */
 
 .title-input,
 .rating-input {
@@ -35,4 +36,99 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     background-size: contain;
 
     cursor: pointer;
+}
+
+/* Result picker: three radios that read as one control. The native radios are the state (one tab
+   stop, arrow keys, group semantics, cleared by form.reset()), so no script toggles any class here:
+   the look follows :checked. Only opacity and transform animate. */
+.result-picker {
+    display: flex;
+
+    padding: 3px;
+    border: var(--border-thin) var(--color-white-d) solid;
+    border-radius: var(--spacing-border);
+
+    background-color: var(--color-white-primary);
+}
+
+.result-option {
+    /* Own stacking context, so the pill (z-index: -1) stays behind the text. */
+    position: relative;
+    z-index: 0;
+
+    display: flex;
+    flex: 1 1 0;
+    align-items: center;
+    justify-content: center;
+
+    padding: 11px var(--spacing-gap);
+    border-radius: var(--spacing-small-border);
+
+    font-size: var(--spacing-small);
+    font-weight: 600;
+    white-space: nowrap;
+
+    cursor: pointer;
+    user-select: none;
+}
+
+.result-option:hover {
+    background-color: var(--color-white-e0-light);
+}
+
+/* The selected marker: a ring plus a fill. The ring is a shape, so the choice never rests on
+   colour alone. The text colour is the same in every state, so contrast never changes. */
+.result-option::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+
+    border: var(--border-thick) var(--color-blue-deep) solid;
+    border-radius: inherit;
+
+    background-color: var(--color-white-e0);
+
+    opacity: 0;
+    transform: scale(0.92);
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+.result-option:has(:checked)::before {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* The real radio covers its option and is see-through, so a click or tap lands on the radio and
+   the browser draws its own focus ring around the option. Two classes: it must outrank the dark
+   theme's `.dark-theme input` (which would paint it over the label). */
+.result-option .result-input {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: inherit;
+
+    background-color: transparent;
+
+    appearance: none;
+    cursor: pointer;
+}
+
+/* base.css removes the outline of every input and gives it nothing back; buttons keep the
+   browser's focus ring, so hand the radio the same one. */
+.result-option .result-input:focus-visible {
+    outline: revert;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .result-option::before {
+        transition: none;
+    }
 }

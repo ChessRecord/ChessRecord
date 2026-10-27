@@ -11,7 +11,7 @@ import { toNumberOr } from "../../lib/values.js";
  * @property {string} rawRating
  *
  * @typedef {Object} FormState
- * @property {string} result       The select's raw value; "0" means nothing chosen yet
+ * @property {string} result       The chosen result's value; "" means nothing chosen yet
  * @property {string} time
  * @property {string} tournament
  * @property {number} round
@@ -26,7 +26,7 @@ import { toNumberOr } from "../../lib/values.js";
  * @returns {string | null} A message for the user, or null when the form is acceptable
  */
 export function validateFormState(state) {
-  if (state.result === "0") return "Please select a result!";
+  if (!state.result) return "Please select a result!";
   if (!state.players.white.rawName) return "White player name cannot be empty!";
   if (!state.players.black.rawName) return "Black player name cannot be empty!";
   if (!state.gameLink) return "Please enter a game link!";
