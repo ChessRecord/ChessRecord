@@ -84,7 +84,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     inset: 0;
     z-index: -1;
 
-    border: var(--border-thick) var(--color-blue-deep) solid;
+    border: var(--border-thin) var(--color-blue-deep) solid;
     border-radius: inherit;
 
     background-color: var(--color-white-e0);
