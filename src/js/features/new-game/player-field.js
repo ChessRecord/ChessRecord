@@ -108,9 +108,8 @@ export function createPlayerField({
       const player = await fetchFidePlayer(parseInt(query, 10));
       if (nameInput.value.trim() !== query) return; // the user kept typing: stale answer
       applyPlayer(player);
-    } catch (error) {
-      if (nameInput.value.trim() !== query) return;
-      alert(error.message || "FIDE ID not found");
+    } catch {
+      // Ignore lookup failures (e.g. 404, unknown ID) while typing.
     }
   }
 
