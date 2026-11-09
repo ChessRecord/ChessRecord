@@ -20,7 +20,8 @@ const ENTITIES = Object.freeze({
  * @param {unknown} value
  * @returns {string}
  */
-export const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ENTITIES[c]);
+export const escapeHtml = (value) =>
+  String(value ?? "").replace(/[&<>"']/g, (c) => ENTITIES[c]);
 
 /**
  * Is `url` safe to use as a link target? Escaping cannot make `javascript:` or `data:` URLs

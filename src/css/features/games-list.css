@@ -1,115 +1,115 @@
 /* Home page: games list container, tournament headers, search box and the counts bar. */
 
 #games-list {
-    margin-top: var(--spacing-normal);
+  margin-top: var(--spacing-normal);
 }
 
 .tournament-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-    margin-bottom: var(--spacing-border);
-    padding-block: var(--spacing-border);
-    padding-inline: var(--spacing-small) var(--spacing-normal);
-    border-top: var(--color-blue-deep-light) 2px solid;
-    border-bottom: var(--color-blue-deep) 2px solid;
+  margin-bottom: var(--spacing-border);
+  padding-block: var(--spacing-border);
+  padding-inline: var(--spacing-small) var(--spacing-normal);
+  border-top: var(--color-blue-deep-light) 2px solid;
+  border-bottom: var(--color-blue-deep) 2px solid;
 
-    color: var(--color-blue-deep);
+  color: var(--color-blue-deep);
 
-    transition: all 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .tournament-section {
-    margin-bottom: var(--spacing-normal);
+  margin-bottom: var(--spacing-normal);
 }
 
 #search {
-    position: relative;
+  position: relative;
 
-    display: flex;
-    align-items: center;
-    flex-direction: row;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
 
-    width: 100%;
+  width: 100%;
 }
 
 #search-input {
-    width: 100%;
-    /* Keep the placeholder/text clear of the shortcut hint */
-    padding-right: 56px;
+  width: 100%;
+  /* Keep the placeholder/text clear of the shortcut hint */
+  padding-right: 56px;
 }
 
 .search-hint {
-    position: absolute;
-    top: 50%;
-    right: var(--spacing-small);
+  position: absolute;
+  top: 50%;
+  right: var(--spacing-small);
 
-    display: inline-grid;
-    place-items: center;
+  display: inline-grid;
+  place-items: center;
 
-    width: 26px;
-    height: 26px;
-    padding: 0;
-    border: var(--border-thin) var(--color-white-d) solid;
-    border-radius: var(--spacing-small-border);
-    box-shadow: none;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: var(--border-thin) var(--color-white-d) solid;
+  border-radius: var(--spacing-small-border);
+  box-shadow: none;
 
-    background-color: transparent;
+  background-color: transparent;
 
-    color: var(--color-grey-8);
+  color: var(--color-grey-8);
 
-    pointer-events: none;
-    user-select: none;
-    transform: translateY(-50%);
-    transition: opacity 0.15s ease;
+  pointer-events: none;
+  user-select: none;
+  transform: translateY(-50%);
+  transition: opacity 0.15s ease;
 }
 
 .search-hint svg {
-    display: block;
+  display: block;
 }
 
 #search-input:focus ~ .search-hint,
 #search-input:not(:placeholder-shown) ~ .search-hint {
-    opacity: 0;
+  opacity: 0;
 }
 
 .meta-bar {
-    position: fixed;
-    bottom: 0;
+  position: fixed;
+  bottom: 0;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-small);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-small);
 
-    width: 100%;
-    padding: calc(var(--spacing-small) / 1.5);
-    border-top: 2px var(--color-white-d) solid;
+  width: 100%;
+  padding: calc(var(--spacing-small) / 1.5);
+  border-top: 2px var(--color-white-d) solid;
 
-    background: var(--color-white-primary);
+  background: var(--color-white-primary);
 }
 
 .meta-bar #game-count,
 .meta-bar #tournament-count {
-    color: var(--color-blue-deep);
-    font-size: 0.8125rem;
-    font-weight: 600;
+  color: var(--color-blue-deep);
+  font-size: 0.8125rem;
+  font-weight: 600;
 }
 
 .filters {
-    position: relative;
+  position: relative;
 
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
 }
 
 @media (hover: none) and (pointer: coarse) {
-    .search-hint {
-        display: none;
-    }
+  .search-hint {
+    display: none;
+  }
 
-    #search-input {
-        padding-right: 18px;
-    }
+  #search-input {
+    padding-right: 18px;
+  }
 }

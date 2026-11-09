@@ -48,7 +48,9 @@ function createEntry(backend, backendName, key) {
 }
 
 /** Entry in `localStorage` (persists across sessions). */
-export const localEntry = (key) => createEntry(localStorage, "localStorage", key);
+export const localEntry = (key) =>
+  createEntry(localStorage, "localStorage", key);
 
 /** Entry in `sessionStorage` (cleared when the tab closes). */
-export const sessionEntry = (key) => createEntry(sessionStorage, "sessionStorage", key);
+export const sessionEntry = (key) =>
+  createEntry(sessionStorage, "sessionStorage", key);

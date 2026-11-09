@@ -6,7 +6,10 @@ import { isNonEmptyString } from "./values.js";
 /** Capitalise every whitespace-delimited word ("o'BRIEN jr" → "O'brien Jr"). */
 export function capitalize(str) {
   if (!isNonEmptyString(str)) return "";
-  return str.replace(/\S+/g, (w) => w[0].toUpperCase() + w.slice(1).toLowerCase());
+  return str.replace(
+    /\S+/g,
+    (w) => w[0].toUpperCase() + w.slice(1).toLowerCase(),
+  );
 }
 
 /** Escape a string so it can be embedded in a RegExp source. */
@@ -61,7 +64,11 @@ export function toBoldSans(str) {
   for (const char of str) {
     const code = char.charCodeAt(0);
     const letterIndex =
-      code >= 65 && code <= 90 ? code - 65 : code >= 97 && code <= 122 ? code - 71 : -1;
+      code >= 65 && code <= 90
+        ? code - 65
+        : code >= 97 && code <= 122
+          ? code - 71
+          : -1;
     if (letterIndex > -1) {
       result += String.fromCodePoint(letterIndex + BOLD_SANS_LETTERS);
     } else if (code >= 48 && code <= 57) {

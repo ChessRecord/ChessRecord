@@ -34,7 +34,9 @@ const PLAYER_PROFILE_KEYS = new Set([
 /* ─── DOM helpers ────────────────────────────────────────────────────────── */
 
 const childrenNamed = (element, ...names) =>
-  Array.from(element.children).filter((child) => names.includes(child.localName));
+  Array.from(element.children).filter((child) =>
+    names.includes(child.localName),
+  );
 
 /** Rows of a table's own <tbody>s (rows nested in cells are not included). */
 const rowsOf = (table) =>
@@ -53,7 +55,9 @@ const labelOf = (cell) => textOf(cell).replace(/:$/, "");
  * @returns {HTMLElement}
  */
 export function parseHtml(html) {
-  const root = document.implementation.createHTMLDocument("").createElement("div");
+  const root = document.implementation
+    .createHTMLDocument("")
+    .createElement("div");
   root.innerHTML = html;
   return root;
 }
@@ -98,7 +102,13 @@ export function parsePlayerInfo(root) {
  */
 export function buildOpponentProfileUrl(baseUrl, startNo) {
   const snr = Number(startNo);
-  if (!isNonEmptyString(baseUrl) || !hasValue(startNo) || isNaN(snr) || snr <= 0) return "";
+  if (
+    !isNonEmptyString(baseUrl) ||
+    !hasValue(startNo) ||
+    isNaN(snr) ||
+    snr <= 0
+  )
+    return "";
   const parsed = new URL(baseUrl);
   parsed.searchParams.set("snr", String(snr));
   return parsed.toString();
@@ -121,15 +131,21 @@ export function parsePairings(root, url) {
     const headerCells = childrenNamed(headerRow, "th", "td");
     if (!headerCells.some((cell) => cell.localName === "th")) return false;
     const texts = headerCells.map(textOf);
-    return texts.some((t) => t.includes("Rd")) && texts.some((t) => t.includes("Res"));
+    return (
+      texts.some((t) => t.includes("Rd")) &&
+      texts.some((t) => t.includes("Res"))
+    );
   });
   if (!table) throw new Error(LAYOUT_MISMATCH);
 
   const rows = rowsOf(table);
   // The (unnamed) title column has an empty header: call it "Title".
-  const headers = childrenNamed(rows[0], "th").map((th) => textOf(th) || "Title");
+  const headers = childrenNamed(rows[0], "th").map(
+    (th) => textOf(th) || "Title",
+  );
 
-  const columnIndex = (keyword) => headers.findIndex((h) => h.includes(keyword));
+  const columnIndex = (keyword) =>
+    headers.findIndex((h) => h.includes(keyword));
   const idx = {
     rd: columnIndex("Rd"),
     bo: columnIndex("Bo"),

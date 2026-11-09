@@ -19,7 +19,8 @@ export function initThemeToggle() {
   button.id = "theme-toggle-btn";
   button.type = "button";
   button.setAttribute("aria-label", "Toggle dark theme");
-  button.innerHTML = '<i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>';
+  button.innerHTML =
+    '<i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>';
   button.addEventListener("click", () => {
     preference.set(root.classList.toggle(DARK_CLASS));
   });

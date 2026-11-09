@@ -43,8 +43,20 @@ export const isFideId = (query) => /^\d{5,10}$/.test(query.trim());
  * @param {{ name: string, title?: string, standard?: number, rapid?: number, blitz?: number }} player
  * @returns {{ name: string, title: string, standard: number, rapid: number, blitz: number }}
  */
-export function normalizeFidePlayer({ name, title = "", standard = 0, rapid = 0, blitz = 0 }) {
-  return { name: toDisplayName(name), title: abbreviateTitle(title), standard, rapid, blitz };
+export function normalizeFidePlayer({
+  name,
+  title = "",
+  standard = 0,
+  rapid = 0,
+  blitz = 0,
+}) {
+  return {
+    name: toDisplayName(name),
+    title: abbreviateTitle(title),
+    standard,
+    rapid,
+    blitz,
+  };
 }
 
 /** "𝗚𝗠 Magnus Carlsen": the title in bold sans-serif followed by the name. */

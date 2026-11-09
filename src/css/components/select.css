@@ -4,16 +4,16 @@
    page-wide (see theme-dark.css). */
 
 .dropdown-item {
-    padding: 8px 16px;
-    border-radius: var(--spacing-small-border);
+  padding: 8px 16px;
+  border-radius: var(--spacing-small-border);
 
-    color: var(--select-item-color, var(--color-grey-3));
+  color: var(--select-item-color, var(--color-grey-3));
 
-    cursor: pointer;
-    user-select: none;
+  cursor: pointer;
+  user-select: none;
 }
 
 .dropdown-item:hover {
-    background-color: var(--select-hover-bg, rgba(0, 0, 0, 0.1));
-    color: var(--select-hover-color, inherit);
+  background-color: var(--select-hover-bg, rgba(0, 0, 0, 0.1));
+  color: var(--select-hover-color, inherit);
 }

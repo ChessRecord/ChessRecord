@@ -7,12 +7,15 @@
 /** True for any falsy value and for anything whose `length` is 0 ("", [], FileList, …). */
 export const isEmpty = (value) => !value || value.length === 0;
 
-export const isNonEmptyString = (value) => typeof value === "string" && !isEmpty(value);
+export const isNonEmptyString = (value) =>
+  typeof value === "string" && !isEmpty(value);
 
-export const isNonEmptyArray = (value) => Array.isArray(value) && value.length > 0;
+export const isNonEmptyArray = (value) =>
+  Array.isArray(value) && value.length > 0;
 
 /** True unless the value is `null`, `undefined` or an empty string (so `0` and `false` count). */
-export const hasValue = (value) => value !== null && value !== undefined && value !== "";
+export const hasValue = (value) =>
+  value !== null && value !== undefined && value !== "";
 
 /**
  * Coerce to a finite number, or return `fallback` for blank / non-numeric input.

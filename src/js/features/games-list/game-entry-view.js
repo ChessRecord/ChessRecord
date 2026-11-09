@@ -20,10 +20,13 @@ const TIME_CONTROL_ICONS = Object.freeze({
 });
 
 /** Titles the data marks as absent ("none", any case) are not shown. */
-const isShownTitle = (title) => Boolean(title) && title.trim().toLowerCase() !== "none";
+const isShownTitle = (title) =>
+  Boolean(title) && title.trim().toLowerCase() !== "none";
 
 const renderTitle = (title) =>
-  isShownTitle(title) ? `<span class="player-title">${escapeHtml(title)}</span>` : "";
+  isShownTitle(title)
+    ? `<span class="player-title">${escapeHtml(title)}</span>`
+    : "";
 
 /** "90+30 • Classical" with the matching icon, or just the date, or nothing. */
 function renderMetaRight(game, category) {
@@ -51,7 +54,8 @@ export function renderGameEntry(game) {
   const gameId = game.id || "unknown";
   const category = getTimeControlCategory(game.time);
 
-  const roundLabel = game.board != null ? `Board ${game.board}` : `Round ${game.round}`;
+  const roundLabel =
+    game.board != null ? `Board ${game.board}` : `Round ${game.round}`;
   const metaLeft = `<span class="game-round">${escapeHtml(game.round)}</span><strong class="round-label">${escapeHtml(roundLabel)}</strong>`;
   const metaRight = renderMetaRight(game, category);
 

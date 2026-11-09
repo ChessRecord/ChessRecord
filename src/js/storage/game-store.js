@@ -23,7 +23,10 @@ const MIRROR_KEY = "chessGames";
  * @param {() => Promise<import("./games-db.js").GamesDb>} [deps.openDb]
  * @param {{ get: Function, set: Function, remove: Function }} [deps.mirror]
  */
-export function createGameStore({ openDb = openGamesDb, mirror = localEntry(MIRROR_KEY) } = {}) {
+export function createGameStore({
+  openDb = openGamesDb,
+  mirror = localEntry(MIRROR_KEY),
+} = {}) {
   /** @type {import("../domain/game.js").Game[]} */
   let games = [];
   /** The open database, or null while unavailable (then localStorage is the only copy). */
@@ -48,7 +51,10 @@ export function createGameStore({ openDb = openGamesDb, mirror = localEntry(MIRR
       }
       db = opened;
     } catch (error) {
-      console.warn("[ChessRecord] IndexedDB unavailable — falling back to localStorage.", error);
+      console.warn(
+        "[ChessRecord] IndexedDB unavailable — falling back to localStorage.",
+        error,
+      );
       db = null;
     }
   })();
@@ -75,14 +81,23 @@ export function createGameStore({ openDb = openGamesDb, mirror = localEntry(MIRR
         else await db.replaceAll(games);
       } catch (error) {
         if (isMerge) {
-          console.warn("[ChessRecord] IndexedDB merge failed — falling back to full save.", error);
+          console.warn(
+            "[ChessRecord] IndexedDB merge failed — falling back to full save.",
+            error,
+          );
           return persist();
         }
         if (isDelete) {
-          console.warn("[ChessRecord] IndexedDB delete failed — falling back to full save.", error);
+          console.warn(
+            "[ChessRecord] IndexedDB delete failed — falling back to full save.",
+            error,
+          );
           return persist();
         }
-        console.warn("[ChessRecord] IndexedDB write failed — falling back to localStorage.", error);
+        console.warn(
+          "[ChessRecord] IndexedDB write failed — falling back to localStorage.",
+          error,
+        );
         // Stop using IndexedDB for this session instead of failing on every write.
         db = null;
       }

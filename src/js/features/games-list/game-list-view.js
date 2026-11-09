@@ -12,7 +12,8 @@ import { renderGameEntry } from "./game-entry-view.js";
 /** Games per batch. A batch always ends on a tournament boundary, so it may run over. */
 const RENDER_BATCH_SIZE = 100;
 
-const pluralize = (count, singular, plural) => `${count} ${count === 1 ? singular : plural}`;
+const pluralize = (count, singular, plural) =>
+  `${count} ${count === 1 ? singular : plural}`;
 
 /**
  * @param {Object} options
@@ -21,14 +22,23 @@ const pluralize = (count, singular, plural) => `${count} ${count === 1 ? singula
  * @param {HTMLElement} options.tournamentCountEl Receives "3 Events" (or nothing)
  * @param {() => import("../../domain/game.js").Game[]} options.getGames Current games, sorted
  */
-export function createGameListView({ list, gameCountEl, tournamentCountEl, getGames }) {
+export function createGameListView({
+  list,
+  gameCountEl,
+  tournamentCountEl,
+  getGames,
+}) {
   /** Timer of the next pending batch, so a newer render can cancel a stale one. */
   let pendingTimer = null;
 
   /** Both counts describe what the list currently shows, so they follow the search. */
   function updateCounts(gameCount, eventCount) {
-    gameCountEl.textContent = gameCount ? pluralize(gameCount, "Game", "Games") : "No Games";
-    tournamentCountEl.textContent = eventCount ? pluralize(eventCount, "Event", "Events") : "";
+    gameCountEl.textContent = gameCount
+      ? pluralize(gameCount, "Game", "Games")
+      : "No Games";
+    tournamentCountEl.textContent = eventCount
+      ? pluralize(eventCount, "Event", "Events")
+      : "";
   }
 
   /**
@@ -75,7 +85,9 @@ export function createGameListView({ list, gameCountEl, tournamentCountEl, getGa
 
       while (nextIndex < sections.length && rendered < RENDER_BATCH_SIZE) {
         const [tournament, tournamentGames] = sections[nextIndex++];
-        const label = highlight ? highlight(tournament) : escapeHtml(tournament);
+        const label = highlight
+          ? highlight(tournament)
+          : escapeHtml(tournament);
         html.push(
           `<div class="tournament-section"><div class="tournament-header"><h3>${label}</h3><h3 class="dot">●</h3></div>`,
         );
@@ -86,7 +98,8 @@ export function createGameListView({ list, gameCountEl, tournamentCountEl, getGa
 
       list.insertAdjacentHTML("beforeend", html.join(""));
 
-      pendingTimer = nextIndex < sections.length ? setTimeout(renderBatch, 0) : null;
+      pendingTimer =
+        nextIndex < sections.length ? setTimeout(renderBatch, 0) : null;
     };
 
     // Clear once, then paint the first batch right away; the rest follow on timers.

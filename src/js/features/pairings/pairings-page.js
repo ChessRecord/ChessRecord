@@ -27,11 +27,17 @@ const savedPlayerData = sessionEntry("pairingsPlayerData");
  * comparison goes through JSON as well. A false "changed" only costs a redraw; a false
  * "unchanged" would leave stale data on screen.
  */
-export function hasPairingsChanged(cachedRounds, cachedPlayerData, rounds, playerData) {
+export function hasPairingsChanged(
+  cachedRounds,
+  cachedPlayerData,
+  rounds,
+  playerData,
+) {
   return (
     !cachedRounds ||
     !cachedPlayerData ||
-    JSON.stringify([cachedRounds, cachedPlayerData]) !== JSON.stringify([rounds, playerData])
+    JSON.stringify([cachedRounds, cachedPlayerData]) !==
+      JSON.stringify([rounds, playerData])
   );
 }
 
@@ -67,11 +73,21 @@ export function initPairingsPage() {
     showLoader(searchButton);
 
     try {
-      const { playerInfo, rating, rtgchg, rounds } = await getChessResults(url, request.signal);
+      const { playerInfo, rating, rtgchg, rounds } = await getChessResults(
+        url,
+        request.signal,
+      );
       if (request.signal.aborted) return; // superseded while the answer was on its way
       const playerData = buildPlayerData(playerInfo, rating, rtgchg, url);
 
-      if (hasPairingsChanged(savedRounds.get(), savedPlayerData.get(), rounds, playerData)) {
+      if (
+        hasPairingsChanged(
+          savedRounds.get(),
+          savedPlayerData.get(),
+          rounds,
+          playerData,
+        )
+      ) {
         view.render(rounds, playerData, url);
         savedRounds.set(rounds);
         savedPlayerData.set(playerData);

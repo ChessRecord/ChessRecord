@@ -1,121 +1,121 @@
 /* Modal dialog and its backdrop. */
 
 .modal-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 999;
+  position: fixed;
+  inset: 0;
+  z-index: 999;
 
-    background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
 
-    opacity: 0;
-    pointer-events: none;
-    user-select: none;
-    backdrop-filter: blur(5px);
-    transition: opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  backdrop-filter: blur(5px);
+  transition: opacity 0.3s ease;
 }
 
 .modal-backdrop.visible {
-    opacity: 1;
-    pointer-events: auto;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    z-index: 1000;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1000;
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-medium);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-medium);
 
-    width: 30vw;
-    height: fit-content;
-    padding: var(--spacing-normal);
-    border: var(--border-thin) var(--color-white-d) solid;
-    border-radius: var(--spacing-border);
+  width: 30vw;
+  height: fit-content;
+  padding: var(--spacing-normal);
+  border: var(--border-thin) var(--color-white-d) solid;
+  border-radius: var(--spacing-border);
 
-    background-color: var(--color-white-primary);
+  background-color: var(--color-white-primary);
 
-    text-align: center;
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
-    transform: translate(-50%, -50%);
-    animation: slideInAbsolute 0.3s ease-out;
+  text-align: center;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
+  transform: translate(-50%, -50%);
+  animation: slideInAbsolute 0.3s ease-out;
 }
 
 .modal i.modal-icon {
-    color: var(--color-orange);
-    font-size: 5rem;
+  color: var(--color-orange);
+  font-size: 5rem;
 }
 
 .modal .modal-actions {
-    display: flex;
-    gap: var(--spacing-small);
+  display: flex;
+  gap: var(--spacing-small);
 
-    width: 100%;
+  width: 100%;
 
-    align-items: center;
+  align-items: center;
 
-    justify-content: center;
+  justify-content: center;
 
-    padding: var(--spacing-small);
+  padding: var(--spacing-small);
 
-    font-size: var(--spacing-medium);
+  font-size: var(--spacing-medium);
 
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .modal .modal-actions button {
-    display: flex;
-    flex-grow: 1;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-medium);
+  display: flex;
+  flex-grow: 1;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-medium);
 }
 
 .modal .modal-close {
-    position: absolute;
-    top: 0;
-    right: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
 
-    font-size: 1.5rem;
+  font-size: 1.5rem;
 
-    cursor: pointer;
-    transform: translate(-100%, 10%);
+  cursor: pointer;
+  transform: translate(-100%, 10%);
 }
 
 @keyframes slideInAbsolute {
-    from {
-        opacity: 0;
-        transform: translate(-50%, calc(-50% + var(--spacing-medium)));
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, -50%);
-    }
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + var(--spacing-medium)));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
 
 @media screen and (max-width: 1150px) {
-    .modal {
-        width: 60vw;
-    }
+  .modal {
+    width: 60vw;
+  }
 }
 
 @media screen and (max-width: 950px) {
-    .modal {
-        width: 90vw;
-    }
+  .modal {
+    width: 90vw;
+  }
 }
 
 @media screen and (max-width: 875px) {
-    .modal i.modal-icon {
-        font-size: 4rem;
-    }
+  .modal i.modal-icon {
+    font-size: 4rem;
+  }
 
-    .modal .modal-actions {
-        flex-direction: column;
-    }
+  .modal .modal-actions {
+    flex-direction: column;
+  }
 }

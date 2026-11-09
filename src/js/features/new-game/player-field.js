@@ -39,7 +39,9 @@ function renderSuggestions(container, query, players) {
   const highlight = createHighlighter(query);
   container.innerHTML = players
     .map((p) => {
-      const titleTag = p.title ? `<span class="player-title">${escapeHtml(p.title)}</span> ` : "";
+      const titleTag = p.title
+        ? `<span class="player-title">${escapeHtml(p.title)}</span> `
+        : "";
       return `
       <div class="autocomplete-suggestion"
            data-name="${escapeHtml(p.name)}"
@@ -88,7 +90,8 @@ export function createPlayerField({
     };
     suggestionsEl.replaceChildren();
     if (!ratingUserSet) {
-      ratingInput.value = pickRating({ standard, rapid, blitz }, getTimeControl().trim()) || "";
+      ratingInput.value =
+        pickRating({ standard, rapid, blitz }, getTimeControl().trim()) || "";
     }
   }
 

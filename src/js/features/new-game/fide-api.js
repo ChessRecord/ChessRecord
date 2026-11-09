@@ -17,7 +17,9 @@ export async function fetchFidePlayer(id) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FIDE_API_TIMEOUT);
   try {
-    const res = await fetch(`${FIDE_BASE}/${id}`, { signal: controller.signal });
+    const res = await fetch(`${FIDE_BASE}/${id}`, {
+      signal: controller.signal,
+    });
     if (!res.ok) throw new Error(`API error ${res.status}`);
     const data = await res.json();
     if (!data.name) throw new Error(`No player found for FIDE ID: ${id}`);
@@ -38,7 +40,10 @@ export async function fetchFidePlayer(id) {
  */
 export async function fetchPlayerSuggestions(query, signal) {
   try {
-    const res = await fetch(`${FIDE_BASE}?q=${encodeURIComponent(query.trim())}`, { signal });
+    const res = await fetch(
+      `${FIDE_BASE}?q=${encodeURIComponent(query.trim())}`,
+      { signal },
+    );
     if (!res.ok) throw new Error(`API error ${res.status}`);
     return (await res.json()).map(normalizeFidePlayer);
   } catch (error) {

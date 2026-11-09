@@ -113,12 +113,18 @@ export function sortGames(games) {
  * @param {Game[]} games
  * @param {Pick<Game, "white" | "black" | "date" | "tournament" | "round">} candidate
  */
-export function isDuplicateGame(games, { white, black, date, tournament, round }) {
+export function isDuplicateGame(
+  games,
+  { white, black, date, tournament, round },
+) {
   return games.some(
     (g) =>
       g.date === date &&
       g.tournament === tournament &&
       g.round === round &&
-      (g.white === white || g.white === black || g.black === white || g.black === black),
+      (g.white === white ||
+        g.white === black ||
+        g.black === white ||
+        g.black === black),
   );
 }

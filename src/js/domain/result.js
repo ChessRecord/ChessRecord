@@ -7,7 +7,8 @@
 import { isNonEmptyString } from "../lib/values.js";
 
 /** Trim, turn "½" into "1/2" and drop all whitespace. */
-const cleanResult = (result) => result.trim().replace(/½/g, "1/2").replace(/\s+/g, "");
+const cleanResult = (result) =>
+  result.trim().replace(/½/g, "1/2").replace(/\s+/g, "");
 
 /**
  * Display form: "1-0" → "1 - 0", "1/2-1/2" → "½ - ½".

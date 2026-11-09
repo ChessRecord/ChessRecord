@@ -1,162 +1,199 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="description" content="ChessRecord - Log and Store Your Chess Games" />
-        <meta name="keywords" content="chess, games, tracker, FIDE, ratings" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>ChessRecord | New Game</title>
-        <link rel="icon" type="image/png" href="assets/knight.png" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="ChessRecord - Log and Store Your Chess Games"
+    />
+    <meta name="keywords" content="chess, games, tracker, FIDE, ratings" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChessRecord | New Game</title>
+    <link rel="icon" type="image/png" href="assets/knight.png" />
 
-        <!-- Sets the saved theme before the first paint. Deliberately a blocking classic
+    <!-- Sets the saved theme before the first paint. Deliberately a blocking classic
              script, not a module: modules are deferred and the page would flash light first. -->
-        <script src="src/js/ui/theme-init.js"></script>
+    <script src="src/js/ui/theme-init.js"></script>
 
-        <!-- Third-party assets -->
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&amp;family=Google+Sans+Flex:opsz,wght@6..144,1..1000&amp;family=Rubik:ital,wght@0,300..900;1,300..900&amp;display=swap"
-        />
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-            integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-        />
+    <!-- Third-party assets -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&amp;family=Google+Sans+Flex:opsz,wght@6..144,1..1000&amp;family=Rubik:ital,wght@0,300..900;1,300..900&amp;display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
 
-        <!-- Application styles. ORDER MATTERS (later files override earlier ones):
+    <!-- Application styles. ORDER MATTERS (later files override earlier ones):
              tokens → base → layout → components → features → modal → dark theme. -->
-        <link rel="stylesheet" href="src/css/tokens.css" />
-        <link rel="stylesheet" href="src/css/base.css" />
-        <link rel="stylesheet" href="src/css/layout.css" />
-        <link rel="stylesheet" href="src/css/components/loader.css" />
-        <link rel="stylesheet" href="src/css/components/player-title.css" />
-        <link rel="stylesheet" href="src/css/components/theme-toggle.css" />
-        <link rel="stylesheet" href="src/css/components/autocomplete.css" />
-        <link rel="stylesheet" href="src/css/features/new-game.css" />
-        <link rel="stylesheet" href="src/css/theme-dark.css" />
+    <link rel="stylesheet" href="src/css/tokens.css" />
+    <link rel="stylesheet" href="src/css/base.css" />
+    <link rel="stylesheet" href="src/css/layout.css" />
+    <link rel="stylesheet" href="src/css/components/loader.css" />
+    <link rel="stylesheet" href="src/css/components/player-title.css" />
+    <link rel="stylesheet" href="src/css/components/theme-toggle.css" />
+    <link rel="stylesheet" href="src/css/components/autocomplete.css" />
+    <link rel="stylesheet" href="src/css/features/new-game.css" />
+    <link rel="stylesheet" href="src/css/theme-dark.css" />
 
-        <!-- Bare module specifiers used by the scripts. -->
-        <script type="importmap">
-            { "imports": { "dexie": "https://unpkg.com/dexie@4.0.10/dist/modern/dexie.min.mjs" } }
-        </script>
-    </head>
-    <body>
-        <div class="container">
-            <h1>New Game</h1>
-            <form id="game-form">
-                <div class="inline-form">
-                    <input type="text" id="white-title" class="title-input" placeholder="Title" />
-                    <div class="autocomplete-container">
-                        <input
-                            type="text"
-                            id="white-player"
-                            class="flex"
-                            placeholder="White Player Name or FIDE ID"
-                            autocomplete="off"
-                            required
-                        />
-                        <div id="white-suggestions" class="autocomplete-suggestions"></div>
-                    </div>
-                    <input
-                        type="number"
-                        min="0"
-                        max="9999"
-                        id="white-rating"
-                        class="flex rating-input"
-                        placeholder="Rating"
-                    />
-                </div>
-                <div class="inline-form">
-                    <input type="text" id="black-title" class="title-input" placeholder="Title" />
-                    <div class="autocomplete-container">
-                        <input
-                            type="text"
-                            id="black-player"
-                            class="flex"
-                            placeholder="Black Player Name or FIDE ID"
-                            autocomplete="off"
-                            required
-                        />
-                        <div id="black-suggestions" class="autocomplete-suggestions"></div>
-                    </div>
-                    <input
-                        type="number"
-                        min="0"
-                        max="9999"
-                        id="black-rating"
-                        class="flex rating-input"
-                        placeholder="Rating"
-                    />
-                </div>
-                <!-- The radio values are stored as the game's result, so keep their spelling.
+    <!-- Bare module specifiers used by the scripts. -->
+    <script type="importmap">
+      {
+        "imports": {
+          "dexie": "https://unpkg.com/dexie@4.0.10/dist/modern/dexie.min.mjs"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>New Game</h1>
+      <form id="game-form">
+        <div class="inline-form">
+          <input
+            type="text"
+            id="white-title"
+            class="title-input"
+            placeholder="Title"
+          />
+          <div class="autocomplete-container">
+            <input
+              type="text"
+              id="white-player"
+              class="flex"
+              placeholder="White Player Name or FIDE ID"
+              autocomplete="off"
+              required
+            />
+            <div id="white-suggestions" class="autocomplete-suggestions"></div>
+          </div>
+          <input
+            type="number"
+            min="0"
+            max="9999"
+            id="white-rating"
+            class="flex rating-input"
+            placeholder="Rating"
+          />
+        </div>
+        <div class="inline-form">
+          <input
+            type="text"
+            id="black-title"
+            class="title-input"
+            placeholder="Title"
+          />
+          <div class="autocomplete-container">
+            <input
+              type="text"
+              id="black-player"
+              class="flex"
+              placeholder="Black Player Name or FIDE ID"
+              autocomplete="off"
+              required
+            />
+            <div id="black-suggestions" class="autocomplete-suggestions"></div>
+          </div>
+          <input
+            type="number"
+            min="0"
+            max="9999"
+            id="black-rating"
+            class="flex rating-input"
+            placeholder="Rating"
+          />
+        </div>
+        <!-- The radio values are stored as the game's result, so keep their spelling.
                      Deliberately not `required`: a missing result is reported by the form script
                      (same message as before), not by the browser's own bubble. -->
-                <div
-                    id="result-picker"
-                    class="result-picker"
-                    role="radiogroup"
-                    aria-label="Game result"
-                >
-                    <label class="result-option">
-                        <input type="radio" name="result" value="0 - 1" class="result-input" />
-                        0 - 1
-                    </label>
-                    <label class="result-option">
-                        <input type="radio" name="result" value="½ - ½" class="result-input" />
-                        ½ - ½
-                    </label>
-                    <label class="result-option">
-                        <input type="radio" name="result" value="1 - 0" class="result-input" />
-                        1 - 0
-                    </label>
-                </div>
-                <div class="inline-form">
-                    <input
-                        type="text"
-                        id="tournament"
-                        placeholder="Event Name"
-                        class="flex"
-                        required
-                        title="Please enter the tournament name"
-                    />
-                    <input
-                        type="number"
-                        id="round"
-                        placeholder="Round"
-                        min="1"
-                        class="flex"
-                        required
-                        title="Please enter the round number"
-                    />
-                    <input
-                        type="text"
-                        id="time"
-                        placeholder="Time"
-                        class="flex"
-                        required
-                        title="Please enter the time control"
-                    />
-                </div>
-                <input type="date" id="date" required title="Please enter the date of the game" />
-                <input
-                    type="url"
-                    id="game-link"
-                    placeholder="Game Link"
-                    title="Please enter the game link"
-                    required
-                    spellcheck="false"
-                />
-                <button type="submit" id="add-game-btn">
-                    <span>Add Game</span>
-                    <div class="loader"></div>
-                </button>
-            </form>
+        <div
+          id="result-picker"
+          class="result-picker"
+          role="radiogroup"
+          aria-label="Game result"
+        >
+          <label class="result-option">
+            <input
+              type="radio"
+              name="result"
+              value="0 - 1"
+              class="result-input"
+            />
+            0 - 1
+          </label>
+          <label class="result-option">
+            <input
+              type="radio"
+              name="result"
+              value="½ - ½"
+              class="result-input"
+            />
+            ½ - ½
+          </label>
+          <label class="result-option">
+            <input
+              type="radio"
+              name="result"
+              value="1 - 0"
+              class="result-input"
+            />
+            1 - 0
+          </label>
         </div>
+        <div class="inline-form">
+          <input
+            type="text"
+            id="tournament"
+            placeholder="Event Name"
+            class="flex"
+            required
+            title="Please enter the tournament name"
+          />
+          <input
+            type="number"
+            id="round"
+            placeholder="Round"
+            min="1"
+            class="flex"
+            required
+            title="Please enter the round number"
+          />
+          <input
+            type="text"
+            id="time"
+            placeholder="Time"
+            class="flex"
+            required
+            title="Please enter the time control"
+          />
+        </div>
+        <input
+          type="date"
+          id="date"
+          required
+          title="Please enter the date of the game"
+        />
+        <input
+          type="url"
+          id="game-link"
+          placeholder="Game Link"
+          title="Please enter the game link"
+          required
+          spellcheck="false"
+        />
+        <button type="submit" id="add-game-btn">
+          <span>Add Game</span>
+          <div class="loader"></div>
+        </button>
+      </form>
+    </div>
 
-        <script type="module" src="src/js/pages/new-game.js"></script>
-    </body>
+    <script type="module" src="src/js/pages/new-game.js"></script>
+  </body>
 </html>

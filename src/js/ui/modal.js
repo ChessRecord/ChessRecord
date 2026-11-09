@@ -180,4 +180,5 @@ export function hideModal() {
 }
 
 /** True while a dialog is showing. */
-export const isModalOpen = () => backdrop?.classList.contains("visible") ?? false;
+export const isModalOpen = () =>
+  backdrop?.classList.contains("visible") ?? false;

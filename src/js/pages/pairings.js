@@ -11,7 +11,9 @@ import { initThemeToggle } from "../ui/theme-toggle.js";
 printBanner();
 
 // Never let the browser submit (and reload) the page natively.
-requireElement("#pairings-form").addEventListener("submit", (event) => event.preventDefault());
+requireElement("#pairings-form").addEventListener("submit", (event) =>
+  event.preventDefault(),
+);
 
 initThemeToggle();
 initPairingsPage();

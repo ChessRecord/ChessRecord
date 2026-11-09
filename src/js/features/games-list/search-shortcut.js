@@ -63,4 +63,3 @@ export function initSearchShortcut({ search, menu, onExport, onImport }) {
 }
 
 export const initShortcuts = initSearchShortcut;
-

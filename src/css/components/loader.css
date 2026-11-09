@@ -1,20 +1,20 @@
 /* Spinner shown inside buttons while work is in progress. */
 
 .loader {
-    display: none;
+  display: none;
 
-    width: var(--spacing-normal);
-    aspect-ratio: 1;
+  width: var(--spacing-normal);
+  aspect-ratio: 1;
 
-    border: 5px var(--color-white-e0-95) solid;
-    border-right-color: transparent;
-    border-radius: 50%;
+  border: 5px var(--color-white-e0-95) solid;
+  border-right-color: transparent;
+  border-radius: 50%;
 
-    animation: spin 1s infinite linear;
+  animation: spin 1s infinite linear;
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(1turn);
-    }
+  to {
+    transform: rotate(1turn);
+  }
 }

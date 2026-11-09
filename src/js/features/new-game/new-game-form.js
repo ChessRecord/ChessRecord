@@ -8,7 +8,11 @@ import { formatPlayerLabel } from "../../domain/player.js";
 import { afterNextPaint, requireElement } from "../../lib/dom.js";
 import { toNumberOr } from "../../lib/values.js";
 import { hideLoader, showLoader } from "../../ui/loader.js";
-import { buildGame, formatPlayers, validateFormState } from "./game-submission.js";
+import {
+  buildGame,
+  formatPlayers,
+  validateFormState,
+} from "./game-submission.js";
 import { createPlayerField } from "./player-field.js";
 
 /** The ids of one side's inputs, e.g. `#white-player`, `#white-title`. */
@@ -23,7 +27,8 @@ const sideElements = (side) => ({
  * The chosen result, or "" while nothing is chosen. Read from the radios at the moment it is
  * needed: they are the only copy of the choice, so there is nothing to keep in step.
  */
-const readResult = (picker) => picker.querySelector('input[name="result"]:checked')?.value ?? "";
+const readResult = (picker) =>
+  picker.querySelector('input[name="result"]:checked')?.value ?? "";
 
 /**
  * @param {Object} deps
@@ -46,7 +51,10 @@ export function initNewGameForm({ store }) {
   const fields = Object.fromEntries(
     Object.entries(sides).map(([side, elements]) => [
       side,
-      createPlayerField({ ...elements, getTimeControl: () => inputs.time.value }),
+      createPlayerField({
+        ...elements,
+        getTimeControl: () => inputs.time.value,
+      }),
     ]),
   );
 
@@ -81,7 +89,9 @@ export function initNewGameForm({ store }) {
     showLoader(submitButton);
 
     try {
-      const game = normalizeGames([buildGame(formatPlayers(state.players), state)])[0];
+      const game = normalizeGames([
+        buildGame(formatPlayers(state.players), state),
+      ])[0];
       if (isDuplicateGame(store.games, game)) {
         return alert("Game already exists or player conflict in this round!");
       }
@@ -110,7 +120,8 @@ export function initNewGameForm({ store }) {
   // Recalculate auto-filled ratings when the user leaves the time-control field
   // (on blur, not on every keystroke).
   inputs.time.addEventListener("blur", ({ target }) => {
-    for (const field of Object.values(fields)) field.applyTimeControl(target.value);
+    for (const field of Object.values(fields))
+      field.applyTimeControl(target.value);
   });
 
   // Close the suggestion lists on a pointer press outside their own field (mouse and touch).

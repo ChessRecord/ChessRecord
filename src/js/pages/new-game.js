@@ -14,7 +14,9 @@ async function main() {
 
   // Never let the browser submit (and reload) the page natively, not even during the
   // short window while the saved games are still loading.
-  requireElement("#game-form").addEventListener("submit", (event) => event.preventDefault());
+  requireElement("#game-form").addEventListener("submit", (event) =>
+    event.preventDefault(),
+  );
 
   initThemeToggle();
 

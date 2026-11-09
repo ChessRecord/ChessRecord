@@ -4,7 +4,11 @@
  */
 
 import { toNumberOr, isEmpty } from "../../lib/values.js";
-import { parseHtml, parsePairings, parsePlayerInfo } from "./chess-results-parser.js";
+import {
+  parseHtml,
+  parsePairings,
+  parsePlayerInfo,
+} from "./chess-results-parser.js";
 import { formatRatingDelta } from "./format.js";
 
 /** chess-results.com sends no CORS headers, so pages are fetched through this relay. */
@@ -30,7 +34,9 @@ async function fetchPage(url, signal) {
  */
 async function fetchOpponentRank(profileUrl, signal) {
   try {
-    const rank = parsePlayerInfo(parseHtml(await fetchPage(profileUrl, signal)))["Rank"];
+    const rank = parsePlayerInfo(
+      parseHtml(await fetchPage(profileUrl, signal)),
+    )["Rank"];
     return rank?.trim() || "";
   } catch {
     return "";
@@ -61,14 +67,20 @@ export async function getChessResults(url, signal) {
 
   const rating =
     parseInt(
-      playerInfo["Rating"] ?? playerInfo["Rating international"] ?? playerInfo["Rating national"],
+      playerInfo["Rating"] ??
+        playerInfo["Rating international"] ??
+        playerInfo["Rating national"],
       10,
     ) || 0;
-  const rtgchg = parseFloat((playerInfo["FIDE rtg +/-"] ?? "0").replace(/,/g, "."));
+  const rtgchg = parseFloat(
+    (playerInfo["FIDE rtg +/-"] ?? "0").replace(/,/g, "."),
+  );
 
   // Look up all opponents' ranks in parallel, once per distinct profile (team events can
   // list the same player several times).
-  const profileUrls = [...new Set(pairings.map((p) => p.opponentProfileUrl).filter(Boolean))];
+  const profileUrls = [
+    ...new Set(pairings.map((p) => p.opponentProfileUrl).filter(Boolean)),
+  ];
   const rankByUrl = new Map();
   await Promise.allSettled(
     profileUrls.map(async (profileUrl) => {

@@ -17,7 +17,9 @@ import { initSearchShortcut } from "./search-shortcut.js";
  */
 export function initGamesList({ store, menu }) {
   const list = requireElement("#games-list");
-  const search = /** @type {HTMLInputElement} */ (requireElement("#search-input"));
+  const search = /** @type {HTMLInputElement} */ (
+    requireElement("#search-input")
+  );
   const importButton = requireElement("#import-btn");
   const exportButton = requireElement("#export-btn");
   const fileInput = requireElement("#file-input");
@@ -60,7 +62,9 @@ export function initGamesList({ store, menu }) {
     if (event.target === fileInput) return;
     triggerImport();
   });
-  fileInput.addEventListener("change", (event) => handleImportEvent(event, { store, refresh }));
+  fileInput.addEventListener("change", (event) =>
+    handleImportEvent(event, { store, refresh }),
+  );
   exportButton.addEventListener("click", () => triggerExport());
 
   initSearchShortcut({

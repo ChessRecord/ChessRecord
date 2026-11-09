@@ -38,9 +38,12 @@ export function parsePgn(pgn) {
       blackRating: Math.max(0, toNumberOr(getTag("BlackElo"), 0)),
       blackTitle: getTag("BlackTitle").trim() || "",
       result: resultStr,
-      tournament: (getTag("StudyName") || getTag("Event")).trim().split(":").pop() || "Unknown",
+      tournament:
+        (getTag("StudyName") || getTag("Event")).trim().split(":").pop() ||
+        "Unknown",
       round: Math.max(1, toNumberOr(roundParts[0] || NaN, idx + 1)),
-      board: toNumberOr(getTag("Board"), 0) || toNumberOr(roundParts[1], 0) || null,
+      board:
+        toNumberOr(getTag("Board"), 0) || toNumberOr(roundParts[1], 0) || null,
       time: getTag("TimeControl").trim() || "",
       date: getTag("Date").replace(/\./g, "-") || "",
       gameLink: getTag("ChapterURL") || getTag("Site") || "",

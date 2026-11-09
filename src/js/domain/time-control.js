@@ -8,7 +8,11 @@
  */
 export function parseTimeControl(timeControl) {
   const cleaned = String(timeControl).toLowerCase().replace(/\s+/g, "");
-  const separator = cleaned.includes("+") ? "+" : cleaned.includes("|") ? "|" : null;
+  const separator = cleaned.includes("+")
+    ? "+"
+    : cleaned.includes("|")
+      ? "|"
+      : null;
   if (separator) {
     const [initialTime, increment] = cleaned.split(separator).map(Number);
     return { initialTime, increment };
@@ -25,7 +29,8 @@ export function parseTimeControl(timeControl) {
  * @returns {"Bullet" | "Blitz" | "Rapid" | "Classical" | "Unknown"}
  */
 export function classifyTimeControl(initial, increment) {
-  if (![initial, increment].every((n) => Number.isFinite(n) && n >= 0)) return "Unknown";
+  if (![initial, increment].every((n) => Number.isFinite(n) && n >= 0))
+    return "Unknown";
   const initialSeconds = initial * 60;
   const estimatedMinutes = (initialSeconds + increment * 40) / 60;
   if (initial < 3 && estimatedMinutes < 7) return "Bullet";

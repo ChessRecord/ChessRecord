@@ -33,7 +33,8 @@ const COLUMNS = [
     isPresent: (round) => hasValue(round.opponentName),
     render: (round) => {
       const name = escapeHtml(round.opponentName);
-      const hasLink = round.opponentProfileUrl && isSafeUrl(round.opponentProfileUrl);
+      const hasLink =
+        round.opponentProfileUrl && isSafeUrl(round.opponentProfileUrl);
       return `<td>
       <span class="player-title">${escapeHtml(round.opponentTitle || "")}</span>
       ${hasLink ? `<a href="${escapeHtml(round.opponentProfileUrl)}" target="_blank">${name}</a>` : name}
@@ -89,7 +90,8 @@ const COLUMNS = [
 export function createPairingsView({ profile, table, note }) {
   /** "#4 IND GM Name 2105 (+5) · 3½ / 9": nothing is shown without a player name. */
   function renderPlayerHeader(playerData, url, totalRounds) {
-    const { name, title, rank, rating, rtgchg, federation, points } = playerData;
+    const { name, title, rank, rating, rtgchg, federation, points } =
+      playerData;
     if (!name) return;
 
     const rtgchgFinite = Number.isFinite(rtgchg);
@@ -105,7 +107,9 @@ export function createPairingsView({ profile, table, note }) {
 
     profile.innerHTML = [
       rank ? `<span class="player-rank">#${escapeHtml(rank)}</span> ` : "",
-      federation ? `<span class="player-federation">${escapeHtml(federation)}</span> ` : "",
+      federation
+        ? `<span class="player-federation">${escapeHtml(federation)}</span> `
+        : "",
       title ? `<span class="player-title">${escapeHtml(title)}</span> ` : "",
       url && isSafeUrl(url)
         ? `<a href="${escapeHtml(url)}" id="player-profile-link" target="_blank">${strongName}</a>`
@@ -129,17 +133,23 @@ export function createPairingsView({ profile, table, note }) {
     const totalRounds = rounds[rounds.length - 1]?.round ?? "";
     renderPlayerHeader(playerData, url, totalRounds);
 
-    const visible = COLUMNS.filter((col) => rounds.some((round) => col.isPresent(round)));
+    const visible = COLUMNS.filter((col) =>
+      rounds.some((round) => col.isPresent(round)),
+    );
     const headerCells = visible.map((col) => `<th>${col.header}</th>`).join("");
     const bodyRows = rounds
-      .map((round) => `<tr>${visible.map((col) => col.render(round)).join("")}</tr>`)
+      .map(
+        (round) =>
+          `<tr>${visible.map((col) => col.render(round)).join("")}</tr>`,
+      )
       .join("");
 
     const showNote =
       playerData.rating > 0 &&
       rounds.some(
         (round) =>
-          round.opponentRating > 0 && Math.abs(playerData.rating - round.opponentRating) > 400,
+          round.opponentRating > 0 &&
+          Math.abs(playerData.rating - round.opponentRating) > 400,
       );
 
     table.innerHTML = `<table><thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table>`;

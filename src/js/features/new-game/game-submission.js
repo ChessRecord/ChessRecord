@@ -50,7 +50,10 @@ export function formatPlayers({ white, black }) {
  * @param {ReturnType<typeof formatPlayers>} players
  * @param {Pick<FormState, "result" | "time" | "tournament" | "round" | "date" | "gameLink">} fields
  */
-export function buildGame(players, { result, time, tournament, round, date, gameLink }) {
+export function buildGame(
+  players,
+  { result, time, tournament, round, date, gameLink },
+) {
   return {
     id: generateGameId(),
     white: players.white.name,

@@ -64,7 +64,9 @@ function readFileAsText(file) {
  */
 async function parseFiles(files) {
   const perFile = await Promise.all(
-    Array.from(files).map(async (file) => parseGameFile(file.name, await readFileAsText(file))),
+    Array.from(files).map(async (file) =>
+      parseGameFile(file.name, await readFileAsText(file)),
+    ),
   );
   return perFile.flat();
 }
@@ -87,7 +89,11 @@ async function applyImport(imported, { store, refresh }) {
   }
 
   const finalize = async (action) => {
-    const label = isEmpty(store.games) ? "imported" : action === "replace" ? "replaced" : "merged";
+    const label = isEmpty(store.games)
+      ? "imported"
+      : action === "replace"
+        ? "replaced"
+        : "merged";
 
     for (const game of imported) game.id = generateGameId();
 
@@ -115,7 +121,12 @@ async function applyImport(imported, { store, refresh }) {
     icon: "fa-solid fa-triangle-exclamation modal-icon",
     title: "Do you want to replace or merge your games?",
     buttons: [
-      { action: "replace", label: "Replace", classes: "btn outline", loading: true },
+      {
+        action: "replace",
+        label: "Replace",
+        classes: "btn outline",
+        loading: true,
+      },
       { action: "merge", label: "Merge", classes: "btn", loading: true },
     ],
   });

@@ -8,10 +8,17 @@
  * @param {string} [contentType]
  * @returns {boolean} true when the download was started
  */
-export function downloadFile(content, filename, contentType = "application/json") {
+export function downloadFile(
+  content,
+  filename,
+  contentType = "application/json",
+) {
   try {
     const url = URL.createObjectURL(new Blob([content], { type: contentType }));
-    const link = Object.assign(document.createElement("a"), { href: url, download: filename });
+    const link = Object.assign(document.createElement("a"), {
+      href: url,
+      download: filename,
+    });
     link.click();
     URL.revokeObjectURL(url);
     return true;
